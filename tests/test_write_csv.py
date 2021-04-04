@@ -1,5 +1,5 @@
 # %%
-from shutil import rmtree
+import os
 
 import pandas as pd
 
@@ -9,7 +9,8 @@ reduce_ops = ["mean", "std", "median"]
 
 
 def test_write_csv():
-    rmtree("tmp.csv", ignore_errors=True)
+    if os.path.exists("tmp.csv"):
+        os.remove("tmp.csv")
 
     events_dict = read_tb_events("tests/tensorboard_runs/run_*")
 
@@ -26,4 +27,6 @@ def test_write_csv():
         f"and CSV written to disk ({len(df)} timesteps)"
     )
 
-    rmtree("tmp.csv")
+    write_csv(reduced_events, "tmp.csv", overwrite=True)
+
+    os.remove("tmp.csv")

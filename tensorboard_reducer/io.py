@@ -1,6 +1,5 @@
+import os
 from glob import glob
-from os.path import isdir
-from shutil import rmtree
 from typing import Dict
 
 import numpy as np
@@ -48,7 +47,7 @@ def read_tb_events(indirs_glob: str) -> Dict[str, Array]:
     return {key: np.array(val) for key, val in out_dict.items()}
 
 
-def rmtree_or_raise(dir: str, overwrite: bool) -> None:
+def force_rm_or_raise(path: str, overwrite: bool) -> None:
     """Remove the directory tree below dir if overwrite is True.
 
     Args:
@@ -58,15 +57,21 @@ def rmtree_or_raise(dir: str, overwrite: bool) -> None:
     Raises:
         FileExistsError: If dir exists and not overwrite.
     """
+    if os.path.exists(path):  # True if dir is either file or directory
 
-    if not isdir(dir):
-        return
-    elif not overwrite:
-        raise FileExistsError(
-            f"'{dir}' already exists, pass overwrite=True (-o in CLI) to proceed anyway"
+        # for safety, check dir is either TensorBoard run or CSV file
+        # to make it harder to delete files not created by this program
+        is_csv_file = path.endswith(".csv")
+        is_tb_run_dir = os.path.isdir(path) and os.listdir(path)[0].startswith(
+            "events.out"
         )
-    else:
-        rmtree(dir)
+
+        if overwrite and (is_csv_file or is_tb_run_dir):
+            os.system(f"rm -rf {path}")
+        else:
+            raise FileExistsError(
+                f"'{path}' already exists, pass overwrite=True (-o in CLI) to proceed anyway"
+            )
 
 
 def write_tb_events(
@@ -100,7 +105,7 @@ def write_tb_events(
 
         std_dir = f"{outdir}-std"
 
-        rmtree_or_raise(std_dir, overwrite)
+        force_rm_or_raise(std_dir, overwrite)
 
         writer = SummaryWriter(std_dir)
 
@@ -117,7 +122,7 @@ def write_tb_events(
 
         op_outdir = f"{outdir}-{op}"
 
-        rmtree_or_raise(op_outdir, overwrite)
+        force_rm_or_raise(op_outdir, overwrite)
 
         writer = SummaryWriter(op_outdir)
 
@@ -153,7 +158,7 @@ def write_csv(
 
     assert csv_path.endswith(".csv"), f"{csv_path=} should have a .csv extension"
 
-    rmtree_or_raise(csv_path, overwrite)
+    force_rm_or_raise(csv_path, overwrite)
 
     # create multi-index dataframe from event data with reduce op names as 1st-level col
     # names and tag names as 2nd level
