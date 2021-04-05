@@ -3,7 +3,7 @@
 <h4 align="center">
 
 [![Tests](https://github.com/janosh/tensorboard-reducer/workflows/Tests/badge.svg)](https://github.com/janosh/tensorboard-reducer/actions)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/janosh/tensorboard-reducer/master.svg)](https://results.pre-commit.ci/latest/github/janosh/tensorboard-reducer/master)
+[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/janosh/tensorboard-reducer/main.svg)](https://results.pre-commit.ci/latest/github/janosh/tensorboard-reducer/main)
 [![PyPI](https://img.shields.io/pypi/v/tensorboard-reducer)](https://pypi.org/project/tensorboard-reducer)
 [![This project supports Python 3.6+](https://img.shields.io/badge/Python-3.6+-blue.svg)](https://python.org/downloads)
 [![License](https://img.shields.io/github/license/janosh/tensorboard-reducer?label=License)](/license)
