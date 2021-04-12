@@ -11,9 +11,9 @@
 
 </h4>
 
-> This project was inspired by [`tensorboard-aggregator`](https://github.com/Spenhouet/tensorboard-aggregator) (a similar project built with TensorFlow rather than PyTorch) and [this SO answer](https://stackoverflow.com/a/48774926).
+> This project was inspired by [`tensorboard-aggregator`](https://github.com/Spenhouet/tensorboard-aggregator) (similar project built with TensorFlow rather than PyTorch) and [this SO answer](https://stackoverflow.com/a/48774926).
 
-Compute reduced statistics (`mean`, `std`, `min`, `max`, `median` or any other [`numpy`](https://numpy.org/doc/stable) operation) of multiple TensorBoard runs matching a directory glob pattern. This can be used after training multiple identical models to reduce the noise in their loss/accuracy/error curves e.g. when trying to establish a statistically significant improvement in training performance.
+Compute reduced statistics (`mean`, `std`, `min`, `max`, `median` or any other [`numpy`](https://numpy.org/doc/stable) operation) of multiple TensorBoard runs matching a directory glob pattern. This can for instance be used when training multiple identical models to reduce the noise in their loss/accuracy/error curves to establish statistical significance in performance improvements. The aggregation results can be saved to disk either as new TensorBoard event files or in CSV format.
 
 Requires [PyTorch](https://pypi.org/project/torch) and [TensorBoard](https://pypi.org/project/tensorboard). No TensorFlow installation required.
 
