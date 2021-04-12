@@ -99,12 +99,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     if args.format == "tb-events":
 
-        report_ops = "|".join(reduce_ops)
-
-        if len(report_ops) > 1:
-            report_ops = f"({report_ops})"
+        if len(reduce_ops) > 1:
+            report_ops = f"({'|'.join(reduce_ops)})"  # (main|std|...)
         else:
-            report_ops = report_ops[0]
+            report_ops = reduce_ops
 
         print(f"Writing data to '{outdir}-{report_ops}'")
 
