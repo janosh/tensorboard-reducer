@@ -5,13 +5,12 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 from numpy.typing import ArrayLike as Array
-from tensorboard.backend.event_processing.event_accumulator import (
-    EventAccumulator,
-)
+
+from .event_loader import EventAccumulator
 from torch.utils.tensorboard import SummaryWriter
 
 
-def read_tb_events(indirs_glob: str) -> Dict[str, Array]:
+def load_tb_events(indirs_glob: str) -> Dict[str, Array]:
     """Read the TensorBoard event files matching the provided glob pattern
     and return their scalar data as a dict with tags ('training/loss',
     'validation/mae', etc.) as keys and 2d arrays of shape (n_timesteps, r_runs)
@@ -28,20 +27,18 @@ def read_tb_events(indirs_glob: str) -> Dict[str, Array]:
     indirs = glob(indirs_glob)
     assert len(indirs) > 0, f"No runs found for glob pattern '{indirs_glob}'"
 
-    summary_iterators = [EventAccumulator(dirname).Reload() for dirname in indirs]
+    accumulators = [EventAccumulator(dirname).Reload() for dirname in indirs]
 
-    tags = summary_iterators[0].Tags()["scalars"]
+    tags = accumulators[0].Tags()["scalars"]
 
-    for iterator in summary_iterators:
+    for accumulator in accumulators:
         # assert all runs have the same tags for scalar data
-        assert iterator.Tags()["scalars"] == tags
+        assert accumulator.Tags()["scalars"] == tags
 
     out_dict = {t: [] for t in tags}
 
     for tag in tags:
-        for events in zip(*[acc.Scalars(tag) for acc in summary_iterators]):
-            assert len({e.step for e in events}) == 1
-
+        for events in zip(*[acc.Scalars(tag) for acc in accumulators]):
             out_dict[tag].append([e.value for e in events])
 
     return {key: np.array(val) for key, val in out_dict.items()}
@@ -70,7 +67,8 @@ def force_rm_or_raise(path: str, overwrite: bool) -> None:
             os.system(f"rm -rf {path}")
         else:
             raise FileExistsError(
-                f"'{path}' already exists, pass overwrite=True (-o in CLI) to proceed anyway"
+                f"'{path}' already exists, pass overwrite=True"
+                " (-w/--overwrite in CLI) to proceed anyway"
             )
 
 

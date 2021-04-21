@@ -3,7 +3,7 @@ import os
 
 import pandas as pd
 
-from tensorboard_reducer import read_tb_events, reduce_events, write_csv
+from tensorboard_reducer import load_tb_events, reduce_events, write_csv
 
 reduce_ops = ["mean", "std", "median"]
 
@@ -12,7 +12,7 @@ def test_write_csv():
     if os.path.exists("tmp.csv"):
         os.remove("tmp.csv")
 
-    events_dict = read_tb_events("tests/tensorboard_runs/run_*")
+    events_dict = load_tb_events("tests/tensorboard_runs/run_*")
 
     reduced_events = reduce_events(events_dict, reduce_ops)
 

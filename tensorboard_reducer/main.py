@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Sequence
 import numpy as np
 from numpy.typing import ArrayLike as Array
 
-from .io import read_tb_events, write_csv, write_tb_events
+from .io import load_tb_events, write_csv, write_tb_events
 
 
 def reduce_events(
@@ -89,9 +89,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     outdir, indirs_glob = args.outdir, args.indirs_glob
     overwrite, reduce_ops = args.overwrite, args.reduce_ops
 
-    events_dict = read_tb_events(indirs_glob)
+    events_dict = load_tb_events(indirs_glob)
 
-    print(f"Read data from {len(events_dict)} TensorBoard runs")
+    n_steps, n_events = list(events_dict.values())[0].shape
+    n_scalars = len(events_dict)
+
+    print(
+        f"Loaded {n_events} TensorBoard runs with {n_scalars} scalars and {n_steps} steps each"
+    )
+    for tag in events_dict.keys():
+        print(f" - {tag}")
 
     print(f"Reducing data with {reduce_ops}")
 
