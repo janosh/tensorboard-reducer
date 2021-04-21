@@ -1,8 +1,8 @@
-from tensorboard_reducer import read_tb_events
+from tensorboard_reducer import load_tb_events
 
 
 def test_read_events():
-    events_dict = read_tb_events("tests/tensorboard_runs/run_*")
+    events_dict = load_tb_events("tests/tensorboard_runs/run_*")
 
     assert type(events_dict) == dict, "return type of read_tb_events is not dict"
     assert list(events_dict.keys()) == [

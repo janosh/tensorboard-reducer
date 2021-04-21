@@ -1,8 +1,8 @@
-from tensorboard_reducer import read_tb_events, reduce_events
+from tensorboard_reducer import load_tb_events, reduce_events
 
 
 def test_read_events():
-    events_dict = read_tb_events("tests/tensorboard_runs/run_*")
+    events_dict = load_tb_events("tests/tensorboard_runs/run_*")
 
     reduce_ops = ["mean", "std", "max", "min"]
     reduced_events = reduce_events(events_dict, reduce_ops)
