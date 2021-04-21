@@ -1,11 +1,12 @@
-from collections import namedtuple
 import threading
+from collections import namedtuple
 
-from tensorboard.backend.event_processing import directory_watcher
-from tensorboard.backend.event_processing import event_file_loader
-from tensorboard.backend.event_processing import io_wrapper
-from tensorboard.backend.event_processing import reservoir
-
+from tensorboard.backend.event_processing import (
+    directory_watcher,
+    event_file_loader,
+    io_wrapper,
+    reservoir,
+)
 
 ScalarEvent = namedtuple("ScalarEvent", ["wall_time", "step", "value"])
 
