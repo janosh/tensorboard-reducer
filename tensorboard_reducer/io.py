@@ -5,9 +5,9 @@ from typing import Dict
 import numpy as np
 import pandas as pd
 from numpy.typing import ArrayLike as Array
+from torch.utils.tensorboard import SummaryWriter
 
 from .event_loader import EventAccumulator
-from torch.utils.tensorboard import SummaryWriter
 
 
 def load_tb_events(indirs_glob: str) -> Dict[str, Array]:
