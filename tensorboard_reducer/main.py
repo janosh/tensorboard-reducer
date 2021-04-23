@@ -2,6 +2,7 @@ from argparse import ArgumentParser
 from typing import Dict, List, Optional, Sequence
 
 import numpy as np
+from importlib_metadata import version
 from numpy.typing import ArrayLike as Array
 
 from .io import load_tb_events, write_csv, write_tb_events
@@ -84,6 +85,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         help="Whether to overwrite existing reduction directories.",
     )
 
+    tb_version = version("tensorboard_reducer")
+
+    parser.add_argument(
+        "-v", "--version", action="version", version=f"%(prog)s {tb_version}"
+    )
     args = parser.parse_args(argv)
 
     outdir, indirs_glob = args.outdir, args.indirs_glob
@@ -100,24 +106,18 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     for tag in events_dict.keys():
         print(f" - {tag}")
 
-    print(f"Reducing data with {reduce_ops}")
-
     reduced_events = reduce_events(events_dict, reduce_ops)
 
     if args.format == "tb-events":
 
-        if len(reduce_ops) > 1:
-            report_ops = f"({'|'.join(reduce_ops)})"  # (main|std|...)
-        else:
-            report_ops = reduce_ops
-
-        print(f"Writing data to '{outdir}-{report_ops}'")
+        for op in reduce_ops:
+            print(f"Writing '{op}' reduction to '{outdir}-{op}'")
 
         write_tb_events(reduced_events, outdir, overwrite)
 
     elif args.format == "csv":
 
-        print(f"Writing data to '{outdir}'")
+        print(f"Writing '{reduce_ops}' reductions to '{outdir}'")
 
         write_csv(reduced_events, outdir, overwrite)
 
