@@ -31,9 +31,13 @@ def load_tb_events(indirs_glob: str) -> Dict[str, Array]:
 
     tags = accumulators[0].Tags()["scalars"]
 
-    for accumulator in accumulators:
+    for accumulator, indir in zip(accumulators, indirs):
         # assert all runs have the same tags for scalar data
-        assert accumulator.Tags()["scalars"] == tags
+        tags_i = accumulator.Tags()["scalars"]
+        assert tags == tags_i, (
+            f"mismatching tags between one or more input dirs: {tags} "
+            f"from '{indirs[0]}' != {tags_i} from '{indir}'"
+        )
 
     out_dict = {t: [] for t in tags}
 
@@ -63,8 +67,15 @@ def force_rm_or_raise(path: str, overwrite: bool) -> None:
             "events.out"
         )
 
+        print(f"{overwrite=}")
         if overwrite and (is_csv_file or is_tb_run_dir):
             os.system(f"rm -rf {path}")
+        elif overwrite:
+            ValueError(
+                f"Received the overwrite flag but the content of '{path}' does not look like"
+                " it was writtin by this program. Please make sure you really want to delete"
+                " that and then do so manually."
+            )
         else:
             raise FileExistsError(
                 f"'{path}' already exists, pass overwrite=True"
@@ -92,11 +103,7 @@ def write_tb_events(
     """
 
     # handle std reduction separately as we use writer.add_scalars to write mean +/- std
-    if "std" in data_to_write.items():
-
-        assert (
-            "mean" in data_to_write.items()
-        ), "cannot write data for std reduction as mean+/-std without mean reduction"
+    if all(x in data_to_write.keys() for x in ["mean", "std"]):
 
         std_dict = data_to_write.pop("std")
         mean_dict = data_to_write["mean"]
