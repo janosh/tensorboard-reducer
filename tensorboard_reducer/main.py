@@ -1,8 +1,8 @@
 from argparse import ArgumentParser
+from importlib.metadata import version
 from typing import Dict, List, Optional, Sequence
 
 import numpy as np
-from importlib_metadata import version
 from numpy.typing import ArrayLike as Array
 
 from .io import load_tb_events, write_csv, write_tb_events

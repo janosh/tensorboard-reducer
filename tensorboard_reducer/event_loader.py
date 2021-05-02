@@ -8,6 +8,7 @@ from tensorboard.backend.event_processing import (
     reservoir,
 )
 
+
 ScalarEvent = namedtuple("ScalarEvent", ["wall_time", "step", "value"])
 
 
