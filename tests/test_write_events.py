@@ -3,6 +3,7 @@ from shutil import rmtree
 
 from tensorboard_reducer import load_tb_events, reduce_events, write_tb_events
 
+
 reduce_ops = ["mean", "std"]
 
 
