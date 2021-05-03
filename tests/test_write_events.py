@@ -1,16 +1,14 @@
 from os.path import isdir
 from shutil import rmtree
 
-from tensorboard_reducer import load_tb_events, reduce_events, write_tb_events
+from tensorboard_reducer import reduce_events, write_tb_events
 
 
 reduce_ops = ["mean", "std"]
 
 
-def test_write_tb_events():
+def test_write_tb_events(events_dict):
     rmtree("tmp", ignore_errors=True)
-
-    events_dict = load_tb_events("tests/tensorboard_runs/run_*")
 
     reduced_events = reduce_events(events_dict, reduce_ops)
 
