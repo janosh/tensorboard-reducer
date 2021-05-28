@@ -72,6 +72,8 @@ TensorBoard Reducer is only setup to work with event files containing equal numb
 
 ## Doc Strings
 
+The full Python API:
+
 ```py
 def reduce_events(
     events_dict: Dict[str, Array], reduce_ops: List[str]
