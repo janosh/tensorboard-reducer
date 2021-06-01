@@ -8,7 +8,8 @@ reduce_ops = ["mean", "std"]
 
 
 def test_write_tb_events(events_dict):
-    rmtree("tmp", ignore_errors=True)
+    rmtree("tmp/reduced-mean", ignore_errors=True)
+    rmtree("tmp/reduced-std", ignore_errors=True)
 
     reduced_events = reduce_events(events_dict, reduce_ops)
 

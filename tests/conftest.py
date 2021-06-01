@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from tensorboard_reducer import load_tb_events
@@ -7,6 +9,8 @@ from tensorboard_reducer import load_tb_events
 # load events_dict once and reuse across test files for speed
 @pytest.fixture(scope="module")
 def events_dict():
+    os.makedirs("tmp", exist_ok=True)
+
     tb_events_dict = load_tb_events("tests/runs/strict/run_*")
 
     return tb_events_dict
