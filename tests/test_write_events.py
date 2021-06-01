@@ -20,4 +20,5 @@ def test_write_tb_events(events_dict):
     write_tb_events(reduced_events, "tmp/reduced", overwrite=True)
 
     # will clean up or raise FileNotFoundError if directory unexpectedly does not exist
-    rmtree("tmp")
+    rmtree("tmp/reduced-mean")
+    rmtree("tmp/reduced-std")

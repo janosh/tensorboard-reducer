@@ -25,6 +25,8 @@ pip install tensorboard-reducer
 tb-reducer -i 'glob_pattern/of_dirs_to_reduce*' -o output_dir -r mean,std,min,max
 ```
 
+> **Note**: By default, TensorBoard Reducer expects event files containing identical tags and equal number of steps for all scalars. If e.g. you trained one model for 300 epochs and another for 400 and/or added different tags, see flags `--lax-tags` and `--lax-tags` to remove this restriction.
+
 ![Mean of 3 TensorBoard logs](https://raw.githubusercontent.com/janosh/tensorboard-reducer/main/assets/3-runs-mean.png)
 
 `tb-reducer` has the following flags:
@@ -34,20 +36,23 @@ tb-reducer -i 'glob_pattern/of_dirs_to_reduce*' -o output_dir -r mean,std,min,ma
 - **`-f/--format`** (optional, default: `tb-events`): Output format of reduced TensorBoard runs. Use `tb-events` for writing regular TensorBoard event files or `csv`. If `csv`, `-o/--outdir` must have `.csv` extension and all reduction ops will be written to a single CSV file rather than separate directories for each reduce op. Use `pandas.read_csv("path/to/file.csv", header=[0, 1], index_col=0)` to read data back into memory as a multi-index dataframe.
 - **`-r/--reduce-ops`** (optional, default: `mean`): Comma-separated names of numpy reduction ops (`mean`, `std`, `min`, `max`, ...). Default is `mean`. Each reduction is written to a separate `outdir` suffixed by its op name, e.g. if `outdir='my-new-run`, the mean reduction will be written to `my-new-run-mean`.
 - **`-w/--overwrite`** (optional, default: `False`): Whether to overwrite existing output directories/CSV files.
+- **`--lax-tags`** (optional, default: `False`): Allow different runs have to different sets of tags. In this mode, each tag reduction will run over as many runs as are available for a given tag, even if that's just one. Proceed with caution as not all tags will have the same statistics in downstream analysis.
+- **`--lax-steps`** (optional, default: `False`): Allow tags across different runs to have unequal numbers of steps. In this mode, each reduction will only use as many steps as are available in the shortest run (same behavior as `zip(short_list, long_list)`)."
 
 ### Through Python API
 
-You can also import `tensorboard_reducer` into a Python script for more complex operations. A simple example to get you started:
+You can also import `tensorboard_reducer` into a Python script for more complex operations. A simple example that makes use of the full Python API (`load_tb_events`, `reduce_events`, `write_csv`, `write_tb_events`) to get you started:
 
 ```py
-from tensorboard_reducer import load_tb_events, write_tb_events, reduce_events
+from tensorboard_reducer import load_tb_events, reduce_events, write_csv, write_tb_events
 
-indirs_glob = "glob_pattern/of_directories_to_reduce*"
-outdir = "path/to/output_dir"
+in_dirs_glob = "glob_pattern/of_directories_to_reduce*"
+out_dir = "path/to/output_dir"
+out_csv = "path/to/out.csv"
 overwrite = False
 reduce_ops = ["mean", "min", "max"]
 
-events_dict = load_tb_events(indirs_glob)
+events_dict = load_tb_events(in_dirs_glob)
 
 n_steps, n_events = list(events_dict.values())[0].shape
 n_scalars = len(events_dict)
@@ -61,94 +66,9 @@ for tag in events_dict.keys():
 reduced_events = reduce_events(events_dict, reduce_ops)
 
 for op in reduce_ops:
-    print(f"Writing '{op}' reduction to '{outdir}-{op}'")
+    print(f"Writing '{op}' reduction to '{out_dir}-{op}'")
 
-write_tb_events(reduced_events, outdir, overwrite)
-```
+write_tb_events(reduced_events, out_dir, overwrite)
 
-## Disclaimer
-
-TensorBoard Reducer is only setup to work with event files containing equal number of steps for all scalars. Expect errors/undefined behavior when trying to reduce files of varying lengths (e.g. if you trained one model for 300 epochs and another for 400).
-
-## Doc Strings
-
-The full Python API:
-
-```py
-def reduce_events(
-    events_dict: Dict[str, Array], reduce_ops: List[str]
-) -> Dict[str, Dict[str, Array]]:
-    """Perform numpy reduce ops on the last axis of each array
-    in a dictionary of scalar TensorBoard event data. Each array enters
-    this function with shape (n_timesteps, r_runs) and len(reduce_ops) exit
-    with shape (n_timesteps,).
-
-    Args:
-        events_dict (dict[str, Array]): Dictionary of arrays to reduce.
-        reduce_ops (list[str]): numpy reduce ops.
-
-    Returns:
-        dict[str, dict[str, Array]]: Dict of dicts where each subdict holds one reduced array
-            for each of the specified reduce ops, e.g. {"loss": {"mean": arr.mean(-1),
-            "std": arr.std(-1)}}.
-    """
-```
-
-```py
-def load_tb_events(indirs_glob: str) -> Dict[str, Array]:
-    """Read the TensorBoard event files matching the provided glob pattern
-    and return their scalar data as a dict with tags ('training/loss',
-    'validation/mae', etc.) as keys and 2d arrays of shape (n_timesteps, r_runs)
-    as values.
-
-    Args:
-        indirs_glob (str): Glob pattern of the run directories to read from disk.
-
-    Returns:
-        dict: A dictionary of containing scalar run data with keys like
-            'train/loss', 'train/mae', 'val/loss', etc.
-    """
-```
-
-```py
-def write_tb_events(
-    data_to_write: Dict[str, Dict[str, Array]],
-    outdir: str,
-    overwrite: bool = False,
-) -> None:
-    """Writes data in dict to disk as TensorBoard event files in a newly created/overwritten
-    outdir directory.
-
-    Inspired by https://stackoverflow.com/a/48774926.
-
-    Args:
-        data_to_write (dict[str, dict[str, Array]]): Data to write to disk. Assumes 1st-level
-            keys are reduce ops (mean, std, ...) and 2nd-level are TensorBoard tags.
-        outdir (str): Name of the directory to save the new reduced run data. Will
-            have the reduce op name (e.g. '-mean'/'-std') appended.
-        overwrite (bool): Whether to overwrite existing reduction directories.
-            Defaults to False.
-    """
-```
-
-```py
-def write_csv(
-    data_to_write: Dict[str, Dict[str, Array]],
-    csv_path: str,
-    overwrite: bool = False,
-) -> None:
-    """Writes reduced TensorBoard data passed as dict of dicts (1st arg) to a CSV file
-    path (2nd arg).
-
-    Use pd.read_csv("path/to/file.csv", header=[0, 1], index_col=0) to read data back into
-    memory as a multi-index dataframe.
-
-    Args:
-        data_to_write (dict[str, dict[str, Array]]): Data to write to disk. Assumes 1st-level
-            keys are reduce ops (mean, std, ...) and 2nd-level are TensorBoard tags.
-        outdir (str): Name of the directory to save the new reduced run data. Will
-            have the reduce op name (e.g. '-mean'/'-std') appended.
-        overwrite (bool): Whether to overwrite existing reduction directories.
-            Defaults to False.
-    """
+write_csv(reduced_events, out_csv, overwrite)
 ```
