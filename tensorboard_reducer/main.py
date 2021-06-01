@@ -2,7 +2,6 @@ from argparse import ArgumentParser
 from importlib.metadata import version
 from typing import Dict, List, Optional, Sequence
 
-import numpy as np
 from numpy.typing import ArrayLike as Array
 
 from .io import load_tb_events, write_csv, write_tb_events
@@ -32,11 +31,9 @@ def reduce_events(
 
         reductions[op] = {}
 
-        for tag, arr in events_dict.items():
+        for tag, df in events_dict.items():
 
-            reduce_op = getattr(np, op)
-
-            reductions[op][tag] = reduce_op(arr, axis=-1)
+            reductions[op][tag] = getattr(df, op)(axis=1)
 
     return reductions
 
@@ -84,6 +81,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         action="store_true",
         help="Whether to overwrite existing reduction directories.",
     )
+    parser.add_argument(
+        "--lax-tags",
+        action="store_false",
+        help="Don't error if equal tags across different runs have unequal numbers of steps.",
+    )
+    parser.add_argument(
+        "--lax-steps",
+        action="store_false",
+        help="Don't error if different runs have different sets of tags.",
+    )
 
     tb_version = version("tensorboard_reducer")
 
@@ -92,34 +99,47 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    outdir, indirs_glob = args.outdir, args.indirs_glob
-    overwrite, reduce_ops = args.overwrite, args.reduce_ops
+    outdir, overwrite, reduce_ops = args.outdir, args.overwrite, args.reduce_ops
 
-    events_dict = load_tb_events(indirs_glob)
+    events_dict = load_tb_events(
+        args.indirs_glob, strict_tags=args.lax_tags, strict_steps=args.lax_steps
+    )
 
-    n_steps, n_events = list(events_dict.values())[0].shape
     n_scalars = len(events_dict)
 
-    print(
-        f"Loaded {n_events} TensorBoard runs with {n_scalars} scalars and {n_steps} steps each"
-    )
-    for tag in events_dict.keys():
-        print(f" - {tag}")
+    if not args.lax_steps and not args.lax_tags:
+        n_steps, n_events = list(events_dict.values())[0].shape
+
+        print(
+            f"Loaded {n_events} TensorBoard runs with {n_scalars} scalars "
+            f"and {n_steps} steps each"
+        )
+        if n_scalars < 20:
+            print(", ".join(events_dict.keys()))
+    elif n_scalars < 20:
+        print("Loaded the following tags and step counts:")
+        for tag, lst in events_dict.items():
+            print(f"- {tag}: {[len(arr) for arr in lst]}")
 
     reduced_events = reduce_events(events_dict, reduce_ops)
 
     if args.format == "tb-events":
 
-        for op in reduce_ops:
-            print(f"Writing '{op}' reduction to '{outdir}-{op}'")
-
         write_tb_events(reduced_events, outdir, overwrite)
+
+        for op in reduce_ops:
+            print(f"Wrote '{op}' reduction to '{outdir}-{op}'")
 
     elif args.format == "csv":
 
-        print(f"Writing '{reduce_ops}' reductions to '{outdir}'")
-
         write_csv(reduced_events, outdir, overwrite)
+
+        print(f"Wrote '{reduce_ops}' reductions to '{outdir}'")
+
+    else:
+        raise ValueError(
+            f"unexpected output format '{args.format}', chose one of 'tb-events'|'csv'"
+        )
 
 
 if __name__ == "__main__":

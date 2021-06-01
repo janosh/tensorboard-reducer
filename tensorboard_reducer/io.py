@@ -1,8 +1,8 @@
 import os
+from collections import defaultdict
 from glob import glob
 from typing import Dict
 
-import numpy as np
 import pandas as pd
 from numpy.typing import ArrayLike as Array
 from torch.utils.tensorboard import SummaryWriter
@@ -10,7 +10,9 @@ from torch.utils.tensorboard import SummaryWriter
 from .event_loader import EventAccumulator
 
 
-def load_tb_events(indirs_glob: str) -> Dict[str, Array]:
+def load_tb_events(
+    indirs_glob: str, strict_tags=True, strict_steps=True
+) -> Dict[str, Array]:
     """Read the TensorBoard event files matching the provided glob pattern
     and return their scalar data as a dict with tags ('training/loss',
     'validation/mae', etc.) as keys and 2d arrays of shape (n_timesteps, r_runs)
@@ -18,34 +20,88 @@ def load_tb_events(indirs_glob: str) -> Dict[str, Array]:
 
     Args:
         indirs_glob (str): Glob pattern of the run directories to read from disk.
+        strict_tags (bool): If true, throw error if different runs have different sets of tags.
+            Defaults to True.
+        strict_steps (bool): If true, throw error if equal tags across different runs have
+            unequal numbers of steps. Defaults to True.
 
     Returns:
-        dict: A dictionary of containing scalar run data with keys like
-            'train/loss', 'train/mae', 'val/loss', etc.
+        dict: A dictionary mapping scalar tags (i.e. keys like 'train/loss', 'val/mae') to
+            pandas DataFrames.
     """
 
     indirs = glob(indirs_glob)
     assert len(indirs) > 0, f"No runs found for glob pattern '{indirs_glob}'"
 
+    # Here's where TensorBoard scalars are loaded into memory. Uses a custom EventAccumulator
+    # that only loads scalars, ignores histograms, images and other time-consuming data.
     accumulators = [EventAccumulator(dirname).Reload() for dirname in indirs]
 
-    tags = accumulators[0].Tags()["scalars"]
+    # Safety check: make sure all loaded runs have identical tags unless user chose to ignore.
+    if strict_tags:
+        # generate list of scalar tags for all event files each in alphabetical order
+        all_dirs_tags_list = sorted(
+            accumulator.Tags()["scalars"] for accumulator in accumulators
+        )
+        first_tags = all_dirs_tags_list[0]
 
-    for accumulator, indir in zip(accumulators, indirs):
-        # assert all runs have the same tags for scalar data
-        tags_i = accumulator.Tags()["scalars"]
-        assert tags == tags_i, (
-            f"mismatching tags between one or more input dirs: {tags} "
-            f"from '{indirs[0]}' != {tags_i} from '{indir}'"
+        all_runs_same_tags = all(first_tags == tags for tags in all_dirs_tags_list)
+
+        tags_set = {tag for tags in all_dirs_tags_list for tag in tags}
+
+        missing_tags_report = "".join(
+            f"- {dir} missing tags: {', '.join(tags_set - {*tags})}\n"
+            for dir, tags in zip(indirs, all_dirs_tags_list)
         )
 
-    out_dict = {t: [] for t in tags}
+        assert all_runs_same_tags, (
+            f"Some tags appear in some event files but not others:\n{missing_tags_report}\nIf "
+            "this is intentional, pass --lax-tags to the CLI or strict_tags=False to the "
+            "Python API. After that, each tag reduction will run over as many runs as are "
+            "available for a given tag, even if that's just one. Proceed with caution "
+            "as not all tags will have the same statistics in downstream analysis."
+        )
 
-    for tag in tags:
-        for events in zip(*[acc.Scalars(tag) for acc in accumulators]):
-            out_dict[tag].append([e.value for e in events])
+    out_dict = defaultdict(list)
 
-    return {key: np.array(val) for key, val in out_dict.items()}
+    for accumulator in accumulators:
+        tags = accumulator.Tags()["scalars"]
+
+        for tag in tags:
+            out_dict[tag].append(
+                # dataframes use 'step' as index leaving 'wall_time' and 'value' as cols
+                pd.DataFrame(accumulator.Scalars(tag))
+                .set_index("step")
+                .drop(columns="wall_time")
+            )
+
+    # Safety check: make sure all loaded runs have equal numbers of steps for each tag unless
+    # user chose to ignore.
+    if strict_steps:
+        for tag, lst in out_dict.items():
+            n_steps_per_run = [len(df) for df in lst]
+
+            all_runs_equal_steps = n_steps_per_run.count(n_steps_per_run[0]) == len(
+                n_steps_per_run
+            )
+
+            assert all_runs_equal_steps, (
+                f"Unequal number of steps {n_steps_per_run} across different runs for the "
+                f"same tag '{tag}'. If this is intentional, pass --lax-steps "
+                "to the CLI or strict_steps=False when using the Python API. After that, each "
+                "reduction will only use as many steps as are available in the shortest run "
+                "(same behavior as zip())."
+            )
+
+    assert len(out_dict) > 0, (
+        f"Glob pattern '{indirs_glob}' matched {len(indirs)} directories but no TensorBoard "
+        "event files found inside them."
+    )
+
+    # join='inner' means keep only the intersection of indices from all joined dataframes.
+    # That is, we only retain steps for which all loaded runs recorded a value. Can only make
+    # a difference if strict_steps=False.
+    return {key: pd.concat(lst, join="inner", axis=1) for key, lst in out_dict.items()}
 
 
 def force_rm_or_raise(path: str, overwrite: bool) -> None:
@@ -67,7 +123,6 @@ def force_rm_or_raise(path: str, overwrite: bool) -> None:
             "events.out"
         )
 
-        print(f"{overwrite=}")
         if overwrite and (is_csv_file or is_tb_run_dir):
             os.system(f"rm -rf {path}")
         elif overwrite:
@@ -103,7 +158,7 @@ def write_tb_events(
     """
 
     # handle std reduction separately as we use writer.add_scalars to write mean +/- std
-    if all(x in data_to_write.keys() for x in ["mean", "std"]):
+    if "mean" in data_to_write.keys() and "std" in data_to_write.keys():
 
         std_dict = data_to_write.pop("std")
         mean_dict = data_to_write["mean"]
@@ -115,9 +170,11 @@ def write_tb_events(
         writer = SummaryWriter(std_dir)
 
         for (tag, means), stds in zip(mean_dict.items(), std_dict.values()):
-            for idx, (mean, std) in enumerate(zip(means, stds)):
+            # we can safely assume mean and std will the same length and same step values
+            # as the same data went into both reductions
+            for (step, mean), std in zip(means.items(), stds.to_numpy()):
                 writer.add_scalars(
-                    tag, {"mean+std": mean + std, "mean-std": mean - std}, idx
+                    tag, {"mean+std": mean + std, "mean-std": mean - std}, step
                 )
 
         writer.close()
@@ -131,9 +188,9 @@ def write_tb_events(
 
         writer = SummaryWriter(op_outdir)
 
-        for tag, data in events_dict.items():
-            for idx, scalar in enumerate(data):
-                writer.add_scalar(tag, scalar, idx)
+        for tag, series in events_dict.items():
+            for step, value in series.items():
+                writer.add_scalar(tag, value, step)
 
         # Important for allowing write_events() to overwrite. Without it,
         # try_rmtree will raise OSError: [Errno 16] Device or resource busy
@@ -171,5 +228,5 @@ def write_csv(
     df = pd.concat(dict_of_dfs, axis=1)
     df.columns = df.columns.swaplevel(0, 1)
 
-    df.index.name = "timestep"
+    df.index.name = "step"
     df.to_csv(csv_path)
