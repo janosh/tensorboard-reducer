@@ -51,7 +51,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         ),
     )
     parser.add_argument(
-        "-o", "--outdir", help="Name of the directory to save the new reduced run data."
+        "-o",
+        "--outpath",
+        help=(
+            "File or directory where to save output on disk. Will save as a CSV file if path "
+            "ends in '.csv' extension or else as TensorBoard run directories, one for each "
+            "reduce op suffixed by the op's name, e.g. 'outpath-mean', 'outpath-max', etc."
+            "If output format is CSV, the output file will have a two-level header containing "
+            "one column for each combination of tag and reduce operation with tag name in "
+            "first and reduce op in second level."
+        ),
     )
     parser.add_argument(
         "-r",
@@ -60,23 +69,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         default=["mean"],
         help=(
             "Comma-separated names of numpy reduction ops (mean, std, min, max, ...). Default "
-            "is mean. Each reduction is written to a separate outdir suffixed by op name."
+            "is mean. Each reduction is written to a separate output directory suffixed by op "
+            "name. I.e. "
         ),
     )
     parser.add_argument(
         "-f",
-        "--format",
-        choices=["tb-events", "csv"],
-        default="tb-events",
-        help=(
-            "Output format of reduced TensorBoard runs. One of `tb-events` for regular "
-            "TensorBoard event files or `csv`. If `csv`, `-o/--outdir` must have `.csv` "
-            "extension and all reduction ops will be written to a single CSV file rather "
-            "than separate directories for each reduce op."
-        ),
-    )
-    parser.add_argument(
-        "-w",
         "--overwrite",
         action="store_true",
         help="Whether to overwrite existing reduction directories.",
@@ -99,7 +97,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    outdir, overwrite, reduce_ops = args.outdir, args.overwrite, args.reduce_ops
+    outpath, overwrite, reduce_ops = args.outpath, args.overwrite, args.reduce_ops
 
     events_dict = load_tb_events(
         args.indirs_glob, strict_tags=args.lax_tags, strict_steps=args.lax_steps
@@ -117,29 +115,26 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if n_scalars < 20:
             print(", ".join(events_dict.keys()))
     elif n_scalars < 20:
-        print("Loaded the following tags and step counts:")
-        for tag, lst in events_dict.items():
-            print(f"- {tag}: {[len(arr) for arr in lst]}")
+        print(
+            "Loaded data for the following tags into arrays of shape (n_steps, n_runs):"
+        )
+        for tag, df in events_dict.items():
+            print(f"- '{tag}': {df.shape}")
 
     reduced_events = reduce_events(events_dict, reduce_ops)
 
-    if args.format == "tb-events":
+    if outpath.endswith(".csv"):
 
-        write_tb_events(reduced_events, outdir, overwrite)
+        write_csv(reduced_events, outpath, overwrite)
 
-        for op in reduce_ops:
-            print(f"Wrote '{op}' reduction to '{outdir}-{op}'")
-
-    elif args.format == "csv":
-
-        write_csv(reduced_events, outdir, overwrite)
-
-        print(f"Wrote '{reduce_ops}' reductions to '{outdir}'")
+        print(f"Wrote '{reduce_ops}' reductions to '{outpath}'")
 
     else:
-        raise ValueError(
-            f"unexpected output format '{args.format}', chose one of 'tb-events'|'csv'"
-        )
+
+        write_tb_events(reduced_events, outpath, overwrite)
+
+        for op in reduce_ops:
+            print(f"Wrote '{op}' reduction to '{outpath}-{op}'")
 
 
 if __name__ == "__main__":

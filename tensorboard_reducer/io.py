@@ -134,7 +134,7 @@ def force_rm_or_raise(path: str, overwrite: bool) -> None:
         else:
             raise FileExistsError(
                 f"'{path}' already exists, pass overwrite=True"
-                " (-w/--overwrite in CLI) to proceed anyway"
+                " (-f/--overwrite in CLI) to proceed anyway"
             )
 
 
