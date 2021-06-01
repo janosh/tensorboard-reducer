@@ -58,10 +58,10 @@ def test_read_events_lax_tags_and_steps():
         "tests/runs/lax/run_*", strict_tags=False, strict_steps=False
     )
 
-    tags_list = ["lax/foo", "lax/bar_2", "lax/bar_3", "lax/bar_4", "lax/bar_1"]
-    assert list(events_dict.keys()) == tags_list
+    tags_list = ["lax/bar_1", "lax/bar_2", "lax/bar_3", "lax/bar_4", "lax/foo"]
+    assert sorted(events_dict.keys()) == tags_list
 
-    df_lens = [110, 110, 120, 130, 110]
-    assert [
-        len(df) for df in events_dict.values()
-    ] == df_lens, "Unexpected dataframe lengths"
+    df_lens = [110, 110, 110, 120, 130]
+    assert (
+        sorted(len(df) for df in events_dict.values()) == df_lens
+    ), "Unexpected dataframe lengths"
