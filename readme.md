@@ -22,23 +22,23 @@ pip install tensorboard-reducer
 ### CLI
 
 ```sh
-tb-reducer -i 'glob_pattern/of_dirs_to_reduce*' -o output_dir -r mean,std,min,max
+tb-reducer -i 'glob-pattern/of-dirs-to-reduce*' -o output-dir -r mean,std,min,max
 ```
 
-> **Note**: By default, TensorBoard Reducer expects event files containing identical tags and equal number of steps for all scalars. If e.g. you trained one model for 300 epochs and another for 400 and/or added different sets of tags, see flags `--lax-tags` and `--lax-tags` to remove this restriction.
+**Note**: By default, TensorBoard Reducer expects event files containing identical tags and equal number of steps for all scalars. If e.g. you trained one model for 300 epochs and another for 400 and/or added different sets of tags, see flags `--lax-tags` and `--lax-tags` to remove this restriction.
 
 ![Mean of 3 TensorBoard logs](https://raw.githubusercontent.com/janosh/tensorboard-reducer/main/assets/3-runs-mean.png)
 
 `tb-reducer` has the following flags:
 
-- **`-i/--indirs-glob`** (required): Glob pattern of the run directories to reduce.
+- **`-i/--indirs-glob`** (required): Glob pattern of the run directories to reduce. Remember to protect wildcards `*` with quotes to avoid shell expansion.
 - **`-o/--outpath`** (required): File or directory where to save output on disk. Will save as a CSV file if path ends in '.csv' extension or else as TensorBoard run directories, one for each reduce op suffixed by the op's name, e.g. `'outpath-mean'`, `'outpath-max'`, etc. If output format is CSV, a single file will be created with two-level header containing one column for each combination of tag and reduce operation. Tag names will be in top-level header, reduce op in second level.
-- **`-r/--reduce-ops`** (optional, default: `mean`): Comma-separated names of numpy reduction ops (`mean`, `std`, `min`, `max`, ...). Each reduction is written to a separate `outpath` suffixed by its op name, e.g. if `outpath='my-new-run`, the mean reduction will be written to `my-new-run-mean`.
+- **`-r/--reduce-ops`** (optional, default: `mean`): Comma-separated names of numpy reduction ops (`mean`, `std`, `min`, `max`, ...). Each reduction is written to a separate `outpath` suffixed by its op name. E.g. if `outpath='reduced-run'`, the mean reduction will be written to `'reduced-run-mean'`.
 - **`-f/--overwrite`** (optional, default: `False`): Whether to overwrite existing output directories/CSV files.
 - **`--lax-tags`** (optional, default: `False`): Allow different runs have to different sets of tags. In this mode, each tag reduction will run over as many runs as are available for a given tag, even if that's just one. Proceed with caution as not all tags will have the same statistics in downstream analysis.
 - **`--lax-steps`** (optional, default: `False`): Allow tags across different runs to have unequal numbers of steps. In this mode, each reduction will only use as many steps as are available in the shortest run (same behavior as `zip(short_list, long_list)`)."
 
-> **Hint**: Use `pandas.read_csv("path/to/file.csv", header=[0, 1], index_col=0)` to read data back into memory as a multi-index dataframe.
+**Note**: Use `pandas.read_csv("path/to/file.csv", header=[0, 1], index_col=0)` to read data back into memory as a multi-index dataframe.
 
 ### Python API
 

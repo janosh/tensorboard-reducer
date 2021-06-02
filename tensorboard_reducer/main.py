@@ -70,7 +70,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         help=(
             "Comma-separated names of numpy reduction ops (mean, std, min, max, ...). Default "
             "is mean. Each reduction is written to a separate output directory suffixed by op "
-            "name. I.e. "
+            "name. E.g. if outpath='reduced-run', the mean reduction will be written to "
+            "'reduced-run-mean'."
         ),
     )
     parser.add_argument(
@@ -82,12 +83,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument(
         "--lax-tags",
         action="store_false",
-        help="Don't error if equal tags across different runs have unequal numbers of steps.",
+        help="Don't error if different runs have different sets of tags.",
     )
     parser.add_argument(
         "--lax-steps",
         action="store_false",
-        help="Don't error if different runs have different sets of tags.",
+        help="Don't error if equal tags across different runs have unequal numbers of steps.",
     )
 
     tb_version = version("tensorboard_reducer")
