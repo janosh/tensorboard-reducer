@@ -4,7 +4,10 @@ import pytest
 from tensorboard_reducer import load_tb_events
 
 
-def test_read_events_strict(events_dict):
+def test_load_tb_events_strict(events_dict):
+    """Test load_tb_events for strict input data, i.e. without any of the special cases
+    below.
+    """
 
     actual_type = type(events_dict)
     assert_dict = f"return type of load_tb_events() is {actual_type}, expected dict"
@@ -30,7 +33,10 @@ def test_read_events_strict(events_dict):
     assert np.allclose(run_means, 2.476, atol=1e-3), assert_means
 
 
-def test_read_events_lax_tags():
+def test_load_tb_events_lax_tags():
+    """Ensure load_tb_events throws an error on runs with different step counts when not
+    setting strict_steps=False.
+    """
 
     with pytest.raises(Exception) as exc_info:
         load_tb_events("tests/runs/lax/run_*", strict_tags=False)
@@ -41,7 +47,10 @@ def test_read_events_lax_tags():
     ), "Unexpected error message for load_tb_events(strict_tags=False)"
 
 
-def test_read_events_lax_steps():
+def test_load_tb_events_lax_steps():
+    """Ensure load_tb_events throws an error on runs with different sets of tags when not
+    setting strict_tags=False.
+    """
 
     with pytest.raises(Exception) as exc_info:
         load_tb_events("tests/runs/lax/run_*", strict_steps=False)
@@ -52,7 +61,10 @@ def test_read_events_lax_steps():
     ), "Unexpected error message for load_tb_events(strict_steps=False)"
 
 
-def test_read_events_lax_tags_and_steps():
+def test_load_tb_events_lax_tags_and_steps():
+    """Test loading TensorBoard event files when both different sets of tags and different
+    step counts across runs should not throw errors.
+    """
 
     events_dict = load_tb_events(
         "tests/runs/lax/run_*", strict_tags=False, strict_steps=False
@@ -65,3 +77,40 @@ def test_read_events_lax_tags_and_steps():
     assert (
         sorted(len(df) for df in events_dict.values()) == df_lens
     ), "Unexpected dataframe lengths"
+
+
+def test_load_tb_events_handle_dup_steps():
+    """Test loading TensorBoard event files with duplicate steps, i.e. multiple values for the
+    same tag at the same step.
+    """
+
+    with pytest.raises(Exception) as exc_info:
+        load_tb_events("tests/runs/duplicate_steps/run_*")
+
+    assert exc_info.errisinstance(AssertionError), "Unexpected error instance"
+    assert (
+        "contains duplicate steps" in f"{exc_info}"
+    ), "Unexpected error message for load_tb_events() when not handling duplicate steps"
+
+    first_dups = load_tb_events(
+        "tests/runs/duplicate_steps/run_*", handle_dup_steps="keep-first"
+    )
+    last_dups = load_tb_events(
+        "tests/runs/duplicate_steps/run_*", handle_dup_steps="keep-last"
+    )
+    mean_dups = load_tb_events(
+        "tests/runs/duplicate_steps/run_*", handle_dup_steps="mean"
+    )
+
+    assert (
+        first_dups.keys() == last_dups.keys() == mean_dups.keys()
+    ), "key mismatch between first, last and mean duplicate handling"
+
+    first_df, last_df, mean_df = (
+        dic["dup_steps/foo"] for dic in [first_dups, last_dups, mean_dups]
+    )
+
+    assert np.allclose((first_df + last_df) / 2, mean_df, atol=1e-3), (
+        "taking the average of keeping first and last duplicates gave different result than "
+        "taking the mean of duplicate steps"
+    )

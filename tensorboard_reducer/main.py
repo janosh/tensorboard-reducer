@@ -67,12 +67,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "--reduce-ops",
         type=lambda s: s.split(","),
         default=["mean"],
-        help=(
-            "Comma-separated names of numpy reduction ops (mean, std, min, max, ...). Default "
-            "is mean. Each reduction is written to a separate output directory suffixed by op "
-            "name. E.g. if outpath='reduced-run', the mean reduction will be written to "
-            "'reduced-run-mean'."
-        ),
+        help="Comma-separated names of numpy reduction ops (mean, std, min, max, ...). "
+        "Default is mean. Each reduction is written to a separate output directory suffixed "
+        "by op name. E.g. if outpath='reduced-run', the mean reduction will be written to "
+        "'reduced-run-mean'.",
     )
     parser.add_argument(
         "-f",
@@ -90,11 +88,19 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         action="store_false",
         help="Don't error if equal tags across different runs have unequal numbers of steps.",
     )
+    parser.add_argument(
+        "--handle-dup-steps",
+        choices=("keep-first", "keep-last", "mean"),
+        default=None,
+        help="How to handle duplicate values recorded for the same tag and step in a single "
+        "run. 'keep-first/last' will keep the first/last occurrence of duplicate steps while "
+        "'mean' compute their mean. Default behavior is to raise an error on duplicate steps.",
+    )
 
     tb_version = version("tensorboard_reducer")
 
     parser.add_argument(
-        "-v", "--version", action="version", version=f"%(prog)s {tb_version}"
+        "-v", "--version", action="version", version=f"%(prog)s v{tb_version}"
     )
     args = parser.parse_args(argv)
 

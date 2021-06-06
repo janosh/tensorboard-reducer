@@ -11,7 +11,7 @@ from .event_loader import EventAccumulator
 
 
 def load_tb_events(
-    indirs_glob: str, strict_tags=True, strict_steps=True
+    indirs_glob: str, strict_tags=True, strict_steps=True, handle_dup_steps=None
 ) -> Dict[str, Array]:
     """Read the TensorBoard event files matching the provided glob pattern
     and return their scalar data as a dict with tags ('training/loss',
@@ -24,6 +24,12 @@ def load_tb_events(
             Defaults to True.
         strict_steps (bool): If true, throw error if equal tags across different runs have
             unequal numbers of steps. Defaults to True.
+        handle_dup_steps (str): How to handle duplicate values recorded for the same tag and
+            step in a single run directory (can come from multiple event files in the same run
+            directory or even from duplicate values in a single event file). One of
+            'keep-first', 'keep-last' or 'mean' which will keep the first/last occurrence of
+            duplicate steps and compute their mean, respectively. Defaults to None which will
+            raise an error on duplicate steps.
 
     Returns:
         dict: A dictionary mapping scalar tags (i.e. keys like 'train/loss', 'val/mae') to
@@ -64,16 +70,36 @@ def load_tb_events(
 
     out_dict = defaultdict(list)
 
-    for accumulator in accumulators:
+    for indir, accumulator in zip(indirs, accumulators):
         tags = accumulator.Tags()["scalars"]
 
         for tag in tags:
-            out_dict[tag].append(
-                # dataframes use 'step' as index leaving 'wall_time' and 'value' as cols
-                pd.DataFrame(accumulator.Scalars(tag))
-                .set_index("step")
-                .drop(columns="wall_time")
-            )
+            # dataframes use 'step' as index leaving 'wall_time' and 'value' as cols
+            df = pd.DataFrame(accumulator.Scalars(tag)).set_index("step")
+            df = df.drop(columns="wall_time")
+
+            if handle_dup_steps is None:
+                assert df.index.is_unique, (
+                    f"Tag '{tag}' from run directory '{indir}' contains duplicate steps. "
+                    "Please make sure your data wasn't corrupted. If this is expected/you "
+                    "want to proceed anyway, specify how to handle duplicate values recorded "
+                    "for the same tag and step in a single run by passing --handle-dup-steps "
+                    "to the CLI or handle_dup_steps='keep-first'|'keep-last'|'mean' to the "
+                    "Python API. This will keep the first/last occurrence of duplicate steps "
+                    "or take their mean."
+                )
+            elif handle_dup_steps == "mean":
+                df = df.groupby(df.index).mean()
+            elif handle_dup_steps in ["keep-first", "keep-last"]:
+                keep = handle_dup_steps.replace("keep-", "")
+                df = df[~df.index.duplicated(keep=keep)]
+            else:
+                raise ValueError(
+                    f"unexpected value for {handle_dup_steps=}, should be one of "
+                    "'first', 'last', 'mean', None."
+                )
+
+            out_dict[tag].append(df)
 
     # Safety check: make sure all loaded runs have equal numbers of steps for each tag unless
     # user chose to ignore.
@@ -99,8 +125,8 @@ def load_tb_events(
     )
 
     # join='inner' means keep only the intersection of indices from all joined dataframes.
-    # That is, we only retain steps for which all loaded runs recorded a value. Can only make
-    # a difference if strict_steps=False.
+    # That is, we only retain steps for which all loaded runs recorded a value. Only makes
+    # a difference if strict_steps=False and different runs have non-overlapping steps.
     return {key: pd.concat(lst, join="inner", axis=1) for key, lst in out_dict.items()}
 
 
@@ -206,8 +232,8 @@ def write_csv(
     """Writes reduced TensorBoard data passed as dict of dicts (1st arg) to a CSV file
     path (2nd arg).
 
-    Use pd.read_csv("path/to/file.csv", header=[0, 1], index_col=0) to read data back into
-    memory as a multi-index dataframe.
+    Use `pandas.read_csv("path/to/file.csv", header=[0, 1], index_col=0)` to read CSV data
+    back into a multi-index dataframe.
 
     Args:
         data_to_write (dict[str, dict[str, Array]]): Data to write to disk. Assumes 1st-level
