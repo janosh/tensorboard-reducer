@@ -81,7 +81,7 @@ def test_load_tb_events_lax_tags_and_steps():
 
 def test_load_tb_events_handle_dup_steps():
     """Test loading TensorBoard event files with duplicate steps, i.e. multiple values for the
-    same tag at the same step.
+    same tag at the same step. See handle_dup_steps kwarg.
     """
 
     with pytest.raises(Exception) as exc_info:
@@ -92,10 +92,10 @@ def test_load_tb_events_handle_dup_steps():
         "contains duplicate steps" in f"{exc_info}"
     ), "Unexpected error message for load_tb_events() when not handling duplicate steps"
 
-    first_dups = load_tb_events(
+    kept_first_dups = load_tb_events(
         "tests/runs/duplicate_steps/run_*", handle_dup_steps="keep-first"
     )
-    last_dups = load_tb_events(
+    kept_last_dups = load_tb_events(
         "tests/runs/duplicate_steps/run_*", handle_dup_steps="keep-last"
     )
     mean_dups = load_tb_events(
@@ -103,14 +103,56 @@ def test_load_tb_events_handle_dup_steps():
     )
 
     assert (
-        first_dups.keys() == last_dups.keys() == mean_dups.keys()
+        kept_first_dups.keys() == kept_last_dups.keys() == mean_dups.keys()
     ), "key mismatch between first, last and mean duplicate handling"
 
     first_df, last_df, mean_df = (
-        dic["dup_steps/foo"] for dic in [first_dups, last_dups, mean_dups]
+        dic["dup_steps/foo"] for dic in [kept_first_dups, kept_last_dups, mean_dups]
     )
 
     assert np.allclose((first_df + last_df) / 2, mean_df, atol=1e-3), (
         "taking the average of keeping first and last duplicates gave different result than "
         "taking the mean of duplicate steps"
     )
+
+
+def test_load_tb_events_min_runs_per_step():
+    """Test loading TensorBoard event files with a minimum number of runs set at which to keep
+    steps and below which to drop them. See min_runs_per_step kwarg.
+    """
+
+    events_dict = load_tb_events(
+        "tests/runs/lax/run_*",
+        strict_steps=False,
+        strict_tags=False,
+        min_runs_per_step=10,
+    )
+    assert (  # no step has recordings from 10 runs to all dataframes should have 0 length
+        sum(len(df) for df in events_dict.values()) == 0
+    ), "Unexpected non-zero dataframe length for min runs to keep steps=10"
+
+    events_dict = load_tb_events(
+        "tests/runs/lax/run_*",
+        strict_steps=False,
+        strict_tags=False,
+        min_runs_per_step=3,
+    )
+
+    # only 1 tag (lax/foo) has recordings from 3 separate runs, lax/bar_1-4 have less
+    min_3_lens = [0, 0, 0, 0, 110]
+    assert (
+        sorted(len(df) for df in events_dict.values()) == min_3_lens
+    ), "Unexpected dataframe lengths for min runs to keep steps=3"
+
+    events_dict = load_tb_events(
+        "tests/runs/lax/run_*",
+        strict_steps=False,
+        strict_tags=False,
+        min_runs_per_step=2,
+    )
+
+    # 3 tags (lax/foo, lax/bar_2+3) have recordings from at least 2 runs, lax/bar_1+4 have less
+    min_2_lens = [0, 0, 110, 120, 120]
+    assert (
+        sorted(len(df) for df in events_dict.values())
+    ) == min_2_lens, "Unexpected dataframe length for min runs to keep steps=2"

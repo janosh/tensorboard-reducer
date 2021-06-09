@@ -2,30 +2,30 @@ from argparse import ArgumentParser
 from importlib.metadata import version
 from typing import Dict, List, Optional, Sequence
 
-from numpy.typing import ArrayLike as Array
+import pandas as pd
 
 from .io import load_tb_events, write_csv, write_tb_events
 
 
 def reduce_events(
-    events_dict: Dict[str, Array], reduce_ops: List[str]
-) -> Dict[str, Dict[str, Array]]:
+    events_dict: Dict[str, pd.DataFrame], reduce_ops: List[str]
+) -> Dict[str, Dict[str, pd.DataFrame]]:
     """Perform numpy reduce ops on the last axis of each array
     in a dictionary of scalar TensorBoard event data. Each array enters
     this function with shape (n_timesteps, r_runs) and len(reduce_ops) exit
     with shape (n_timesteps,).
 
     Args:
-        events_dict (dict[str, Array]): Dictionary of arrays to reduce.
+        events_dict (dict[str, pd.DataFrame]): Dictionary of arrays to reduce.
         reduce_ops (list[str]): numpy reduce ops.
 
     Returns:
-        dict[str, dict[str, Array]]: Dict of dicts where each subdict holds one reduced array
-            for each of the specified reduce ops, e.g. {"loss": {"mean": arr.mean(-1),
+        dict[str, dict[str, pd.DataFrame]]: Dict of dicts where each subdict holds one reduced
+            array for each of the specified reduce ops, e.g. {"loss": {"mean": arr.mean(-1),
             "std": arr.std(-1)}}.
     """
 
-    reductions = {}
+    reductions: Dict[str, Dict[str, pd.DataFrame]] = {}
 
     for op in reduce_ops:
 
@@ -40,7 +40,11 @@ def reduce_events(
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
 
-    parser = ArgumentParser("TensorBoard Reducer")
+    parser = ArgumentParser(
+        "TensorBoard Reducer",
+        description="Compute reduced statistics (mean, std, min, max, median, etc.) of "
+        "multiple TensorBoard runs matching a directory glob pattern.",
+    )
 
     parser.add_argument(
         "-i",
@@ -80,12 +84,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     parser.add_argument(
         "--lax-tags",
-        action="store_false",
+        action="store_true",
         help="Don't error if different runs have different sets of tags.",
     )
     parser.add_argument(
         "--lax-steps",
-        action="store_false",
+        action="store_true",
         help="Don't error if equal tags across different runs have unequal numbers of steps.",
     )
     parser.add_argument(
@@ -95,6 +99,19 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         help="How to handle duplicate values recorded for the same tag and step in a single "
         "run. 'keep-first/last' will keep the first/last occurrence of duplicate steps while "
         "'mean' compute their mean. Default behavior is to raise an error on duplicate steps.",
+    )
+    parser.add_argument(
+        "--min-runs-per-step",
+        type=int,
+        default=None,
+        help="Minimum number of runs across which a given step must be recorded to be kept. "
+        "Steps present across less runs are dropped. Only plays a role if strict_steps=False. "
+        "Warning: Be aware with this setting, you'll be reducing variable number of runs, "
+        "however many recorded a value for a given step as long as there are at least "
+        "--min-runs-per-step. In other words, the statistics of a reduction will change "
+        "mid-run. Say you're plotting the mean of an error curve, the sample size of that "
+        "mean will drop from, say, 10 down to 4 mid-plot if 4 of your models trained for "
+        "longer than the rest. Be sure to remember when using this.",
     )
 
     tb_version = version("tensorboard_reducer")
@@ -107,7 +124,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     outpath, overwrite, reduce_ops = args.outpath, args.overwrite, args.reduce_ops
 
     events_dict = load_tb_events(
-        args.indirs_glob, strict_tags=args.lax_tags, strict_steps=args.lax_steps
+        args.indirs_glob,
+        strict_tags=not args.lax_tags,
+        strict_steps=not args.lax_steps,
+        handle_dup_steps=args.handle_dup_steps,
+        min_runs_per_step=args.min_runs_per_step,
     )
 
     n_scalars = len(events_dict)
@@ -142,6 +163,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
         for op in reduce_ops:
             print(f"Wrote '{op}' reduction to '{outpath}-{op}'")
+
+    return 0
 
 
 if __name__ == "__main__":

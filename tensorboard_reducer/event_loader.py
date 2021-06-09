@@ -65,9 +65,6 @@ class EventAccumulator:
         self._first_event_timestamp = None
         self.scalars = reservoir.Reservoir(size=10000)
 
-        self._tagged_metadata = {}
-        self.summary_metadata = {}
-
         self._generator_mutex = threading.Lock()
         self.path = path
         self._generator = _GeneratorFromPath(path)
@@ -78,7 +75,6 @@ class EventAccumulator:
 
         # The attributes that get built up by the accumulator
         self.accumulated_attrs = ("scalars",)
-        self._tensor_summaries = {}
 
     def Reload(self) -> "EventAccumulator":
         """Loads all events added since the last call to `Reload`.
