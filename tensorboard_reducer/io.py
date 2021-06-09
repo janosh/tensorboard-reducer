@@ -1,18 +1,21 @@
 import os
 from collections import defaultdict
 from glob import glob
-from typing import Dict
+from typing import Dict, Union
 
 import pandas as pd
-from numpy.typing import ArrayLike as Array
 from torch.utils.tensorboard import SummaryWriter
 
 from .event_loader import EventAccumulator
 
 
 def load_tb_events(
-    indirs_glob: str, strict_tags=True, strict_steps=True, handle_dup_steps=None
-) -> Dict[str, Array]:
+    indirs_glob: str,
+    strict_tags: bool = True,
+    strict_steps: bool = True,
+    handle_dup_steps: Union[str, None] = None,
+    min_runs_per_step: Union[int, None] = None,
+) -> Dict[str, pd.DataFrame]:
     """Read the TensorBoard event files matching the provided glob pattern
     and return their scalar data as a dict with tags ('training/loss',
     'validation/mae', etc.) as keys and 2d arrays of shape (n_timesteps, r_runs)
@@ -20,16 +23,26 @@ def load_tb_events(
 
     Args:
         indirs_glob (str): Glob pattern of the run directories to read from disk.
-        strict_tags (bool): If true, throw error if different runs have different sets of tags.
-            Defaults to True.
-        strict_steps (bool): If true, throw error if equal tags across different runs have
-            unequal numbers of steps. Defaults to True.
-        handle_dup_steps (str): How to handle duplicate values recorded for the same tag and
-            step in a single run directory (can come from multiple event files in the same run
-            directory or even from duplicate values in a single event file). One of
-            'keep-first', 'keep-last' or 'mean' which will keep the first/last occurrence of
+        strict_tags (bool, optional): If true, throw error if different runs have different
+            sets of tags. Defaults to True.
+        strict_steps (bool, optional): If true, throw error if equal tags across different
+            runs have unequal numbers of steps. Defaults to True.
+        handle_dup_steps (str|None, optional): How to handle duplicate values recorded for the
+            same tag and step in a single run directory (can come from multiple event files in
+            the same run directory or even from duplicate values in a single event file). One
+            of 'keep-first', 'keep-last' or 'mean' which will keep the first/last occurrence of
             duplicate steps and compute their mean, respectively. Defaults to None which will
             raise an error on duplicate steps.
+        min_runs_per_step (int|None, optional): Minimum number of runs across which a given
+            step must be recorded to be kept. Steps present across less runs are dropped. Only
+            plays a role if strict_steps=False. **Warning**: Be aware that with this setting,
+            you'll be reducing variable number of runs, however many recorded a value for a
+            given step as long as there are at least --min-runs-per-step. In other words,
+            the statistics of a reduction will change mid-run. Say you're plotting the mean of
+            an error curve, the sample size of that mean will drop from, say, 10 down to 4
+            mid-plot if 4 of your models trained for longer than the rest. Be sure to remember
+            when using this.
+
 
     Returns:
         dict: A dictionary mapping scalar tags (i.e. keys like 'train/loss', 'val/mae') to
@@ -124,10 +137,28 @@ def load_tb_events(
         "event files found inside them."
     )
 
-    # join='inner' means keep only the intersection of indices from all joined dataframes.
-    # That is, we only retain steps for which all loaded runs recorded a value. Only makes
-    # a difference if strict_steps=False and different runs have non-overlapping steps.
-    return {key: pd.concat(lst, join="inner", axis=1) for key, lst in out_dict.items()}
+    if min_runs_per_step is not None:
+        assert (
+            type(min_runs_per_step) == int and min_runs_per_step > 0
+        ), f"got {min_runs_per_step=}, expected positive integer"
+
+        for key, lst in out_dict.items():
+            # join='outer' means keep the union of indices from all joined dataframes. That is,
+            # we retain all steps as long as any run recorded a value for it. Only makes a
+            # difference if strict_steps=False and different runs have non-overlapping steps.
+            df = pd.concat(lst, join="outer", axis=1)
+            # count(axis=1) returns the number of non-NaN values in each row
+            df = df[df.count(axis=1) >= min_runs_per_step]
+            out_dict[key] = df
+
+        return out_dict
+    else:
+        # join='inner' means keep only the intersection of indices from all joined dataframes.
+        # That is, we only retain steps for which all loaded runs recorded a value. Only makes
+        # a difference if strict_steps=False and different runs have non-overlapping steps.
+        return {
+            key: pd.concat(lst, join="inner", axis=1) for key, lst in out_dict.items()
+        }
 
 
 def force_rm_or_raise(path: str, overwrite: bool) -> None:
@@ -165,7 +196,7 @@ def force_rm_or_raise(path: str, overwrite: bool) -> None:
 
 
 def write_tb_events(
-    data_to_write: Dict[str, Dict[str, Array]],
+    data_to_write: Dict[str, Dict[str, pd.DataFrame]],
     outdir: str,
     overwrite: bool = False,
 ) -> None:
@@ -175,8 +206,8 @@ def write_tb_events(
     Inspired by https://stackoverflow.com/a/48774926.
 
     Args:
-        data_to_write (dict[str, dict[str, Array]]): Data to write to disk. Assumes 1st-level
-            keys are reduce ops (mean, std, ...) and 2nd-level are TensorBoard tags.
+        data_to_write (dict[str, dict[str, pd.DataFrame]]): Data to write to disk. Assumes
+            1st-level keys are reduce ops (mean, std, ...) and 2nd-level are TensorBoard tags.
         outdir (str): Name of the directory to save the new reduced run data. Will
             have the reduce op name (e.g. '-mean'/'-std') appended.
         overwrite (bool): Whether to overwrite existing reduction directories.
@@ -225,7 +256,7 @@ def write_tb_events(
 
 
 def write_csv(
-    data_to_write: Dict[str, Dict[str, Array]],
+    data_to_write: Dict[str, Dict[str, pd.DataFrame]],
     csv_path: str,
     overwrite: bool = False,
 ) -> None:
@@ -236,8 +267,8 @@ def write_csv(
     back into a multi-index dataframe.
 
     Args:
-        data_to_write (dict[str, dict[str, Array]]): Data to write to disk. Assumes 1st-level
-            keys are reduce ops (mean, std, ...) and 2nd-level are TensorBoard tags.
+        data_to_write (dict[str, dict[str, pd.DataFrame]]): Data to write to disk. Assumes
+            1st-level keys are reduce ops (mean, std, ...) and 2nd-level are TensorBoard tags.
         outdir (str): Name of the directory to save the new reduced run data. Will
             have the reduce op name (e.g. '-mean'/'-std') appended.
         overwrite (bool): Whether to overwrite existing reduction directories.
