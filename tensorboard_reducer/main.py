@@ -4,7 +4,8 @@ from typing import Dict, List, Optional, Sequence
 
 import pandas as pd
 
-from .io import load_tb_events, write_csv, write_tb_events
+from .load import load_tb_events
+from .write import write_csv, write_tb_events
 
 
 def reduce_events(
