@@ -1,7 +1,7 @@
 import threading
 from collections import namedtuple
 
-from tensorboard.backend.event_processing import (
+from tensorboard.backend.event_processing import (  # type: ignore
     directory_watcher,
     event_file_loader,
     io_wrapper,

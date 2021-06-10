@@ -79,7 +79,7 @@ def load_tb_events(
             "as not all tags will have the same statistics in downstream analysis."
         )
 
-    out_dict = defaultdict(list)
+    load_dict = defaultdict(list)
 
     for indir, accumulator in zip(indirs, accumulators):
         tags = accumulator.Tags()["scalars"]
@@ -110,12 +110,12 @@ def load_tb_events(
                     "'first', 'last', 'mean', None."
                 )
 
-            out_dict[tag].append(df)
+            load_dict[tag].append(df)
 
     # Safety check: make sure all loaded runs have equal numbers of steps for each tag unless
     # user chose to ignore.
     if strict_steps:
-        for tag, lst in out_dict.items():
+        for tag, lst in load_dict.items():
             n_steps_per_run = [len(df) for df in lst]
 
             all_runs_equal_steps = n_steps_per_run.count(n_steps_per_run[0]) == len(
@@ -130,17 +130,19 @@ def load_tb_events(
                 "(same behavior as zip())."
             )
 
-    assert len(out_dict) > 0, (
+    assert len(load_dict) > 0, (
         f"Glob pattern '{indirs_glob}' matched {len(indirs)} directories but no TensorBoard "
         "event files found inside them."
     )
+
+    out_dict: Dict[str, pd.DataFrame] = {}
 
     if min_runs_per_step is not None:
         assert (
             type(min_runs_per_step) == int and min_runs_per_step > 0
         ), f"got {min_runs_per_step=}, expected positive integer"
 
-        for key, lst in out_dict.items():
+        for key, lst in load_dict.items():
             # join='outer' means keep the union of indices from all joined dataframes. That is,
             # we retain all steps as long as any run recorded a value for it. Only makes a
             # difference if strict_steps=False and different runs have non-overlapping steps.
@@ -155,5 +157,5 @@ def load_tb_events(
         # That is, we only retain steps for which all loaded runs recorded a value. Only makes
         # a difference if strict_steps=False and different runs have non-overlapping steps.
         return {
-            key: pd.concat(lst, join="inner", axis=1) for key, lst in out_dict.items()
+            key: pd.concat(lst, join="inner", axis=1) for key, lst in load_dict.items()
         }
