@@ -1,5 +1,6 @@
 import threading
 from collections import namedtuple
+from typing import List, Optional, Tuple
 
 from tensorboard.backend.event_processing import (  # type: ignore
     directory_watcher,
@@ -7,6 +8,7 @@ from tensorboard.backend.event_processing import (  # type: ignore
     io_wrapper,
     reservoir,
 )
+from tensorboard.compat.proto.event_pb2 import Event  # type: ignore
 
 
 ScalarEvent = namedtuple("ScalarEvent", ["wall_time", "step", "value"])
@@ -71,7 +73,7 @@ class EventAccumulator:
 
         self.most_recent_step = -1
         self.most_recent_wall_time = -1
-        self.file_version = None
+        self.file_version: Optional[float] = None
 
         # The attributes that get built up by the accumulator
         self.accumulated_attrs = ("scalars",)
@@ -89,7 +91,8 @@ class EventAccumulator:
                 self._ProcessEvent(event)
         return self
 
-    def _ProcessEvent(self, event):
+    def _ProcessEvent(self, event: Event) -> None:
+        print(f"{type(event)=}")
         """Called whenever an event is loaded."""
         if self._first_event_timestamp is None:
             self._first_event_timestamp = event.wall_time
@@ -118,15 +121,16 @@ class EventAccumulator:
                         tag = value.node_name
                     self._ProcessScalar(tag, event.wall_time, event.step, datum)
 
-    def Tags(self):
-        """Return all tags found in the value stream.
+    @property
+    def scalar_tags(self) -> List[str]:
+        """Return all scalar tags found in the value stream.
 
         Returns:
-          A `{tagType: ['list', 'of', 'tags']}` dictionary.
+            list[str]: All scalar tags
         """
-        return {"scalars": self.scalars.Keys()}
+        return self.scalars.Keys()
 
-    def Scalars(self, tag):
+    def Scalars(self, tag: str) -> Tuple[ScalarEvent]:
         """Given a summary tag, return all associated `ScalarEvent`s.
 
         Args:
@@ -140,13 +144,15 @@ class EventAccumulator:
         """
         return self.scalars.Items(tag)
 
-    def _ProcessScalar(self, tag, wall_time, step, scalar):
+    def _ProcessScalar(
+        self, tag: str, wall_time: float, step: int, scalar: float
+    ) -> None:
         """Processes a simple value by adding it to accumulated state."""
         sv = ScalarEvent(wall_time=wall_time, step=step, value=scalar)
         self.scalars.AddItem(tag, sv)
 
 
-def _GeneratorFromPath(path):
+def _GeneratorFromPath(path: str) -> directory_watcher.DirectoryWatcher:
     """Create an event generator for file or directory at given path string."""
     if not path:
         raise ValueError("path must be a valid string")
@@ -160,7 +166,7 @@ def _GeneratorFromPath(path):
         )
 
 
-def _ParseFileVersion(file_version):
+def _ParseFileVersion(file_version: str) -> float:
     """Convert the string file_version in event.proto into a float.
 
     Args:

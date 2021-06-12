@@ -58,7 +58,7 @@ def load_tb_events(
     if strict_tags:
         # generate list of scalar tags for all event files each in alphabetical order
         all_dirs_tags_list = sorted(
-            accumulator.Tags()["scalars"] for accumulator in accumulators
+            accumulator.scalar_tags for accumulator in accumulators
         )
         first_tags = all_dirs_tags_list[0]
 
@@ -82,7 +82,7 @@ def load_tb_events(
     load_dict = defaultdict(list)
 
     for indir, accumulator in zip(indirs, accumulators):
-        tags = accumulator.Tags()["scalars"]
+        tags = accumulator.scalar_tags
 
         for tag in tags:
             # dataframes use 'step' as index leaving 'wall_time' and 'value' as cols
