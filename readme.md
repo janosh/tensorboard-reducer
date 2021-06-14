@@ -22,16 +22,17 @@ pip install tensorboard-reducer
 ### CLI
 
 ```sh
-tb-reducer -i 'glob-pattern/of-dirs-to-reduce*' -o output-dir -r mean,std,min,max
+tb-reducer runs/of-some-model* -o output-dir -r mean,std,min,max
 ```
 
-**Note**: By default, TensorBoard Reducer expects event files containing identical tags and equal number of steps for all scalars. If e.g. you trained one model for 300 epochs and another for 400 and/or added different sets of tags, see flags `--lax-tags` and `--lax-tags` to remove this restriction.
+**Note**: By default, TensorBoard Reducer expects event files to contain identical tags and equal number of steps for all scalars. If, say, you trained one model for 300 epochs and another for 400 and/or recorded different sets of tags (i.e. metrics) for each of them, see flags `--lax-tags` and `--lax-tags` to remove this restriction.
 
 ![Mean of 3 TensorBoard logs](https://raw.githubusercontent.com/janosh/tensorboard-reducer/main/assets/3-runs-mean.png)
 
-`tb-reducer` has the following flags:
+All positional CLI arguments are interpreted as input directories and expected to contain TensorBoard event files. These can be specified individually or, more commonly, with wildcards using shell expansion. You can check you're getting the right input directories by running `echo runs/some/glob_pattern*` before passing them to `tb-reducer`.
 
-- **`-i/--indirs-glob`** (required): Glob pattern of the run directories to reduce. Remember to protect wildcards `*` with quotes to avoid shell expansion.
+In addition, `tb-reducer` has the following flags:
+
 - **`-o/--outpath`** (required): File or directory where to save output on disk. Will save as a CSV file if path ends in '.csv' extension or else as TensorBoard run directories, one for each reduce op suffixed by the op's name, e.g. `'outpath-mean'`, `'outpath-max'`, etc. If output format is CSV, a single file will be created with two-level header containing one column for each combination of tag and reduce operation. Tag names will be in top-level header, reduce op in second level.
 - **`-r/--reduce-ops`** (optional, default: `mean`): Comma-separated names of numpy reduction ops (`mean`, `std`, `min`, `max`, ...). Each reduction is written to a separate `outpath` suffixed by its op name. E.g. if `outpath='reduced-run'`, the mean reduction will be written to `'reduced-run-mean'`.
 - **`-f/--overwrite`** (optional, default: `False`): Whether to overwrite existing output directories/CSV files.

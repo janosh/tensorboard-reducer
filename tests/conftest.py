@@ -1,4 +1,5 @@
 import os
+from glob import glob
 
 import pytest
 
@@ -11,6 +12,6 @@ from tensorboard_reducer import load_tb_events
 def events_dict():
     os.makedirs("tmp", exist_ok=True)
 
-    tb_events_dict = load_tb_events("tests/runs/strict/run_*")
+    tb_events_dict = load_tb_events(glob("tests/runs/strict/run_*"))
 
     return tb_events_dict
