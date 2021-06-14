@@ -1,12 +1,18 @@
+from glob import glob
+
 import numpy as np
 import pytest
 
 from tensorboard_reducer import load_tb_events
 
 
+lax_runs = glob("tests/runs/lax/run_*")
+dup_steps_runs = glob("tests/runs/duplicate_steps/run_*")
+
+
 def test_load_tb_events_strict(events_dict):
     """Test load_tb_events for strict input data, i.e. without any of the special cases
-    below.
+    below. events_dict is just the output of load_tb_events() (see conftest.py).
     """
 
     actual_type = type(events_dict)
@@ -39,7 +45,7 @@ def test_load_tb_events_lax_tags():
     """
 
     with pytest.raises(Exception) as exc_info:
-        load_tb_events("tests/runs/lax/run_*", strict_tags=False)
+        load_tb_events(lax_runs, strict_tags=False)
 
     assert exc_info.errisinstance(AssertionError), "Unexpected error instance"
     assert (
@@ -53,7 +59,7 @@ def test_load_tb_events_lax_steps():
     """
 
     with pytest.raises(Exception) as exc_info:
-        load_tb_events("tests/runs/lax/run_*", strict_steps=False)
+        load_tb_events(lax_runs, strict_steps=False)
 
     assert exc_info.errisinstance(AssertionError), "Unexpected error instance"
     assert (
@@ -66,9 +72,7 @@ def test_load_tb_events_lax_tags_and_steps():
     step counts across runs should not throw errors.
     """
 
-    events_dict = load_tb_events(
-        "tests/runs/lax/run_*", strict_tags=False, strict_steps=False
-    )
+    events_dict = load_tb_events(lax_runs, strict_tags=False, strict_steps=False)
 
     tags_list = ["lax/bar_1", "lax/bar_2", "lax/bar_3", "lax/bar_4", "lax/foo"]
     assert sorted(events_dict.keys()) == tags_list
@@ -85,22 +89,16 @@ def test_load_tb_events_handle_dup_steps():
     """
 
     with pytest.raises(Exception) as exc_info:
-        load_tb_events("tests/runs/duplicate_steps/run_*")
+        load_tb_events(dup_steps_runs)
 
     assert exc_info.errisinstance(AssertionError), "Unexpected error instance"
     assert (
         "contains duplicate steps" in f"{exc_info}"
     ), "Unexpected error message for load_tb_events() when not handling duplicate steps"
 
-    kept_first_dups = load_tb_events(
-        "tests/runs/duplicate_steps/run_*", handle_dup_steps="keep-first"
-    )
-    kept_last_dups = load_tb_events(
-        "tests/runs/duplicate_steps/run_*", handle_dup_steps="keep-last"
-    )
-    mean_dups = load_tb_events(
-        "tests/runs/duplicate_steps/run_*", handle_dup_steps="mean"
-    )
+    kept_first_dups = load_tb_events(dup_steps_runs, handle_dup_steps="keep-first")
+    kept_last_dups = load_tb_events(dup_steps_runs, handle_dup_steps="keep-last")
+    mean_dups = load_tb_events(dup_steps_runs, handle_dup_steps="mean")
 
     assert (
         kept_first_dups.keys() == kept_last_dups.keys() == mean_dups.keys()
@@ -122,7 +120,7 @@ def test_load_tb_events_min_runs_per_step():
     """
 
     events_dict = load_tb_events(
-        "tests/runs/lax/run_*",
+        lax_runs,
         strict_steps=False,
         strict_tags=False,
         min_runs_per_step=10,
@@ -132,7 +130,7 @@ def test_load_tb_events_min_runs_per_step():
     ), "Unexpected non-zero dataframe length for min runs to keep steps=10"
 
     events_dict = load_tb_events(
-        "tests/runs/lax/run_*",
+        lax_runs,
         strict_steps=False,
         strict_tags=False,
         min_runs_per_step=3,
@@ -145,7 +143,7 @@ def test_load_tb_events_min_runs_per_step():
     ), "Unexpected dataframe lengths for min runs to keep steps=3"
 
     events_dict = load_tb_events(
-        "tests/runs/lax/run_*",
+        lax_runs,
         strict_steps=False,
         strict_tags=False,
         min_runs_per_step=2,

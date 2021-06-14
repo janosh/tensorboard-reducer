@@ -29,8 +29,8 @@ def force_rm_or_raise(path: str, overwrite: bool) -> None:
         elif overwrite:
             ValueError(
                 f"Received the overwrite flag but the content of '{path}' does not look like"
-                " it was writtin by this program. Please make sure you really want to delete"
-                " that and then do so manually."
+                " it was written by this program. Please make sure you really want to delete"
+                f" '{path}' and then do so manually."
             )
         else:
             raise FileExistsError(

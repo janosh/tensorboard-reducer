@@ -48,11 +48,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
 
     parser.add_argument(
-        "-i",
-        "--indirs-glob",
+        "input_dirs",
+        nargs="*",
         help=(
-            "Glob pattern of the run directories to reduce. "
-            "Remember to protect wildcards with quotes to prevent shell expansion."
+            "List of run directories to reduce. Use shell expansion (e.g. "
+            "runs/of_some_model/*) to glob as many directories as required."
         ),
     )
     parser.add_argument(
@@ -125,7 +125,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     outpath, overwrite, reduce_ops = args.outpath, args.overwrite, args.reduce_ops
 
     events_dict = load_tb_events(
-        args.indirs_glob,
+        args.input_dirs,
         strict_tags=not args.lax_tags,
         strict_steps=not args.lax_steps,
         handle_dup_steps=args.handle_dup_steps,
@@ -156,7 +156,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
         write_csv(reduced_events, outpath, overwrite)
 
-        print(f"Wrote '{reduce_ops}' reductions to '{outpath}'")
+        print(f"Wrote {', '.join(reduce_ops)} reductions to '{outpath}'")
 
     else:
 

@@ -1,6 +1,5 @@
 from collections import defaultdict
-from glob import glob
-from typing import Dict, Union
+from typing import Dict, List, Union
 
 import pandas as pd
 
@@ -8,7 +7,7 @@ from .event_loader import EventAccumulator
 
 
 def load_tb_events(
-    indirs_glob: str,
+    input_dirs: List[str],
     strict_tags: bool = True,
     strict_steps: bool = True,
     handle_dup_steps: Union[str, None] = None,
@@ -20,7 +19,7 @@ def load_tb_events(
     as values.
 
     Args:
-        indirs_glob (str): Glob pattern of the run directories to read from disk.
+        input_dirs (list[str]): Directory names containing TensorBoard runs to read from disk.
         strict_tags (bool, optional): If true, throw error if different runs have different
             sets of tags. Defaults to True.
         strict_steps (bool, optional): If true, throw error if equal tags across different
@@ -47,12 +46,13 @@ def load_tb_events(
             pandas DataFrames.
     """
 
-    indirs = glob(indirs_glob)
-    assert len(indirs) > 0, f"No runs found for glob pattern '{indirs_glob}'"
+    assert (
+        len(input_dirs) > 0
+    ), f"Expected non-empty list of input directories, got '{input_dirs}'"
 
     # Here's where TensorBoard scalars are loaded into memory. Uses a custom EventAccumulator
     # that only loads scalars, ignores histograms, images and other time-consuming data.
-    accumulators = [EventAccumulator(dirname).Reload() for dirname in indirs]
+    accumulators = [EventAccumulator(dirname).Reload() for dirname in input_dirs]
 
     # Safety check: make sure all loaded runs have identical tags unless user chose to ignore.
     if strict_tags:
@@ -68,7 +68,7 @@ def load_tb_events(
 
         missing_tags_report = "".join(
             f"- {dir} missing tags: {', '.join(tags_set - {*tags})}\n"
-            for dir, tags in zip(indirs, all_dirs_tags_list)
+            for dir, tags in zip(input_dirs, all_dirs_tags_list)
         )
 
         assert all_runs_same_tags, (
@@ -81,7 +81,7 @@ def load_tb_events(
 
     load_dict = defaultdict(list)
 
-    for indir, accumulator in zip(indirs, accumulators):
+    for indir, accumulator in zip(input_dirs, accumulators):
         tags = accumulator.scalar_tags
 
         for tag in tags:
@@ -131,8 +131,8 @@ def load_tb_events(
             )
 
     assert len(load_dict) > 0, (
-        f"Glob pattern '{indirs_glob}' matched {len(indirs)} directories but no TensorBoard "
-        "event files found inside them."
+        f"Got {len(input_dirs)} input directories but no TensorBoard event files "
+        "found inside them."
     )
 
     out_dict: Dict[str, pd.DataFrame] = {}
