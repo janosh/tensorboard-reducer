@@ -2,13 +2,13 @@ import threading
 from collections import namedtuple
 from typing import List, Optional, Tuple
 
-from tensorboard.backend.event_processing import (  # type: ignore
+from tensorboard.backend.event_processing import (
     directory_watcher,
     event_file_loader,
     io_wrapper,
     reservoir,
 )
-from tensorboard.compat.proto.event_pb2 import Event  # type: ignore
+from tensorboard.compat.proto.event_pb2 import Event
 
 
 ScalarEvent = namedtuple("ScalarEvent", ["wall_time", "step", "value"])
