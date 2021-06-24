@@ -44,13 +44,8 @@ def test_load_tb_events_lax_tags():
     setting strict_steps=False.
     """
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(AssertionError, match="Unequal number of steps"):
         load_tb_events(lax_runs, strict_tags=False)
-
-    assert exc_info.errisinstance(AssertionError), "Unexpected error instance"
-    assert (
-        "Unequal number of steps" in f"{exc_info}"
-    ), "Unexpected error message for load_tb_events(strict_tags=False)"
 
 
 def test_load_tb_events_lax_steps():
@@ -58,13 +53,8 @@ def test_load_tb_events_lax_steps():
     setting strict_tags=False.
     """
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(AssertionError, match="Some tags appear in some"):
         load_tb_events(lax_runs, strict_steps=False)
-
-    assert exc_info.errisinstance(AssertionError), "Unexpected error instance"
-    assert (
-        "Some tags appear in some" in f"{exc_info}"
-    ), "Unexpected error message for load_tb_events(strict_steps=False)"
 
 
 def test_load_tb_events_lax_tags_and_steps():
@@ -88,13 +78,8 @@ def test_load_tb_events_handle_dup_steps():
     same tag at the same step. See handle_dup_steps kwarg.
     """
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(AssertionError, match="contains duplicate steps"):
         load_tb_events(dup_steps_runs)
-
-    assert exc_info.errisinstance(AssertionError), "Unexpected error instance"
-    assert (
-        "contains duplicate steps" in f"{exc_info}"
-    ), "Unexpected error message for load_tb_events() when not handling duplicate steps"
 
     kept_first_dups = load_tb_events(dup_steps_runs, handle_dup_steps="keep-first")
     kept_last_dups = load_tb_events(dup_steps_runs, handle_dup_steps="keep-last")

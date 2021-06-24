@@ -21,10 +21,8 @@ def test_main():
 
     main(argv_strict)
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(FileExistsError):
         main(argv_strict)
-
-    assert exc_info.errisinstance(FileExistsError), "Unexpected error instance"
 
 
 def test_main_overwrite():
@@ -45,20 +43,14 @@ def test_main_lax():
     # make sure we start from clean slate in case prev test failed
     rmtree("tmp/lax-mean", ignore_errors=True)
 
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(AssertionError):
         main(argv_lax)
 
-    assert exc_info.errisinstance(AssertionError), "Unexpected error instance"
-
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(AssertionError):
         main(argv_lax + ["--lax-tags"])
 
-    assert exc_info.errisinstance(AssertionError), "Unexpected error instance"
-
-    with pytest.raises(Exception) as exc_info:
+    with pytest.raises(AssertionError):
         main(argv_lax + ["--lax-steps"])
-
-    assert exc_info.errisinstance(AssertionError), "Unexpected error instance"
 
     main(argv_lax + ["--lax-tags", "--lax-steps"])
 
@@ -79,3 +71,15 @@ def test_main_lax_csv_output():
 
     # make sure CSV file was created
     os.remove("tmp/lax.csv")
+
+
+def test_main_report_version(capsys):
+    """Test CLI version flag."""
+
+    with pytest.raises(SystemExit):
+        main(["--version"])
+
+    stdout, stderr = capsys.readouterr()
+
+    assert stdout.startswith("TensorBoard Reducer v")
+    assert stderr == ""
