@@ -98,15 +98,6 @@ class EventAccumulator:
 
         if event.HasField("file_version"):
             new_file_version = _ParseFileVersion(event.file_version)
-            if self.file_version and self.file_version != new_file_version:
-                # This should not happen.
-                print(
-                    (
-                        "Found new file_version for event.proto. This will "
-                        "affect purging logic for TensorFlow restarts. "
-                        "Old: {} New: {}"
-                    ).format(self.file_version, new_file_version)
-                )
             self.file_version = new_file_version
 
         if event.HasField("summary"):
@@ -114,10 +105,6 @@ class EventAccumulator:
                 if value.HasField("simple_value"):
                     datum = getattr(value, "simple_value")
                     tag = value.tag
-                    if "simple_value" == "tensor" and not tag:
-                        # This tensor summary was created using the old method that used
-                        # plugin assets. We must still continue to support it.
-                        tag = value.node_name
                     self._ProcessScalar(tag, event.wall_time, event.step, datum)
 
     @property
@@ -153,16 +140,11 @@ class EventAccumulator:
 
 def _GeneratorFromPath(path: str) -> directory_watcher.DirectoryWatcher:
     """Create an event generator for file or directory at given path string."""
-    if not path:
-        raise ValueError("path must be a valid string")
-    if io_wrapper.IsSummaryEventsFile(path):
-        return event_file_loader.LegacyEventFileLoader(path)
-    else:
-        return directory_watcher.DirectoryWatcher(
-            path,
-            event_file_loader.LegacyEventFileLoader,
-            io_wrapper.IsSummaryEventsFile,
-        )
+    return directory_watcher.DirectoryWatcher(
+        path,
+        event_file_loader.LegacyEventFileLoader,
+        io_wrapper.IsSummaryEventsFile,
+    )
 
 
 def _ParseFileVersion(file_version: str) -> float:
@@ -175,13 +157,4 @@ def _ParseFileVersion(file_version: str) -> float:
       Version number as a float.
     """
     tokens = file_version.split("brain.Event:")
-    try:
-        return float(tokens[-1])
-    except ValueError:
-        # This should never happen according to the definition of file_version
-        # specified in event.proto.
-        print(
-            "Invalid event.proto file_version. Defaulting to use of "
-            "out-of-order event.step logic for purging expired events."
-        )
-        return -1
+    return float(tokens[-1])
