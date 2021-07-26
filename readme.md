@@ -48,13 +48,15 @@ In addition, `tb-reducer` has the following flags:
 You can also import `tensorboard_reducer` into a Python script for more complex operations. A simple example that makes use of the full Python API (`load_tb_events`, `reduce_events`, `write_csv`, `write_tb_events`) to get you started:
 
 ```py
+from glob import glob
+
 from tensorboard_reducer import load_tb_events, reduce_events, write_csv, write_tb_events
 
-in_dirs_glob = "glob_pattern/of_directories_to_reduce*"
+in_dirs = glob("glob_pattern/of_directories_to_reduce*")
 out_dir = "path/to/output_dir"
 out_csv = "path/to/out.csv"
 overwrite = False
-reduce_ops = ["mean", "min", "max"]
+reduce_ops = ("mean", "min", "max")
 
 events_dict = load_tb_events(in_dirs_glob)
 

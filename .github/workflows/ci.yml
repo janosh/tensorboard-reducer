@@ -28,5 +28,5 @@ jobs:
       - name: Install dependencies
         run: pip install .[test]  # include [options.extras_require] in setup.cfg
 
-      - name: Run Tests
+      - name: Run tests
         run: python -m pytest --durations 0
