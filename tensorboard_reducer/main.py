@@ -142,7 +142,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             f"and {n_steps} steps each"
         )
         if n_scalars < 20:
-            print(", ".join(events_dict.keys()))
+            print(", ".join(events_dict))
     elif n_scalars < 20:
         print(
             "Loaded data for the following tags into arrays of shape (n_steps, n_runs):"

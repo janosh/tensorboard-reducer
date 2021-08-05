@@ -66,8 +66,7 @@ n_scalars = len(events_dict)
 print(
     f"Loaded {n_events} TensorBoard runs with {n_scalars} scalars and {n_steps} steps each"
 )
-for tag in events_dict.keys():
-    print(f" - {tag}")
+print(", ".join(events_dict))
 
 reduced_events = reduce_events(events_dict, reduce_ops)
 
