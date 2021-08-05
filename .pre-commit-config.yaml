@@ -6,7 +6,7 @@ ci:
 
 repos:
   - repo: https://github.com/PyCQA/isort
-    rev: 5.9.2
+    rev: 5.9.3
     hooks:
       - id: isort
   - repo: https://github.com/psf/black
@@ -18,7 +18,7 @@ repos:
     hooks:
       - id: flake8
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.23.0
+    rev: v2.23.3
     hooks:
       - id: pyupgrade
         args: [--py38-plus]
@@ -26,3 +26,10 @@ repos:
     rev: v0.910
     hooks:
       - id: mypy
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.0.1
+    hooks:
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: trailing-whitespace
+      - id: mixed-line-ending
