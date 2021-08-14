@@ -23,14 +23,14 @@ pip install tensorboard-reducer
 ### CLI
 
 ```sh
-tb-reducer runs/of-some-model* -o output-dir -r mean,std,min,max
+tb-reducer runs/of-your-model* -o output-dir -r mean,std,min,max
 ```
 
-**Note**: By default, TensorBoard Reducer expects event files to contain identical tags and equal number of steps for all scalars. If, say, you trained one model for 300 epochs and another for 400 and/or recorded different sets of tags (i.e. metrics) for each of them, see CLI flags `--lax-steps` and `--lax-tags` to remove this restriction.
+All positional CLI arguments are interpreted as input directories and expected to contain TensorBoard event files. These can be specified individually or with wildcards using shell expansion. You can check you're getting the right input directories by running `echo runs/of-your-model*` before passing them to `tb-reducer`.
+
+**Note**: By default, TensorBoard Reducer expects event files to contain identical tags and equal number of steps for all scalars. If you trained one model for 300 epochs and another for 400 and/or recorded different sets of metrics (tags in TensorBoard lingo) for each of them, see CLI flags `--lax-steps` and `--lax-tags` to disable this safeguard.
 
 ![Mean of 3 TensorBoard logs](https://raw.githubusercontent.com/janosh/tensorboard-reducer/main/assets/3-runs-mean.png)
-
-All positional CLI arguments are interpreted as input directories and expected to contain TensorBoard event files. These can be specified individually or, more commonly, with wildcards using shell expansion. You can check you're getting the right input directories by running `echo runs/some/glob_pattern*` before passing them to `tb-reducer`.
 
 In addition, `tb-reducer` has the following flags:
 
@@ -60,8 +60,8 @@ reduce_ops = ("mean", "min", "max")
 
 events_dict = load_tb_events(in_dirs_glob)
 
-n_steps, n_events = list(events_dict.values())[0].shape
 n_scalars = len(events_dict)
+n_steps, n_events = list(events_dict.values())[0].shape
 
 print(
     f"Loaded {n_events} TensorBoard runs with {n_scalars} scalars and {n_steps} steps each"
@@ -75,5 +75,9 @@ for op in reduce_ops:
 
 write_tb_events(reduced_events, out_dir, overwrite)
 
+print(f"Writing results to '{out_csv}'")
+
 write_csv(reduced_events, out_csv, overwrite)
+
+print("Reduction complete")
 ```
