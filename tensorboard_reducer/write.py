@@ -28,9 +28,9 @@ def force_rm_or_raise(path: str, overwrite: bool) -> None:
             os.system(f"rm -rf {path}")
         elif overwrite:
             ValueError(
-                f"Received the overwrite flag but the content of '{path}' does not look like"
-                " it was written by this program. Please make sure you really want to delete"
-                f" '{path}' and then do so manually."
+                f"Received the overwrite flag but the content of '{path}' does not "
+                "look like it was written by this program. Please make sure you really "
+                f"want to delete '{path}' and then do so manually."
             )
         else:
             raise FileExistsError(
@@ -44,14 +44,16 @@ def write_tb_events(
     outdir: str,
     overwrite: bool = False,
 ) -> None:
-    """Writes data in dict to disk as TensorBoard event files in a newly created/overwritten
-    outdir directory.
+    """Writes a dictionary with tags as keys and reduced TensorBoard scalar data as
+    values to disk as a new TensorBoard event file in a newly created or overwritten
+    `outdir` directory (depending on `overwrite`).
 
     Inspired by https://stackoverflow.com/a/48774926.
 
     Args:
-        data_to_write (dict[str, dict[str, pd.DataFrame]]): Data to write to disk. Assumes
-            1st-level keys are reduce ops (mean, std, ...) and 2nd-level are TensorBoard tags.
+        data_to_write (dict[str, dict[str, pd.DataFrame]]): Data to write to disk.
+            Assumes 1st-level keys are reduce ops (mean, std, ...) and 2nd-level are
+            TensorBoard tags.
         outdir (str): Name of the directory to save the new reduced run data. Will
             have the reduce op name (e.g. '-mean'/'-std') appended.
         overwrite (bool): Whether to overwrite existing reduction directories.
@@ -71,8 +73,8 @@ def write_tb_events(
         writer = SummaryWriter(std_dir)
 
         for (tag, means), stds in zip(mean_dict.items(), std_dict.values()):
-            # we can safely assume mean and std will the same length and same step values
-            # as the same data went into both reductions
+            # we can safely zip(means, stds): they have the same length and same step
+            # values because the same data went into both reductions
             for (step, mean), std in zip(means.items(), stds.to_numpy()):
                 writer.add_scalars(
                     tag, {"mean+std": mean + std, "mean-std": mean - std}, step
@@ -104,15 +106,15 @@ def write_csv(
     csv_path: str,
     overwrite: bool = False,
 ) -> None:
-    """Writes reduced TensorBoard data passed as dict of dicts (1st arg) to a CSV file
-    path (2nd arg).
+    """Writes reduced TensorBoard data passed as dict of dicts to a CSV file.
 
-    Use `pandas.read_csv("path/to/file.csv", header=[0, 1], index_col=0)` to read CSV data
-    back into a multi-index dataframe.
+    Use `pandas.read_csv("path/to/file.csv", header=[0, 1], index_col=0)` to read CSV
+    data back into a multi-index dataframe.
 
     Args:
-        data_to_write (dict[str, dict[str, pd.DataFrame]]): Data to write to disk. Assumes
-            1st-level keys are reduce ops (mean, std, ...) and 2nd-level are TensorBoard tags.
+        data_to_write (dict[str, dict[str, pd.DataFrame]]): Data to write to disk.
+            Assumes 1st-level keys are reduce ops (mean, std, ...) and 2nd-level are
+            TensorBoard tags.
         outdir (str): Name of the directory to save the new reduced run data. Will
             have the reduce op name (e.g. '-mean'/'-std') appended.
         overwrite (bool): Whether to overwrite existing reduction directories.
