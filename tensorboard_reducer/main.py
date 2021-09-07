@@ -21,9 +21,9 @@ def reduce_events(
         reduce_ops (list[str]): numpy reduce ops.
 
     Returns:
-        dict[str, dict[str, pd.DataFrame]]: Dict of dicts where each subdict holds one reduced
-            array for each of the specified reduce ops, e.g. {"loss": {"mean": arr.mean(-1),
-            "std": arr.std(-1)}}.
+        dict[str, dict[str, pd.DataFrame]]: Dict of dicts where each subdict holds one
+            reduced array for each of the specified reduce ops, e.g.
+            {"loss": {"mean": arr.mean(-1), "std": arr.std(-1)}}.
     """
 
     reductions: Dict[str, Dict[str, pd.DataFrame]] = {}
@@ -59,12 +59,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         "-o",
         "--outpath",
         help=(
-            "File or directory where to save output on disk. Will save as a CSV file if path "
-            "ends in '.csv' extension or else as TensorBoard run directories, one for each "
-            "reduce op suffixed by the op's name, e.g. 'outpath-mean', 'outpath-max', etc."
-            "If output format is CSV, the output file will have a two-level header containing "
-            "one column for each combination of tag and reduce operation with tag name in "
-            "first and reduce op in second level."
+            "File or directory where to save output on disk. Will save as a CSV file "
+            "if path ends in '.csv' extension or else as TensorBoard run directories, "
+            "one for each reduce op suffixed by the op's name, e.g. 'outpath-mean', "
+            "'outpath-max', etc. If output format is CSV, the output file will have a "
+            "two-level header containing one column for each combination of tag and "
+            "reduce operation with tag name in first and reduce op in second level."
         ),
     )
     parser.add_argument(
@@ -73,9 +73,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         type=lambda s: s.split(","),
         default=["mean"],
         help="Comma-separated names of numpy reduction ops (mean, std, min, max, ...). "
-        "Default is mean. Each reduction is written to a separate output directory suffixed "
-        "by op name. E.g. if outpath='reduced-run', the mean reduction will be written to "
-        "'reduced-run-mean'.",
+        "Default is mean. Each reduction is written to a separate output directory "
+        "suffixed by op name. E.g. if outpath='reduced-run', the mean reduction will "
+        "be written to 'reduced-run-mean'.",
     )
     parser.add_argument(
         "-f",
@@ -91,28 +91,31 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument(
         "--lax-steps",
         action="store_true",
-        help="Don't error if equal tags across different runs have unequal numbers of steps.",
+        help="Don't error if equal tags across different runs have unequal numbers of "
+        "steps.",
     )
     parser.add_argument(
         "--handle-dup-steps",
         choices=("keep-first", "keep-last", "mean"),
         default=None,
-        help="How to handle duplicate values recorded for the same tag and step in a single "
-        "run. 'keep-first/last' will keep the first/last occurrence of duplicate steps while "
-        "'mean' compute their mean. Default behavior is to raise an error on duplicate steps.",
+        help="How to handle duplicate values recorded for the same tag and step in a "
+        "single run. 'keep-first/last' will keep the first/last occurrence of "
+        "duplicate steps while 'mean' compute their mean. Default behavior is to raise "
+        "an error on duplicate steps.",
     )
     parser.add_argument(
         "--min-runs-per-step",
         type=int,
         default=None,
-        help="Minimum number of runs across which a given step must be recorded to be kept. "
-        "Steps present across less runs are dropped. Only plays a role if strict_steps=False. "
-        "Warning: Be aware with this setting, you'll be reducing variable number of runs, "
-        "however many recorded a value for a given step as long as there are at least "
-        "--min-runs-per-step. In other words, the statistics of a reduction will change "
-        "mid-run. Say you're plotting the mean of an error curve, the sample size of that "
-        "mean will drop from, say, 10 down to 4 mid-plot if 4 of your models trained for "
-        "longer than the rest. Be sure to remember when using this.",
+        help="Minimum number of runs across which a given step must be recorded to be "
+        "kept. Steps present across less runs are dropped. Only plays a role if "
+        "strict_steps=False. Warning: Be aware with this setting, you'll be reducing "
+        "variable number of runs, however many recorded a value for a given step as "
+        "long as there are at least --min-runs-per-step. That is, the statistics of a "
+        "reduction will change mid-run. Say you're plotting the mean of an error "
+        "curve, the sample size of that mean will drop from, say, 10 down to 4 "
+        "mid-plot if 4 of your models trained for longer than the rest. Be sure to "
+        "remember when using this.",
     )
 
     tb_version = version("tensorboard_reducer")

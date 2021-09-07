@@ -11,7 +11,8 @@ dup_steps_runs = glob("tests/runs/duplicate_steps/run_*")
 
 
 def test_load_tb_events_strict(events_dict):
-    """Test load_tb_events for strict input data, i.e. without any of the special cases
+    """
+    Test load_tb_events for strict input data, i.e. without any of the special cases
     below. events_dict is just the output of load_tb_events() (see conftest.py).
     """
 
@@ -49,8 +50,8 @@ def test_load_tb_events_lax_tags():
 
 
 def test_load_tb_events_lax_steps():
-    """Ensure load_tb_events throws an error on runs with different sets of tags when not
-    setting strict_tags=False.
+    """Ensure load_tb_events throws an error on runs with different sets of tags when
+    not setting strict_tags=False.
     """
 
     with pytest.raises(AssertionError, match="Some tags appear in some"):
@@ -58,8 +59,9 @@ def test_load_tb_events_lax_steps():
 
 
 def test_load_tb_events_lax_tags_and_steps():
-    """Test loading TensorBoard event files when both different sets of tags and different
-    step counts across runs should not throw errors.
+    """
+    Test loading TensorBoard event files when both different sets of tags and
+    different step counts across runs should not throw errors.
     """
 
     events_dict = load_tb_events(lax_runs, strict_tags=False, strict_steps=False)
@@ -74,8 +76,9 @@ def test_load_tb_events_lax_tags_and_steps():
 
 
 def test_load_tb_events_handle_dup_steps():
-    """Test loading TensorBoard event files with duplicate steps, i.e. multiple values for the
-    same tag at the same step. See handle_dup_steps kwarg.
+    """
+    Test loading TensorBoard event files with duplicate steps, i.e. multiple values
+    for the same tag at the same step. See handle_dup_steps kwarg.
     """
 
     with pytest.raises(AssertionError, match="contains duplicate steps"):
@@ -94,14 +97,15 @@ def test_load_tb_events_handle_dup_steps():
     )
 
     assert np.allclose((first_df + last_df) / 2, mean_df, atol=1e-3), (
-        "taking the average of keeping first and last duplicates gave different result than "
-        "taking the mean of duplicate steps"
+        "taking the average of keeping first and last duplicates gave different result "
+        "than taking the mean of duplicate steps"
     )
 
 
 def test_load_tb_events_min_runs_per_step():
-    """Test loading TensorBoard event files with a minimum number of runs set at which to keep
-    steps and below which to drop them. See min_runs_per_step kwarg.
+    """
+    Test loading TensorBoard event files with a minimum number of runs set at which
+    to keep steps and below which to drop them. See min_runs_per_step kwarg.
     """
 
     events_dict = load_tb_events(
@@ -110,7 +114,9 @@ def test_load_tb_events_min_runs_per_step():
         strict_tags=False,
         min_runs_per_step=10,
     )
-    assert (  # no step has recordings from 10 runs to all dataframes should have 0 length
+
+    # no step has recordings from 10 runs so all dataframes should have 0 length
+    assert (
         sum(len(df) for df in events_dict.values()) == 0
     ), "Unexpected non-zero dataframe length for min runs to keep steps=10"
 
@@ -134,7 +140,8 @@ def test_load_tb_events_min_runs_per_step():
         min_runs_per_step=2,
     )
 
-    # 3 tags (lax/foo, lax/bar_2+3) have recordings from at least 2 runs, lax/bar_1+4 have less
+    # 3 tags (lax/foo, lax/bar_2+3) have recordings from at least 2 runs,
+    # lax/bar_1+4 have less
     min_2_lens = [0, 0, 110, 120, 120]
     assert (
         sorted(len(df) for df in events_dict.values())

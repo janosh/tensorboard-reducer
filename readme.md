@@ -6,7 +6,7 @@
 [![PyPI](https://img.shields.io/pypi/v/tensorboard-reducer)](https://pypi.org/project/tensorboard-reducer)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/tensorboard-reducer)](https://pypistats.org/packages/tensorboard-reducer)
 
-> This project was inspired by [`tensorboard-aggregator`](https://github.com/Spenhouet/tensorboard-aggregator) (similar project built for TensorFlow rather than PyTorch) and [this SO answer](https://stackoverflow.com/a/48774926).
+> For a similar project built for TensorFlow rather than PyTorch, see [`tensorboard-aggregator`](https://github.com/Spenhouet/tensorboard-aggregator).
 
 Compute reduced statistics (`mean`, `std`, `min`, `max`, `median` or any other `numpy` operation) of multiple TensorBoard run directories. This can be used e.g. when training multiple identical models (such as deep ensembles) to reduce the noise in their loss/accuracy/error curves and establish statistical significance in performance improvements. The aggregation results can be saved to disk either as new TensorBoard event files or as CSV.
 
@@ -58,7 +58,7 @@ out_csv = "path/to/out.csv"
 overwrite = False
 reduce_ops = ("mean", "min", "max")
 
-events_dict = load_tb_events(in_dirs_glob)
+events_dict = load_tb_events(in_dirs)
 
 n_scalars = len(events_dict)
 n_steps, n_events = list(events_dict.values())[0].shape
