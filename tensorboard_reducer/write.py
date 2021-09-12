@@ -59,7 +59,6 @@ def write_tb_events(
         overwrite (bool): Whether to overwrite existing reduction directories.
             Defaults to False.
     """
-
     # handle std reduction separately as we use writer.add_scalars to write mean +/- std
     if "mean" in data_to_write.keys() and "std" in data_to_write.keys():
 
@@ -115,12 +114,10 @@ def write_csv(
         data_to_write (dict[str, dict[str, pd.DataFrame]]): Data to write to disk.
             Assumes 1st-level keys are reduce ops (mean, std, ...) and 2nd-level are
             TensorBoard tags.
-        outdir (str): Name of the directory to save the new reduced run data. Will
-            have the reduce op name (e.g. '-mean'/'-std') appended.
+        csv_path (str): Name of the CSV file to save the new reduced run data.
         overwrite (bool): Whether to overwrite existing reduction directories.
             Defaults to False.
     """
-
     assert csv_path.endswith(".csv"), f"{csv_path=} should have a .csv extension"
 
     force_rm_or_raise(csv_path, overwrite)

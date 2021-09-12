@@ -45,7 +45,6 @@ def load_tb_events(
         dict: A dictionary mapping scalar tags (i.e. keys like 'train/loss', 'val/mae')
             to Pandas DataFrames.
     """
-
     assert (
         len(input_dirs) > 0
     ), f"Expected non-empty list of input directories, got '{input_dirs}'"
