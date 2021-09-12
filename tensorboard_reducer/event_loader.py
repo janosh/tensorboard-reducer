@@ -19,51 +19,37 @@ class EventAccumulator:
     only scalars. Speeds up the loading process for large event files with e.g.
     histograms by about 4x.
 
-    An `EventAccumulator` takes an event generator, and accumulates the
-    values.
+    Args:
+        path: A file path to a directory containing tf events files, or a single
+        tf events file. The accumulator will load events from this path.
 
-    The `EventAccumulator` is intended to provide a convenient Python interface
+    The EventAccumulator is intended to provide a convenient Python interface
     for loading Event data written during a TensorFlow run. TensorFlow writes out
-    `Event` protobuf objects, which have a timestamp and step number, and often
-    contain a `Summary`. Summaries can have different kinds of data like an image,
+    Event protobuf objects, which have a timestamp and step number, and often
+    contain a Summary. Summaries can have different kinds of data like an image,
     a scalar value, or a histogram. The Summaries also have a tag, which we use to
-    organize logically related data. The `EventAccumulator` supports retrieving
-    the `Event` and `Summary` data by its tag.
+    organize logically related data. The EventAccumulator supports retrieving
+    the Event and Summary data by its tag.
 
-    Calling `Tags()` gets a map from `tagType` (e.g. 'images', 'scalars', etc) to
-    the associated tags for those data types. Then, various functional endpoints (eg
-    `Accumulator.Scalars(tag)`) allow for the retrieval of all data
+    Calling Tags() gets a map from tagType (e.g. 'images', 'scalars', etc) to
+    the associated tags for those data types. Then, various functional endpoints
+    (e.g. Accumulator.Scalars(tag)) allow for the retrieval of all data
     associated with that tag.
 
-    The `Reload()` method synchronously loads all scalar data written so far.
-
     Fields:
-      most_recent_step: Step of last Event proto added. This should only
-          be accessed from the thread that calls Reload. This is -1 if
-          nothing has been loaded yet.
-      most_recent_wall_time: Timestamp of last Event proto added. This is
-          a float containing seconds from the UNIX epoch, or -1 if
-          nothing has been loaded yet. This should only be accessed from
-          the thread that calls Reload.
-      path: A file path to a directory containing tf events files, or a single
-          tf events file. The accumulator will load events from this path.
-      scalars: A reservoir.Reservoir of scalar summaries.
+        most_recent_step: Step of last Event proto added. This should only
+            be accessed from the thread that calls Reload(). This is -1 if
+            nothing has been loaded yet.
+        most_recent_wall_time: Timestamp of last Event proto added. This is
+            a float containing seconds from the UNIX epoch, or -1 if
+            nothing has been loaded yet. This should only be accessed from
+            the thread that calls Reload().
+        path: A file path to a directory containing tf events files, or a single
+            tf events file. The accumulator will load events from this path.
+        scalars: A reservoir.Reservoir of scalar summaries.
     """
 
     def __init__(self, path: str) -> None:
-        """Construct the `EventAccumulator`.
-
-        Args:
-          path: A file path to a directory containing tf events files, or a single
-            tf events file. The accumulator will load events from this path.
-          size_guidance: Information on how much data the EventAccumulator should
-            store in memory. The DEFAULT_SIZE_GUIDANCE tries not to store too much
-            so as to avoid OOMing the client. The size_guidance should be a map
-            from a `tagType` string to an integer representing the number of
-            items to keep per tag for items of that `tagType`. If the size is 0,
-            all events are stored.
-        """
-
         self._first_event_timestamp = None
         self.scalars = reservoir.Reservoir(size=10000)
 
@@ -79,12 +65,11 @@ class EventAccumulator:
         self.accumulated_attrs = ("scalars",)
 
     def Reload(self) -> "EventAccumulator":
-        """Loads all events added since the last call to `Reload`.
-
-        If `Reload` was never called, loads all events in the file.
+        """Synchronously loads all events added since last calling Reload.
+        If Reload was never called, loads all events in the file.
 
         Returns:
-          The `EventAccumulator`.
+            EventAccumulator
         """
         with self._generator_mutex:
             for event in self._generator.Load():
@@ -117,23 +102,23 @@ class EventAccumulator:
         return self.scalars.Keys()
 
     def Scalars(self, tag: str) -> Tuple[ScalarEvent]:
-        """Given a summary tag, return all associated `ScalarEvent`s.
+        """Given a summary tag, return all associated ScalarEvents.
 
         Args:
-          tag: A string tag associated with the events.
+          tag (str): The tag associated with the desired events.
 
         Raises:
           KeyError: If the tag is not found.
 
         Returns:
-          An array of `ScalarEvent`s.
+          An array of ScalarEvents.
         """
         return self.scalars.Items(tag)
 
     def _ProcessScalar(
         self, tag: str, wall_time: float, step: int, scalar: float
     ) -> None:
-        """Processes a simple value by adding it to accumulated state."""
+        """Process a simple value by adding it to accumulated state."""
         sv = ScalarEvent(wall_time=wall_time, step=step, value=scalar)
         self.scalars.AddItem(tag, sv)
 

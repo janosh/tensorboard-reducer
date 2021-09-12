@@ -107,7 +107,6 @@ def test_load_tb_events_min_runs_per_step():
     Test loading TensorBoard event files with a minimum number of runs set at which
     to keep steps and below which to drop them. See min_runs_per_step kwarg.
     """
-
     events_dict = load_tb_events(
         lax_runs,
         strict_steps=False,
