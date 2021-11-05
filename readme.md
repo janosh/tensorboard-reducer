@@ -23,7 +23,7 @@ pip install tensorboard-reducer
 ### CLI
 
 ```sh
-tb-reducer runs/of-your-model* -o output-dir -r mean,std,min,max
+tb-reducer -i runs/of-your-model'*' -o output-dir -r mean,std,min,max
 ```
 
 All positional CLI arguments are interpreted as input directories and expected to contain TensorBoard event files. These can be specified individually or with wildcards using shell expansion. You can check you're getting the right input directories by running `echo runs/of-your-model*` before passing them to `tb-reducer`.
