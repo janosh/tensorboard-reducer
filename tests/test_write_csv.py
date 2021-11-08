@@ -5,7 +5,6 @@ import pandas as pd
 
 from tensorboard_reducer import reduce_events, write_csv
 
-
 reduce_ops = ["mean", "std", "median"]
 
 

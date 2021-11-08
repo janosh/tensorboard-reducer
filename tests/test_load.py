@@ -5,7 +5,6 @@ import pytest
 
 from tensorboard_reducer import load_tb_events
 
-
 lax_runs = glob("tests/runs/lax/run_*")
 dup_steps_runs = glob("tests/runs/duplicate_steps/run_*")
 

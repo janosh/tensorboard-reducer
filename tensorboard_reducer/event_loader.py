@@ -10,7 +10,6 @@ from tensorboard.backend.event_processing import (
 )
 from tensorboard.compat.proto.event_pb2 import Event
 
-
 ScalarEvent = namedtuple("ScalarEvent", ["wall_time", "step", "value"])
 
 
@@ -101,17 +100,17 @@ class EventAccumulator:
         """
         return self.scalars.Keys()
 
-    def Scalars(self, tag: str) -> Tuple[ScalarEvent]:
+    def Scalars(self, tag: str) -> Tuple[ScalarEvent, ...]:
         """Given a summary tag, return all associated ScalarEvents.
 
         Args:
-          tag (str): The tag associated with the desired events.
+            tag (str): The tag associated with the desired events.
 
         Raises:
-          KeyError: If the tag is not found.
+            KeyError: If the tag is not found.
 
         Returns:
-          An array of ScalarEvents.
+            tuple[ScalarEvent, ...]: An array of ScalarEvents.
         """
         return self.scalars.Items(tag)
 
