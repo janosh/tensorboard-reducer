@@ -6,7 +6,6 @@ import pytest
 
 from tensorboard_reducer import main
 
-
 strict_runs = glob("tests/runs/strict/run_*")
 argv_strict = [*strict_runs, "-o", "tmp/strict"]
 

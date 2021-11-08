@@ -5,7 +5,6 @@ from shutil import rmtree
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-
 torch.manual_seed(0)
 
 

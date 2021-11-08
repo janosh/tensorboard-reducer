@@ -55,7 +55,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     parser.add_argument(
         "input_dirs",
-        nargs="*",
+        nargs="+",
         help=(
             "List of run directories to reduce. Use shell expansion (e.g. "
             "runs/of_some_model/*) to glob as many directories as required."
