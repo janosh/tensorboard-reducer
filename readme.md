@@ -50,7 +50,7 @@ You can also import `tensorboard_reducer` into a Python script for more complex 
 ```py
 from glob import glob
 
-from tensorboard_reducer import load_tb_events, reduce_events, write_csv, write_tb_events
+import tensorboard_reducer as tbr
 
 in_dirs = glob("glob_pattern/of_directories_to_reduce*")
 out_dir = "path/to/output_dir"
@@ -58,7 +58,7 @@ out_csv = "path/to/out.csv"
 overwrite = False
 reduce_ops = ("mean", "min", "max")
 
-events_dict = load_tb_events(in_dirs)
+events_dict = tbr.load_tb_events(in_dirs)
 
 n_scalars = len(events_dict)
 n_steps, n_events = list(events_dict.values())[0].shape
@@ -68,16 +68,16 @@ print(
 )
 print(", ".join(events_dict))
 
-reduced_events = reduce_events(events_dict, reduce_ops)
+reduced_events = tbr.reduce_events(events_dict, reduce_ops)
 
 for op in reduce_ops:
     print(f"Writing '{op}' reduction to '{out_dir}-{op}'")
 
-write_tb_events(reduced_events, out_dir, overwrite)
+tbr.write_tb_events(reduced_events, out_dir, overwrite)
 
 print(f"Writing results to '{out_csv}'")
 
-write_csv(reduced_events, out_csv, overwrite)
+tbr.write_csv(reduced_events, out_csv, overwrite)
 
 print("Reduction complete")
 ```
