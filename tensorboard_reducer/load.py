@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 from collections import defaultdict
-from typing import Dict, List, Union
 
 import pandas as pd
 
@@ -7,12 +8,12 @@ from .event_loader import EventAccumulator
 
 
 def load_tb_events(
-    input_dirs: List[str],
+    input_dirs: list[str],
     strict_tags: bool = True,
     strict_steps: bool = True,
-    handle_dup_steps: Union[str, None] = None,
-    min_runs_per_step: Union[int, None] = None,
-) -> Dict[str, pd.DataFrame]:
+    handle_dup_steps: str | None = None,
+    min_runs_per_step: int | None = None,
+) -> dict[str, pd.DataFrame]:
     """Read the TensorBoard event files matching the provided glob pattern
     and return their scalar data as a dict with tags ('training/loss',
     'validation/mae', etc.) as keys and 2d arrays of shape (n_timesteps, r_runs)
@@ -70,10 +71,11 @@ def load_tb_events(
         missing_tags_report = "".join(
             f"- {dir} missing tags: {', '.join(tags_set - {*tags})}\n"
             for dir, tags in zip(input_dirs, all_dirs_tags_list)
+            if len(tags_set - {*tags}) > 0
         )
 
         assert all_runs_same_tags, (
-            f"Some tags appear in some TB logs but not others:\n{missing_tags_report}"
+            f"Some tags appear only in some logs but not others:\n{missing_tags_report}"
             "\nIf this is intentional, pass --lax-tags to the CLI or strict_tags=False "
             "to the Python API. After that, each tag reduction will run over as many "
             "runs as are available for a given tag, even if that's just one. Proceed "
@@ -138,7 +140,7 @@ def load_tb_events(
         "found inside them."
     )
 
-    out_dict: Dict[str, pd.DataFrame] = {}
+    out_dict: dict[str, pd.DataFrame] = {}
 
     if min_runs_per_step is not None:
         assert (

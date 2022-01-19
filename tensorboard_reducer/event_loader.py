@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import threading
 from collections import namedtuple
-from typing import List, Optional, Tuple
 
 from tensorboard.backend.event_processing import (
     directory_watcher,
@@ -58,12 +59,12 @@ class EventAccumulator:
 
         self.most_recent_step = -1
         self.most_recent_wall_time = -1
-        self.file_version: Optional[float] = None
+        self.file_version: float | None = None
 
         # The attributes that get built up by the accumulator
         self.accumulated_attrs = ("scalars",)
 
-    def Reload(self) -> "EventAccumulator":
+    def Reload(self) -> EventAccumulator:
         """Synchronously loads all events added since last calling Reload.
         If Reload was never called, loads all events in the file.
 
@@ -92,7 +93,7 @@ class EventAccumulator:
                     self._ProcessScalar(tag, event.wall_time, event.step, datum)
 
     @property
-    def scalar_tags(self) -> List[str]:
+    def scalar_tags(self) -> list[str]:
         """Return all scalar tags found in the value stream.
 
         Returns:
@@ -100,7 +101,7 @@ class EventAccumulator:
         """
         return self.scalars.Keys()
 
-    def Scalars(self, tag: str) -> Tuple[ScalarEvent, ...]:
+    def Scalars(self, tag: str) -> tuple[ScalarEvent, ...]:
         """Given a summary tag, return all associated ScalarEvents.
 
         Args:
