@@ -1,5 +1,6 @@
+from __future__ import annotations
+
 import os
-from typing import Dict
 
 import pandas as pd
 from torch.utils.tensorboard import SummaryWriter
@@ -40,7 +41,7 @@ def force_rm_or_raise(path: str, overwrite: bool) -> None:
 
 
 def write_tb_events(
-    data_to_write: Dict[str, Dict[str, pd.DataFrame]],
+    data_to_write: dict[str, dict[str, pd.DataFrame]],
     outdir: str,
     overwrite: bool = False,
 ) -> None:
@@ -101,7 +102,7 @@ def write_tb_events(
 
 
 def write_csv(
-    data_to_write: Dict[str, Dict[str, pd.DataFrame]],
+    data_to_write: dict[str, dict[str, pd.DataFrame]],
     csv_path: str,
     overwrite: bool = False,
 ) -> None:

@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 from argparse import ArgumentParser
 from importlib.metadata import version
-from typing import Dict, List, Optional, Sequence
 
 import pandas as pd
 
@@ -9,8 +10,8 @@ from .write import write_csv, write_tb_events
 
 
 def reduce_events(
-    events_dict: Dict[str, pd.DataFrame], reduce_ops: List[str]
-) -> Dict[str, Dict[str, pd.DataFrame]]:
+    events_dict: dict[str, pd.DataFrame], reduce_ops: list[str]
+) -> dict[str, dict[str, pd.DataFrame]]:
     """Perform numpy reduce ops on the last axis of each array in a dictionary of
     scalar TensorBoard event data. Each array enters
     this function with shape (n_timesteps, r_runs) and len(reduce_ops) exit
@@ -25,7 +26,7 @@ def reduce_events(
             reduced array for each of the specified reduce ops, e.g.
             {"loss": {"mean": arr.mean(-1), "std": arr.std(-1)}}.
     """
-    reductions: Dict[str, Dict[str, pd.DataFrame]] = {}
+    reductions: dict[str, dict[str, pd.DataFrame]] = {}
 
     for op in reduce_ops:
 
@@ -38,7 +39,7 @@ def reduce_events(
     return reductions
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     """Implement tb-reducer CLI.
 
     Args:

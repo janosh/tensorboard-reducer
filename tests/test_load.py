@@ -53,7 +53,7 @@ def test_load_tb_events_lax_steps():
     not setting strict_tags=False.
     """
 
-    with pytest.raises(AssertionError, match="Some tags appear in some"):
+    with pytest.raises(AssertionError, match="Some tags appear only in some logs"):
         load_tb_events(lax_runs, strict_steps=False)
 
 
