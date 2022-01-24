@@ -4,29 +4,30 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['**/*.py']  # only run workflow when source files changed
+    paths: ['**/*.py', '.github/workflows/ci.yml']
   pull_request:
     branches: [main]
-    paths: ['**/*.py']
+    paths: ['**/*.py', '.github/workflows/ci.yml']
 
 jobs:
   tests:
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
 
-      - name: Set up Python 3.8
+      - name: Setup python
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
 
       - name: Install dependencies
-        run: pip install .[test]  # include [options.extras_require] in setup.cfg
+        # [test]: see options.extras_require in setup.cfg
+        run: pip install .[test]
 
       - name: Run tests
-        run: python -m pytest --durations 0
+        run: pytest --durations 0
