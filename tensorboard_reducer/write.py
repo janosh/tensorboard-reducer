@@ -101,9 +101,9 @@ def write_tb_events(
         writer.close()
 
 
-def write_csv(
+def write_df(
     data_to_write: dict[str, dict[str, pd.DataFrame]],
-    csv_path: str,
+    out_path: str,
     overwrite: bool = False,
 ) -> None:
     """Writes reduced TensorBoard data passed as dict of dicts to a CSV file.
@@ -115,19 +115,27 @@ def write_csv(
         data_to_write (dict[str, dict[str, pd.DataFrame]]): Data to write to disk.
             Assumes 1st-level keys are reduce ops (mean, std, ...) and 2nd-level are
             TensorBoard tags.
-        csv_path (str): Name of the CSV file to save the new reduced run data.
+        out_path (str): Path where a CSV or JSON file will be created with the reduced
+            run data. Supports compression through different file extensions like
+            .csv.gz, .csv.gzip, .json.bz2, etc.
         overwrite (bool): Whether to overwrite existing reduction directories.
             Defaults to False.
     """
-    assert csv_path.endswith(".csv"), f"{csv_path=} should have a .csv extension"
-
-    force_rm_or_raise(csv_path, overwrite)
+    force_rm_or_raise(out_path, overwrite)
 
     # create multi-index dataframe from event data with reduce op names as 1st-level col
     # names and tag names as 2nd level
     dict_of_dfs = {op: pd.DataFrame(dic) for op, dic in data_to_write.items()}
     df = pd.concat(dict_of_dfs, axis=1)
     df.columns = df.columns.swaplevel(0, 1)
-
     df.index.name = "step"
-    df.to_csv(csv_path)
+
+    # let pandas compression inference handle cases like .csv.gz, .json.bz2, etc.
+    if ".csv" in out_path.lower():
+        df.to_csv(out_path)
+    elif ".json" in out_path.lower():
+        df.to_json(out_path)
+    else:
+        raise ValueError(
+            f"Unknown extension in {out_path=}, should include .csv or .json"
+        )

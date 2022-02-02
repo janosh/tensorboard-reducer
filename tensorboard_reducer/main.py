@@ -6,7 +6,7 @@ from importlib.metadata import version
 import pandas as pd
 
 from .load import load_tb_events
-from .write import write_csv, write_tb_events
+from .write import write_df, write_tb_events
 
 
 def reduce_events(
@@ -164,7 +164,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if outpath.endswith(".csv"):
 
-        write_csv(reduced_events, outpath, overwrite)
+        write_df(reduced_events, outpath, overwrite)
 
         print(f"Wrote {', '.join(reduce_ops)} reductions to '{outpath}'")
 
@@ -179,4 +179,4 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())

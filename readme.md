@@ -53,8 +53,8 @@ from glob import glob
 import tensorboard_reducer as tbr
 
 in_dirs = glob("glob_pattern/of_directories_to_reduce*")
-out_dir = "path/to/output_dir"
-out_csv = "path/to/out.csv"
+events_out_dir = "path/to/output_dir"
+csv_out_path = "path/to/out.csv"
 overwrite = False
 reduce_ops = ("mean", "min", "max")
 
@@ -71,13 +71,13 @@ print(", ".join(events_dict))
 reduced_events = tbr.reduce_events(events_dict, reduce_ops)
 
 for op in reduce_ops:
-    print(f"Writing '{op}' reduction to '{out_dir}-{op}'")
+    print(f"Writing '{op}' reduction to '{events_out_dir}-{op}'")
 
-tbr.write_tb_events(reduced_events, out_dir, overwrite)
+tbr.write_tb_events(reduced_events, events_out_dir, overwrite)
 
-print(f"Writing results to '{out_csv}'")
+print(f"Writing results to '{csv_out_path}'")
 
-tbr.write_csv(reduced_events, out_csv, overwrite)
+tbr.write_df(reduced_events, csv_out_path, overwrite)
 
 print("Reduction complete")
 ```
