@@ -72,11 +72,13 @@ def test_main_lax_csv_output():
     os.remove("tmp/lax.csv")
 
 
-def test_main_report_version(capsys):
+@pytest.mark.parametrize("arg", ["-v", "--version"])
+def test_main_report_version(capsys, arg):
     """Test CLI version flag."""
 
     with pytest.raises(SystemExit):
-        main(["--version"])
+        ret_code = main([arg])
+        assert ret_code == 0
 
     stdout, stderr = capsys.readouterr()
 
