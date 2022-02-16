@@ -6,7 +6,7 @@ from importlib.metadata import version
 import pandas as pd
 
 from .load import load_tb_events
-from .write import write_csv, write_tb_events
+from .write import write_df, write_tb_events
 
 
 def reduce_events(
@@ -18,7 +18,7 @@ def reduce_events(
     with shape (n_timesteps,).
 
     Args:
-        events_dict (dict[str, pd.DataFrame]): Dictionary of arrays to reduce.
+        events_dict (dict[str, pd.DataFrame]): Dict of arrays to reduce.
         reduce_ops (list[str]): numpy reduce ops.
 
     Returns:
@@ -39,11 +39,11 @@ def reduce_events(
     return reductions
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: list[str] = []) -> int:
     """Implement tb-reducer CLI.
 
     Args:
-        argv (Optional[Sequence[str]], optional): [description]. Defaults to None.
+        argv (list[str], optional): Command line arguments. Defaults to [].
 
     Returns:
         int: 0 if successful else error code
@@ -164,7 +164,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if outpath.endswith(".csv"):
 
-        write_csv(reduced_events, outpath, overwrite)
+        write_df(reduced_events, outpath, overwrite)
 
         print(f"Wrote {', '.join(reduce_ops)} reductions to '{outpath}'")
 
@@ -179,4 +179,4 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    exit(main())
+    raise SystemExit(main())
