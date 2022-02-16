@@ -18,7 +18,7 @@ def reduce_events(
     with shape (n_timesteps,).
 
     Args:
-        events_dict (dict[str, pd.DataFrame]): Dictionary of arrays to reduce.
+        events_dict (dict[str, pd.DataFrame]): Dict of arrays to reduce.
         reduce_ops (list[str]): numpy reduce ops.
 
     Returns:
@@ -39,11 +39,11 @@ def reduce_events(
     return reductions
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: list[str] = []) -> int:
     """Implement tb-reducer CLI.
 
     Args:
-        argv (Optional[Sequence[str]], optional): [description]. Defaults to None.
+        argv (list[str], optional): Command line arguments. Defaults to [].
 
     Returns:
         int: 0 if successful else error code

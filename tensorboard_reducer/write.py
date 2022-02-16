@@ -130,7 +130,7 @@ def write_df(
     df.columns = df.columns.swaplevel(0, 1)
     df.index.name = "step"
 
-    # let pandas compression inference handle cases like .csv.gz, .json.bz2, etc.
+    # let pandas handle compression inference from extensions (.csv.gz, .json.bz2, etc.)
     if ".csv" in out_path.lower():
         df.to_csv(out_path)
     elif ".json" in out_path.lower():
