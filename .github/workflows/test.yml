@@ -37,7 +37,7 @@ jobs:
         run: pytest --durations 0 --cov tensorboard_reducer
 
       - name: Build and upload dist
-        if: github.event_name == 'release' && steps.tests.outcome == 'success'
+        if: github.event_name == 'release' && steps.tests.outcome == 'success' && runner.os == 'Linux'
         run: |
           pip install setuptools wheel twine
           python setup.py sdist bdist_wheel

@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import os
 from glob import glob
 from shutil import rmtree
 
 import pytest
+from pytest import CaptureFixture
 
 from tensorboard_reducer import main
 
@@ -13,7 +16,7 @@ lax_runs = glob("tests/runs/lax/run_*")
 argv_lax = [*lax_runs, "-o", "tmp/lax"]
 
 
-def test_main():
+def test_main() -> None:
     """Test main()."""
 
     rmtree("tmp/strict-mean", ignore_errors=True)
@@ -24,11 +27,11 @@ def test_main():
         main(argv_strict)
 
 
-def test_main_overwrite():
+def test_main_overwrite() -> None:
     main(argv_strict + ["-f"])
 
 
-def test_main_multi_reduce():
+def test_main_multi_reduce() -> None:
     reduce_ops = ["mean", "std", "min", "max"]
 
     main(argv_strict + ["-f", "-r", ",".join(reduce_ops)])
@@ -38,7 +41,7 @@ def test_main_multi_reduce():
         rmtree(f"tmp/strict-{op}")
 
 
-def test_main_lax():
+def test_main_lax() -> None:
     # make sure we start from clean slate in case prev test failed
     rmtree("tmp/lax-mean", ignore_errors=True)
 
@@ -57,7 +60,7 @@ def test_main_lax():
     rmtree("tmp/lax-mean")
 
 
-def test_main_lax_csv_output():
+def test_main_lax_csv_output() -> None:
     # make sure we start from clean slate in case prev test failed
     try:
         os.remove("tmp/lax.csv")
@@ -73,7 +76,7 @@ def test_main_lax_csv_output():
 
 
 @pytest.mark.parametrize("arg", ["-v", "--version"])
-def test_main_report_version(capsys, arg):
+def test_main_report_version(capsys: CaptureFixture[str], arg: str) -> None:
     """Test CLI version flag."""
 
     with pytest.raises(SystemExit):
