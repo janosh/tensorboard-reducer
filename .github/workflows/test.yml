@@ -7,6 +7,8 @@ on:
   pull_request:
     branches: [main]
     paths: ['**/*.py', '.github/workflows/test.yml']
+  release:
+    types: [published]
 
 jobs:
   pytest:
@@ -17,10 +19,10 @@ jobs:
 
     steps:
       - name: Check out repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: 3.8
           cache: pip
@@ -31,4 +33,15 @@ jobs:
         run: pip install .[test]
 
       - name: Run tests
+        id: tests
         run: pytest --durations 0 --cov tensorboard_reducer
+
+      - name: Build and upload dist
+        if: github.event_name == 'release' && steps.tests.outcome == 'success'
+        run: |
+          pip install setuptools wheel twine
+          python setup.py sdist bdist_wheel
+          twine upload --skip-existing dist/*.tar.gz
+        env:
+          TWINE_USERNAME: janosh
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
