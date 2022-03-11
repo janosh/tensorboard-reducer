@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from glob import glob
 
 import numpy as np
+import pandas as pd
 import pytest
 
 from tensorboard_reducer import load_tb_events
@@ -9,7 +12,7 @@ lax_runs = glob("tests/runs/lax/run_*")
 dup_steps_runs = glob("tests/runs/duplicate_steps/run_*")
 
 
-def test_load_tb_events_strict(events_dict):
+def test_load_tb_events_strict(events_dict: dict[str, pd.DataFrame]) -> None:
     """
     Test load_tb_events for strict input data, i.e. without any of the special cases
     below. events_dict is just the output of load_tb_events() (see conftest.py).
@@ -39,7 +42,7 @@ def test_load_tb_events_strict(events_dict):
     assert np.allclose(run_means, 2.476, atol=1e-3), assert_means
 
 
-def test_load_tb_events_lax_tags():
+def test_load_tb_events_lax_tags() -> None:
     """Ensure load_tb_events throws an error on runs with different step counts when not
     setting strict_steps=False.
     """
@@ -48,7 +51,7 @@ def test_load_tb_events_lax_tags():
         load_tb_events(lax_runs, strict_tags=False)
 
 
-def test_load_tb_events_lax_steps():
+def test_load_tb_events_lax_steps() -> None:
     """Ensure load_tb_events throws an error on runs with different sets of tags when
     not setting strict_tags=False.
     """
@@ -57,7 +60,7 @@ def test_load_tb_events_lax_steps():
         load_tb_events(lax_runs, strict_steps=False)
 
 
-def test_load_tb_events_lax_tags_and_steps():
+def test_load_tb_events_lax_tags_and_steps() -> None:
     """
     Test loading TensorBoard event files when both different sets of tags and
     different step counts across runs should not throw errors.
@@ -74,7 +77,7 @@ def test_load_tb_events_lax_tags_and_steps():
     ), "Unexpected dataframe lengths"
 
 
-def test_load_tb_events_handle_dup_steps():
+def test_load_tb_events_handle_dup_steps() -> None:
     """
     Test loading TensorBoard event files with duplicate steps, i.e. multiple values
     for the same tag at the same step. See handle_dup_steps kwarg.
@@ -101,7 +104,7 @@ def test_load_tb_events_handle_dup_steps():
     )
 
 
-def test_load_tb_events_min_runs_per_step():
+def test_load_tb_events_min_runs_per_step() -> None:
     """
     Test loading TensorBoard event files with a minimum number of runs set at which
     to keep steps and below which to drop them. See min_runs_per_step kwarg.

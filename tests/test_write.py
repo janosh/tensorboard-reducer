@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 from os.path import isdir
 from shutil import rmtree
@@ -10,7 +12,7 @@ from tensorboard_reducer import reduce_events, write_df, write_tb_events
 reduce_ops = ["mean", "std", "median"]
 
 
-def test_write_tb_events(events_dict):
+def test_write_tb_events(events_dict: dict[str, pd.DataFrame]) -> None:
     for op in reduce_ops:
         rmtree(f"tmp/reduced-{op}", ignore_errors=True)
 
@@ -29,7 +31,7 @@ def test_write_tb_events(events_dict):
 
 
 @pytest.mark.parametrize("ext", [".csv", ".json", ".csv.gz", ".json.gz"])
-def test_write_df(events_dict, ext):
+def test_write_df(events_dict: dict[str, pd.DataFrame], ext: str) -> None:
     if os.path.exists(f"tmp/strict{ext}"):
         os.remove(f"tmp/strict{ext}")
 
