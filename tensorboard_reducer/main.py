@@ -39,11 +39,11 @@ def reduce_events(
     return reductions
 
 
-def main(argv: list[str] = []) -> int:
+def main(argv: list[str] = None) -> int:
     """Implement tb-reducer CLI.
 
     Args:
-        argv (list[str], optional): Command line arguments. Defaults to [].
+        argv (list[str], optional): Command line arguments. Defaults to None.
 
     Returns:
         int: 0 if successful else error code
