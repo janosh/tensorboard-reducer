@@ -2,62 +2,61 @@ from __future__ import annotations
 
 import os
 from glob import glob
-from shutil import rmtree
 
+import py
 import pytest
 from pytest import CaptureFixture
 
 from tensorboard_reducer import main
 
 strict_runs = glob("tests/runs/strict/run_*")
-argv_strict = [*strict_runs, "-o", "tmp/strict"]
 
 lax_runs = glob("tests/runs/lax/run_*")
 argv_lax = [*lax_runs, "-o", "tmp/lax"]
 
 
-def test_main() -> None:
+@pytest.mark.parametrize("outpath_flag", ["--outpath", "-o"])
+def test_main(tmpdir: py.path.local, outpath_flag: str) -> None:
     """Test main()."""
 
-    rmtree("tmp/strict-mean", ignore_errors=True)
+    main([*strict_runs, outpath_flag, f"{tmpdir}/strict"])
 
-    main(argv_strict)
-
+    # make sure reduction fails if output dir already exists
     with pytest.raises(FileExistsError):
-        main(argv_strict)
+        main([*strict_runs, outpath_flag, f"{tmpdir}/strict"])
 
 
-def test_main_overwrite() -> None:
-    main(argv_strict + ["-f"])
+@pytest.mark.parametrize("overwrite_flag", ["--overwrite", "-f"])
+def test_main_overwrite(tmpdir: py.path.local, overwrite_flag: str) -> None:
+    main([*strict_runs, "-o", f"{tmpdir}/strict", overwrite_flag])
 
 
-def test_main_multi_reduce() -> None:
-    reduce_ops = ["mean", "std", "min", "max"]
+@pytest.mark.parametrize("reduce_ops_flag", ["--reduce-ops", "-r"])
+def test_main_multi_reduce(tmpdir: py.path.local, reduce_ops_flag: str) -> None:
+    reduce_ops = sorted(["mean", "std", "min", "max"])
+    outdir = f"{tmpdir}{os.path.sep}strict"
 
-    main(argv_strict + ["-f", "-r", ",".join(reduce_ops)])
+    main([*strict_runs, "-o", outdir, "-f", reduce_ops_flag, ",".join(reduce_ops)])
 
     # make sure all outdirs were created
-    for op in reduce_ops:
-        rmtree(f"tmp/strict-{op}")
+    assert [f"{outdir}-{op}" for op in reduce_ops] == sorted(map(str, tmpdir.listdir()))
 
 
-def test_main_lax() -> None:
-    # make sure we start from clean slate in case prev test failed
-    rmtree("tmp/lax-mean", ignore_errors=True)
+def test_main_lax(tmpdir: py.path.local) -> None:
+    outdir = f"{tmpdir}{os.path.sep}lax"
+    with pytest.raises(AssertionError):
+        main([*lax_runs, "-o", outdir])
 
     with pytest.raises(AssertionError):
-        main(argv_lax)
+        main([*lax_runs, "-o", outdir, "--lax-tags"])
 
     with pytest.raises(AssertionError):
-        main(argv_lax + ["--lax-tags"])
+        main([*lax_runs, "-o", outdir, "--lax-steps"])
 
-    with pytest.raises(AssertionError):
-        main(argv_lax + ["--lax-steps"])
-
-    main(argv_lax + ["--lax-tags", "--lax-steps"])
+    main([*lax_runs, "-o", outdir, "--lax-tags", "--lax-steps"])
 
     # make sure outdir was created
-    rmtree("tmp/lax-mean")
+    assert [f"{outdir}-mean"] == tmpdir.listdir()
 
 
 def test_main_lax_csv_output() -> None:
