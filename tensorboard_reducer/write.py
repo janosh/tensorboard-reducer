@@ -6,26 +6,28 @@ import pandas as pd
 from torch.utils.tensorboard import SummaryWriter
 
 
-def force_rm_or_raise(path: str, overwrite: bool) -> None:
+def rm_rf_or_raise(path: str, overwrite: bool) -> None:
     """Remove the directory tree below dir if overwrite is True.
 
     Args:
-        dir (str): The directory whose children will be removed if overwrite.
+        path (str): The directory whose children will be removed if overwrite=True.
         overwrite (bool): Whether to overwrite existing.
 
     Raises:
-        FileExistsError: If dir exists and not overwrite.
+        FileExistsError: If path exists and overwrite=False.
     """
     if os.path.exists(path):  # True if dir is either file or directory
 
         # for safety, check dir is either TensorBoard run or CSV file
         # to make it harder to delete files not created by this program
-        is_csv_file = path.endswith(".csv")
-        is_tb_run_dir = os.path.isdir(path) and os.listdir(path)[0].startswith(
-            "events.out"
+        is_tb_dir = os.path.isdir(path) and all(
+            x.startswith("events.out") for x in os.listdir(path)
         )
+        # use `ext in path` instead of endswith() to handle compressed files
+        # (.csv.gz, .json.bz2, etc.)
+        is_data_file = any(ext in path.lower() for ext in [".csv", ".json"])
 
-        if overwrite and (is_csv_file or is_tb_run_dir):
+        if overwrite and (is_data_file or is_tb_dir):
             os.system(f"rm -rf {path}")
         elif overwrite:
             ValueError(
@@ -68,7 +70,7 @@ def write_tb_events(
 
         std_dir = f"{outdir}-std"
 
-        force_rm_or_raise(std_dir, overwrite)
+        rm_rf_or_raise(std_dir, overwrite)
 
         writer = SummaryWriter(std_dir)
 
@@ -87,7 +89,7 @@ def write_tb_events(
 
         op_outdir = f"{outdir}-{op}"
 
-        force_rm_or_raise(op_outdir, overwrite)
+        rm_rf_or_raise(op_outdir, overwrite)
 
         writer = SummaryWriter(op_outdir)
 
@@ -121,7 +123,7 @@ def write_df(
         overwrite (bool): Whether to overwrite existing reduction directories.
             Defaults to False.
     """
-    force_rm_or_raise(out_path, overwrite)
+    rm_rf_or_raise(out_path, overwrite)
 
     # create multi-index dataframe from event data with reduce op names as 1st-level col
     # names and tag names as 2nd level

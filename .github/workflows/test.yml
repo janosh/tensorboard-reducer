@@ -11,7 +11,7 @@ on:
     types: [published]
 
 jobs:
-  pytest:
+  tests:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
