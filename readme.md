@@ -10,6 +10,10 @@
 
 Compute reduced statistics (`mean`, `std`, `min`, `max`, `median` or any other `numpy` operation) of multiple TensorBoard run directories. This can be used e.g. when training multiple identical models (such as deep ensembles) to reduce the noise in their loss/accuracy/error curves and establish statistical significance of performance improvements. Save aggregation results to disk either as new TensorBoard event files, CSV or JSON.
 
+Example notebook of how to use the Python API:
+
+[![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/janosh/tensorboard-reducer/main?labpath=assets%2Fpython_api_example.ipynb)
+
 *The mean of 3 runs shown in pink here is less noisy and better suited for comparisons between models or different training techniques than individual runs.*
 ![Mean of 3 TensorBoard logs](https://raw.githubusercontent.com/janosh/tensorboard-reducer/main/assets/3-runs-mean.png)
 
