@@ -7,7 +7,7 @@ from shutil import rmtree
 import pandas as pd
 import pytest
 
-from tensorboard_reducer import reduce_events, write_df, write_tb_events
+import tensorboard_reducer as tbr
 
 reduce_ops = ["mean", "std", "median"]
 
@@ -16,14 +16,14 @@ def test_write_tb_events(events_dict: dict[str, pd.DataFrame]) -> None:
     for op in reduce_ops:
         rmtree(f"tmp/reduced-{op}", ignore_errors=True)
 
-    reduced_events = reduce_events(events_dict, reduce_ops)
+    reduced_events = tbr.reduce_events(events_dict, reduce_ops)
 
-    write_tb_events(reduced_events, "tmp/reduced")
+    tbr.write_tb_events(reduced_events, "tmp/reduced")
 
     for op in reduce_ops:
         assert isdir(f"tmp/reduced-{op}"), f"couldn't find {op} reduction outdir"
 
-    write_tb_events(reduced_events, "tmp/reduced", overwrite=True)
+    tbr.write_tb_events(reduced_events, "tmp/reduced", overwrite=True)
 
     # will clean up or raise FileNotFoundError if directory unexpectedly does not exist
     for op in reduce_ops:
@@ -31,13 +31,13 @@ def test_write_tb_events(events_dict: dict[str, pd.DataFrame]) -> None:
 
 
 @pytest.mark.parametrize("ext", [".csv", ".json", ".csv.gz", ".json.gz"])
-def test_write_df(events_dict: dict[str, pd.DataFrame], ext: str) -> None:
+def test_write_data_file(events_dict: dict[str, pd.DataFrame], ext: str) -> None:
     if os.path.exists(f"tmp/strict{ext}"):
         os.remove(f"tmp/strict{ext}")
 
-    reduced_events = reduce_events(events_dict, reduce_ops)
+    reduced_events = tbr.reduce_events(events_dict, reduce_ops)
 
-    write_df(reduced_events, f"tmp/strict{ext}")
+    tbr.write_data_file(reduced_events, f"tmp/strict{ext}")
 
     if ".csv" in ext:
         df = pd.read_csv(f"tmp/strict{ext}", header=[0, 1], index_col=0)
@@ -52,6 +52,11 @@ def test_write_df(events_dict: dict[str, pd.DataFrame], ext: str) -> None:
     )
 
     # assert no error when overwriting
-    write_df(reduced_events, f"tmp/strict{ext}", overwrite=True)
+    tbr.write_data_file(reduced_events, f"tmp/strict{ext}", overwrite=True)
 
     os.remove(f"tmp/strict{ext}")
+
+
+def test_write_df() -> None:
+    with pytest.raises(NotImplementedError, match=r"write_df\(\) was renamed"):
+        tbr.write_df(None, "tmp/strict.csv")
