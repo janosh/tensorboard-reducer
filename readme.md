@@ -48,22 +48,22 @@ In addition, `tb-reducer` has the following flags:
 
 ### Python API
 
-You can also import `tensorboard_reducer` into a Python script for more complex operations. A simple example that makes use of the full Python API (`load_tb_events`, `reduce_events`, `write_csv`, `write_tb_events`) to get you started:
+You can also import `tensorboard_reducer` into a Python script or Jupyter notebook for more complex operations. Here's a simple example that uses all of the main functions [`load_tb_events`], [`reduce_events`], [`write_data_file`] and [`write_tb_events`] to get you started:
 
 ```py
 from glob import glob
 
 import tensorboard_reducer as tbr
 
-in_dirs = glob("glob_pattern/of_directories_to_reduce*")
-events_out_dir = "path/to/output_dir"
-csv_out_path = "path/to/out.csv"
-overwrite = False
+input_event_dirs = glob("glob_pattern/of_tb_directories_to_reduce*")
+tb_events_output_dir = "path/to/output_dir"  # where to write reduced TB events, each reduce operation will be in a separate subdirectory
+csv_out_path = "path/to/write/reduced-data-as.csv"
+overwrite = False  # whether to abort or overwrite when csv_out_path already exists
 reduce_ops = ("mean", "min", "max")
 
-events_dict = tbr.load_tb_events(in_dirs)
+events_dict = tbr.load_tb_events(input_event_dirs)
 
-n_scalars = len(events_dict)
+n_scalars = len(events_dict)  # number of recorded tags. e.g. would be 3 if you'd recorded loss, MAE and R^2
 n_steps, n_events = list(events_dict.values())[0].shape
 
 print(
@@ -74,13 +74,18 @@ print(", ".join(events_dict))
 reduced_events = tbr.reduce_events(events_dict, reduce_ops)
 
 for op in reduce_ops:
-    print(f"Writing '{op}' reduction to '{events_out_dir}-{op}'")
+    print(f"Writing '{op}' reduction to '{tb_events_output_dir}-{op}'")
 
-tbr.write_tb_events(reduced_events, events_out_dir, overwrite)
+tbr.write_tb_events(reduced_events, tb_events_output_dir, overwrite)
 
 print(f"Writing results to '{csv_out_path}'")
 
-tbr.write_df(reduced_events, csv_out_path, overwrite)
+tbr.write_data_file(reduced_events, csv_out_path, overwrite)
 
 print("Reduction complete")
 ```
+
+[`reduce_events`]: <https://github.com/janosh/tensorboard-reducer/blob/6d3468610d2933a23bc355250f9c76e6b6bb0151/tensorboard_reducer/main.py#L12-L14>
+[`load_tb_events`]: https://github.com/janosh/tensorboard-reducer/blob/6d3468610d2933a23bc355250f9c76e6b6bb0151/tensorboard_reducer/load.py#L10-L16
+[`write_data_file`]: https://github.com/janosh/tensorboard-reducer/blob/6d3468610d2933a23bc355250f9c76e6b6bb0151/tensorboard_reducer/write.py#L111-L115
+[`write_tb_events`]: https://github.com/janosh/tensorboard-reducer/blob/6d3468610d2933a23bc355250f9c76e6b6bb0151/tensorboard_reducer/write.py#L45-L49
