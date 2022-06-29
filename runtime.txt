@@ -1,2 +1,1 @@
-# Python version to use in binder notebooks (see binder link in readme)
 python-3.8
