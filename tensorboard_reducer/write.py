@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from typing import Any
 
 import pandas as pd
 from torch.utils.tensorboard import SummaryWriter
@@ -103,7 +104,14 @@ def write_tb_events(
         writer.close()
 
 
-def write_df(
+def write_df(*args: Any, **kwargs: Any) -> None:
+    """Inform users of breaking change if they try to use the old API."""
+    raise NotImplementedError(
+        "write_df() was renamed to write_data_file() in tensorboard-reducer v0.2.8"
+    )
+
+
+def write_data_file(
     data_to_write: dict[str, dict[str, pd.DataFrame]],
     out_path: str,
     overwrite: bool = False,
@@ -117,9 +125,9 @@ def write_df(
         data_to_write (dict[str, dict[str, pd.DataFrame]]): Data to write to disk.
             Assumes 1st-level keys are reduce ops (mean, std, ...) and 2nd-level are
             TensorBoard tags.
-        out_path (str): Path where a CSV or JSON file will be created with the reduced
-            run data. Supports compression through different file extensions like
-            .csv.gz, .csv.gzip, .json.bz2, etc.
+        out_path (str): CSV or JSON file path where the reduced data will be written.
+            Supports all compression formats that Pandas supports. Simply change the
+            file extension. For example .csv.gz, .csv.gzip, .json.bz2, json.tar, etc.
         overwrite (bool): Whether to overwrite existing reduction directories.
             Defaults to False.
     """
@@ -133,9 +141,10 @@ def write_df(
     df.index.name = "step"
 
     # let pandas handle compression inference from extensions (.csv.gz, .json.bz2, etc.)
-    if ".csv" in out_path.lower():
+    basename = os.path.basename(out_path)
+    if ".csv" in basename.lower():
         df.to_csv(out_path)
-    elif ".json" in out_path.lower():
+    elif ".json" in basename.lower():
         df.to_json(out_path)
     else:
         raise ValueError(

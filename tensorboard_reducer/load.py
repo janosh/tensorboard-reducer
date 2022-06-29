@@ -14,10 +14,9 @@ def load_tb_events(
     handle_dup_steps: str | None = None,
     min_runs_per_step: int | None = None,
 ) -> dict[str, pd.DataFrame]:
-    """Read the TensorBoard event files matching the provided glob pattern
-    and return their scalar data as a dict with tags ('training/loss',
-    'validation/mae', etc.) as keys and 2d arrays of shape (n_timesteps, r_runs)
-    as values.
+    """Read all TensorBoard event files found in input_dirs and return their scalar data
+    as a dict with tags as keys (e.g. 'training/loss', 'validation/mae') and 2d arrays
+    of shape (n_timesteps, r_runs) as values.
 
     Args:
         input_dirs (list[str]): Directory names containing TensorBoard runs to read
