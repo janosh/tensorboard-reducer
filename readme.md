@@ -8,7 +8,7 @@
 
 > For a similar project built for TensorFlow rather than PyTorch, see [`tensorboard-aggregator`](https://github.com/Spenhouet/tensorboard-aggregator).
 
-Compute reduced statistics (`mean`, `std`, `min`, `max`, `median` or any other `numpy` operation) of multiple TensorBoard run directories. This can be used e.g. when training multiple identical models (such as deep ensembles) to reduce the noise in their loss/accuracy/error curves and establish statistical significance of performance improvements. Save aggregation results to disk either as new TensorBoard event files, CSV or JSON.
+Compute statistics (`mean`, `std`, `min`, `max`, `median` or any other `numpy` operation) of multiple TensorBoard run directories. This can be used e.g. when training model ensembles to reduce noise in loss/accuracy/error curves and establish statistical significance of performance improvements or get a better idea of epistemic uncertainty. Results can be saved to disk either as new TensorBoard runs or CSV/JSON data files. More file formats are easy to add if needed.
 
 Example notebook of how to use the Python API:
 
