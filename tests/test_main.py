@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 from glob import glob
+from pathlib import Path
 
 import py
 import pytest
@@ -12,7 +13,6 @@ from tensorboard_reducer import main
 strict_runs = glob("tests/runs/strict/run_*")
 
 lax_runs = glob("tests/runs/lax/run_*")
-argv_lax = [*lax_runs, "-o", "tmp/lax"]
 
 
 @pytest.mark.parametrize("outpath_flag", ["--outpath", "-o"])
@@ -59,19 +59,13 @@ def test_main_lax(tmpdir: py.path.local) -> None:
     assert [f"{outdir}-mean"] == tmpdir.listdir()
 
 
-def test_main_lax_csv_output() -> None:
-    # make sure we start from clean slate in case prev test failed
-    try:
-        os.remove("tmp/lax.csv")
-    except FileNotFoundError:
-        pass
+def test_main_lax_csv_output(tmp_path: Path) -> None:
+    out_file = f"{tmp_path}/lax.csv"
 
-    main(
-        [*lax_runs, "-o", "tmp/lax.csv", "--lax-tags", "--lax-steps", "-r", "mean,std"]
-    )
+    main([*lax_runs, "-o", out_file, "--lax-tags", "--lax-steps", "-r", "mean,std"])
 
     # make sure CSV file was created
-    os.remove("tmp/lax.csv")
+    assert os.path.isfile(out_file)
 
 
 @pytest.mark.parametrize("arg", ["-v", "--version"])
