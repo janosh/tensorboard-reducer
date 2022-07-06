@@ -30,7 +30,7 @@ jobs:
 
       - name: Install dependencies
         # [test]: see options.extras_require in setup.cfg
-        run: pip install .[test]
+        run: pip install .[test,excel]
 
       - name: Run tests
         id: tests

@@ -6,8 +6,10 @@ from typing import Any
 import pandas as pd
 from torch.utils.tensorboard import SummaryWriter
 
+_known_extensions = (".csv", ".json", ".xls", ".xlsx")
 
-def rm_rf_or_raise(path: str, overwrite: bool) -> None:
+
+def _rm_rf_or_raise(path: str, overwrite: bool) -> None:
     """Remove the directory tree below dir if overwrite is True.
 
     Args:
@@ -26,7 +28,7 @@ def rm_rf_or_raise(path: str, overwrite: bool) -> None:
         )
         # use `ext in path` instead of endswith() to handle compressed files
         # (.csv.gz, .json.bz2, etc.)
-        is_data_file = any(ext in path.lower() for ext in [".csv", ".json"])
+        is_data_file = any(ext in path.lower() for ext in _known_extensions)
 
         if overwrite and (is_data_file or is_tb_dir):
             os.system(f"rm -rf {path}")
@@ -71,7 +73,7 @@ def write_tb_events(
 
         std_dir = f"{outdir}-std"
 
-        rm_rf_or_raise(std_dir, overwrite)
+        _rm_rf_or_raise(std_dir, overwrite)
 
         writer = SummaryWriter(std_dir)
 
@@ -90,7 +92,7 @@ def write_tb_events(
 
         op_outdir = f"{outdir}-{op}"
 
-        rm_rf_or_raise(op_outdir, overwrite)
+        _rm_rf_or_raise(op_outdir, overwrite)
 
         writer = SummaryWriter(op_outdir)
 
@@ -125,13 +127,13 @@ def write_data_file(
         data_to_write (dict[str, dict[str, pd.DataFrame]]): Data to write to disk.
             Assumes 1st-level keys are reduce ops (mean, std, ...) and 2nd-level are
             TensorBoard tags.
-        out_path (str): CSV or JSON file path where the reduced data will be written.
-            Supports all compression formats that Pandas supports. Simply change the
-            file extension. For example .csv.gz, .csv.gzip, .json.bz2, json.tar, etc.
+        out_path (str): CSV, JSON or Excel file path where the reduced data will be
+            written. Supports all compression formats that Pandas supports. Simply
+            change the file extension. For example .csv.gz, .csv.gzip, .json.bz2, etc.
         overwrite (bool): Whether to overwrite existing reduction directories.
             Defaults to False.
     """
-    rm_rf_or_raise(out_path, overwrite)
+    _rm_rf_or_raise(out_path, overwrite)
 
     # create multi-index dataframe from event data with reduce op names as 1st-level col
     # names and tag names as 2nd level
@@ -146,7 +148,10 @@ def write_data_file(
         df.to_csv(out_path)
     elif ".json" in basename.lower():
         df.to_json(out_path)
+    elif ".xls" in out_path.lower():
+        df.to_excel(out_path)
     else:
         raise ValueError(
-            f"Unknown extension in {out_path=}, should include .csv or .json"
+            f"{out_path=} has unknown extension, should be one of {_known_extensions} "
+            " or compressed versions thereof like '.csv.gz', '.json.bz2', etc."
         )
