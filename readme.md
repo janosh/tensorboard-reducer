@@ -8,7 +8,7 @@
 
 > For a similar project built for TensorFlow rather than PyTorch, see [`tensorboard-aggregator`](https://github.com/Spenhouet/tensorboard-aggregator).
 
-Compute statistics (`mean`, `std`, `min`, `max`, `median` or any other `numpy` operation) of multiple TensorBoard run directories. This can be used e.g. when training model ensembles to reduce noise in loss/accuracy/error curves and establish statistical significance of performance improvements or get a better idea of epistemic uncertainty. Results can be saved to disk either as new TensorBoard runs or CSV/JSON data files. More file formats are easy to add if needed.
+Compute statistics (`mean`, `std`, `min`, `max`, `median` or any other [`numpy` operation](https://numpy.org/doc/stable/reference/routines.statistics)) of multiple TensorBoard run directories. This can be used e.g. when training model ensembles to reduce noise in loss/accuracy/error curves and establish statistical significance of performance improvements or get a better idea of epistemic uncertainty. Results can be saved to disk either as new TensorBoard runs or CSV/JSON/Excel. More file formats are easy to add, PRs welcome.
 
 Example notebook of how to use the Python API:
 
@@ -21,6 +21,12 @@ Example notebook of how to use the Python API:
 
 ```sh
 pip install tensorboard-reducer
+```
+
+Excel support requires installing extra dependencies:
+
+```sh
+pip install 'tensorboard-reducer[excel]'
 ```
 
 ## Usage
@@ -37,9 +43,9 @@ All positional CLI arguments are interpreted as input directories and expected t
 
 In addition, `tb-reducer` has the following flags:
 
-- **`-o/--outpath`** (required): File or directory where to save output on disk. Will save as a CSV file if path ends in '.csv' extension or else as TensorBoard run directories, one for each reduction suffixed by the operation's name, e.g. `'outpath-mean'`, `'outpath-max'`, etc. If output format is CSV, a single file will be created with two-level header containing one column for each combination of tag and reduce operation. Tag names will be in top-level header, reduce op in second level. **Hint**: Use `pandas.read_csv("path/to/file.csv", header=[0, 1], index_col=0)` to read CSV data back into a multi-index dataframe.
+- **`-o/--outpath`** (required): File path or directory where to write output to disk. If `--outpath` is a directory, output will be saved as TensorBoard runs, one new directory created for each reduction suffixed by the `numpy` operation, e.g. `'out/path-mean'`, `'out/path-max'`, etc. If `--outpath` is a file path, it must have `'.csv'`/`'.json'` or `'.xls(x)'` (supports compression by using e.g. `.csv.gz`, `json.bz2`) in which case a single file will be created. CSVs will have a two-level header containing one column for each combination of tag (`loss`, `accuracy`, ...) and reduce operation (`mean`, `std`, ...). Tag names will be in top-level header, reduce ops in second level. **Hint**: When saving data as CSV or Excel, use `pandas.read_csv("path/to/file.csv", header=[0, 1], index_col=0)` and `pandas.read_excel("path/to/file.xlsx", header=[0, 1], index_col=0)` to load reduction results into a multi-index dataframe.
 - **`-r/--reduce-ops`** (optional, default: `mean`): Comma-separated names of numpy reduction ops (`mean`, `std`, `min`, `max`, ...). Each reduction is written to a separate `outpath` suffixed by its op name. E.g. if `outpath='reduced-run'`, the mean reduction will be written to `'reduced-run-mean'`.
-- **`-f/--overwrite`** (optional, default: `False`): Whether to overwrite existing output directories/CSV files. For safety, the overwrite operation will abort with an error if the file/directory to overwrite is not a CSV and does not look like a TensorBoard run directory (i.e. does not start with `'events.out'`).
+- **`-f/--overwrite`** (optional, default: `False`): Whether to overwrite existing output directories/data files (CSV, JSON, Excel). For safety, the overwrite operation will abort with an error if the file/directory to overwrite is not a known data file and does not look like a TensorBoard run directory (i.e. does not start with `'events.out'`).
 - **`--lax-tags`** (optional, default: `False`): Allow different runs have to different sets of tags. In this mode, each tag reduction will run over as many runs as are available for a given tag, even if that's just one. Proceed with caution as not all tags will have the same statistics in downstream analysis.
 - **`--lax-steps`** (optional, default: `False`): Allow tags across different runs to have unequal numbers of steps. In this mode, each reduction will only use as many steps as are available in the shortest run (same behavior as `zip(short_list, long_list)` which stops when `short_list` is exhausted).
 - **`--handle-dup-steps`** (optional, default: `None`): How to handle duplicate values recorded for the same tag and step in a single run. One of `'keep-first'`, `'keep-last'`, `'mean'`. `'keep-first/last'` will keep the first/last occurrence of duplicate steps while 'mean' computes their mean. Default behavior is to raise `AssertionError` on duplicate steps.
@@ -56,14 +62,17 @@ from glob import glob
 import tensorboard_reducer as tbr
 
 input_event_dirs = glob("glob_pattern/of_tb_directories_to_reduce*")
-tb_events_output_dir = "path/to/output_dir"  # where to write reduced TB events, each reduce operation will be in a separate subdirectory
+# where to write reduced TB events, each reduce operation will be in a separate subdirectory
+tb_events_output_dir = "path/to/output_dir"
 csv_out_path = "path/to/write/reduced-data-as.csv"
-overwrite = False  # whether to abort or overwrite when csv_out_path already exists
-reduce_ops = ("mean", "min", "max")
+# whether to abort or overwrite when csv_out_path already exists
+overwrite = False
+reduce_ops = ("mean", "min", "max", "median", "std", "var")
 
 events_dict = tbr.load_tb_events(input_event_dirs)
 
-n_scalars = len(events_dict)  # number of recorded tags. e.g. would be 3 if you'd recorded loss, MAE and R^2
+# number of recorded tags. e.g. would be 3 if you recorded loss, MAE and R^2
+n_scalars = len(events_dict)
 n_steps, n_events = list(events_dict.values())[0].shape
 
 print(
