@@ -61,6 +61,13 @@ def test_write_data_file(events_dict: dict[str, pd.DataFrame], ext: str) -> None
     os.remove(f"tmp/strict{ext}")
 
 
+def test_write_data_file_with_bad_ext(
+    reduced_events: dict[str, dict[str, pd.DataFrame]]
+) -> None:
+    with pytest.raises(ValueError, match="has unknown extension, should be one of"):
+        tbr.write_data_file(reduced_events, "foo.bad_ext")
+
+
 def test_write_df() -> None:
     with pytest.raises(NotImplementedError, match=r"write_df\(\) was renamed"):
         tbr.write_df(None, "tmp/strict.csv")

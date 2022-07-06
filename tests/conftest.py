@@ -17,3 +17,13 @@ def events_dict() -> dict[str, pd.DataFrame]:
     tb_events_dict = tbr.load_tb_events(glob("tests/runs/strict/run_*"))
 
     return tb_events_dict
+
+
+@pytest.fixture(scope="session")
+def reduced_events(
+    events_dict: dict[str, pd.DataFrame]
+) -> dict[str, dict[str, pd.DataFrame]]:
+
+    reduced_events = tbr.reduce_events(events_dict, REDUCE_OPS)
+
+    return reduced_events
