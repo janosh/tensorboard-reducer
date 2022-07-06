@@ -4,7 +4,6 @@ import os
 from glob import glob
 from pathlib import Path
 
-import py
 import pytest
 from pytest import CaptureFixture
 
@@ -16,34 +15,35 @@ lax_runs = glob("tests/runs/lax/run_*")
 
 
 @pytest.mark.parametrize("outpath_flag", ["--outpath", "-o"])
-def test_main(tmpdir: py.path.local, outpath_flag: str) -> None:
+def test_main(tmp_path: Path, outpath_flag: str) -> None:
     """Test main()."""
 
-    main([*strict_runs, outpath_flag, f"{tmpdir}/strict"])
+    main([*strict_runs, outpath_flag, f"{tmp_path}/strict"])
 
     # make sure reduction fails if output dir already exists
     with pytest.raises(FileExistsError):
-        main([*strict_runs, outpath_flag, f"{tmpdir}/strict"])
+        main([*strict_runs, outpath_flag, f"{tmp_path}/strict"])
 
 
 @pytest.mark.parametrize("overwrite_flag", ["--overwrite", "-f"])
-def test_main_overwrite(tmpdir: py.path.local, overwrite_flag: str) -> None:
-    main([*strict_runs, "-o", f"{tmpdir}/strict", overwrite_flag])
+def test_main_overwrite(tmp_path: Path, overwrite_flag: str) -> None:
+    main([*strict_runs, "-o", f"{tmp_path}/strict", overwrite_flag])
 
 
 @pytest.mark.parametrize("reduce_ops_flag", ["--reduce-ops", "-r"])
-def test_main_multi_reduce(tmpdir: py.path.local, reduce_ops_flag: str) -> None:
+def test_main_multi_reduce(tmp_path: Path, reduce_ops_flag: str) -> None:
     reduce_ops = sorted(["mean", "std", "min", "max"])
-    outdir = f"{tmpdir}{os.path.sep}strict"
+    outdir = f"{tmp_path}{os.path.sep}strict"
 
     main([*strict_runs, "-o", outdir, "-f", reduce_ops_flag, ",".join(reduce_ops)])
 
     # make sure all outdirs were created
-    assert [f"{outdir}-{op}" for op in reduce_ops] == sorted(map(str, tmpdir.listdir()))
+    for reduce_op in reduce_ops:
+        assert os.path.isdir(f"{outdir}-{reduce_op}")
 
 
-def test_main_lax(tmpdir: py.path.local) -> None:
-    outdir = f"{tmpdir}{os.path.sep}lax"
+def test_main_lax(tmp_path: Path) -> None:
+    outdir = f"{tmp_path}{os.path.sep}lax"
     with pytest.raises(AssertionError):
         main([*lax_runs, "-o", outdir])
 
@@ -56,7 +56,7 @@ def test_main_lax(tmpdir: py.path.local) -> None:
     main([*lax_runs, "-o", outdir, "--lax-tags", "--lax-steps"])
 
     # make sure outdir was created
-    assert [f"{outdir}-mean"] == tmpdir.listdir()
+    assert os.path.isdir(f"{outdir}-mean")
 
 
 def test_main_lax_csv_output(tmp_path: Path) -> None:
