@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from argparse import ArgumentParser
 from importlib.metadata import version
+from typing import Sequence
 
 import pandas as pd
 
@@ -10,7 +11,7 @@ from .write import write_data_file, write_tb_events
 
 
 def reduce_events(
-    events_dict: dict[str, pd.DataFrame], reduce_ops: list[str]
+    events_dict: dict[str, pd.DataFrame], reduce_ops: Sequence[str]
 ) -> dict[str, dict[str, pd.DataFrame]]:
     """Perform numpy reduce ops on the last axis of each array in a dictionary of
     scalar TensorBoard event data. Each array enters
