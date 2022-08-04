@@ -4,3 +4,4 @@ dist
 build
 .coverage
 .mypy_cache
+examples/*runs/
