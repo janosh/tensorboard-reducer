@@ -14,15 +14,15 @@ strict_runs = glob("tests/runs/strict/run_*")
 lax_runs = glob("tests/runs/lax/run_*")
 
 
-@pytest.mark.parametrize("outpath_flag", ["--outpath", "-o"])
-def test_main(tmp_path: Path, outpath_flag: str) -> None:
+@pytest.mark.parametrize("out_path_flag", ["--out_path", "-o"])
+def test_main(tmp_path: Path, out_path_flag: str) -> None:
     """Test main()."""
 
-    main([*strict_runs, outpath_flag, f"{tmp_path}/strict"])
+    main([*strict_runs, out_path_flag, f"{tmp_path}/strict"])
 
     # make sure reduction fails if output dir already exists
     with pytest.raises(FileExistsError):
-        main([*strict_runs, outpath_flag, f"{tmp_path}/strict"])
+        main([*strict_runs, out_path_flag, f"{tmp_path}/strict"])
 
 
 @pytest.mark.parametrize("overwrite_flag", ["--overwrite", "-f"])
@@ -33,30 +33,30 @@ def test_main_overwrite(tmp_path: Path, overwrite_flag: str) -> None:
 @pytest.mark.parametrize("reduce_ops_flag", ["--reduce-ops", "-r"])
 def test_main_multi_reduce(tmp_path: Path, reduce_ops_flag: str) -> None:
     reduce_ops = sorted(["mean", "std", "min", "max"])
-    outdir = f"{tmp_path}{os.path.sep}strict"
+    out_dir = f"{tmp_path}{os.path.sep}strict"
 
-    main([*strict_runs, "-o", outdir, "-f", reduce_ops_flag, ",".join(reduce_ops)])
+    main([*strict_runs, "-o", out_dir, "-f", reduce_ops_flag, ",".join(reduce_ops)])
 
-    # make sure all outdirs were created
+    # make sure all out_dirs were created
     for reduce_op in reduce_ops:
-        assert os.path.isdir(f"{outdir}-{reduce_op}")
+        assert os.path.isdir(f"{out_dir}-{reduce_op}")
 
 
 def test_main_lax(tmp_path: Path) -> None:
-    outdir = f"{tmp_path}{os.path.sep}lax"
+    out_dir = f"{tmp_path}{os.path.sep}lax"
     with pytest.raises(AssertionError):
-        main([*lax_runs, "-o", outdir])
-
-    with pytest.raises(AssertionError):
-        main([*lax_runs, "-o", outdir, "--lax-tags"])
+        main([*lax_runs, "-o", out_dir])
 
     with pytest.raises(AssertionError):
-        main([*lax_runs, "-o", outdir, "--lax-steps"])
+        main([*lax_runs, "-o", out_dir, "--lax-tags"])
 
-    main([*lax_runs, "-o", outdir, "--lax-tags", "--lax-steps"])
+    with pytest.raises(AssertionError):
+        main([*lax_runs, "-o", out_dir, "--lax-steps"])
 
-    # make sure outdir was created
-    assert os.path.isdir(f"{outdir}-mean")
+    main([*lax_runs, "-o", out_dir, "--lax-tags", "--lax-steps"])
+
+    # make sure out_dir was created
+    assert os.path.isdir(f"{out_dir}-mean")
 
 
 def test_main_lax_csv_output(tmp_path: Path) -> None:
