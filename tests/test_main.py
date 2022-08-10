@@ -14,7 +14,7 @@ strict_runs = glob("tests/runs/strict/run_*")
 lax_runs = glob("tests/runs/lax/run_*")
 
 
-@pytest.mark.parametrize("out_path_flag", ["--out_path", "-o"])
+@pytest.mark.parametrize("out_path_flag", ["--outpath", "-o"])
 def test_main(tmp_path: Path, out_path_flag: str) -> None:
     """Test main()."""
 
@@ -38,8 +38,17 @@ def test_main_multi_reduce(tmp_path: Path, reduce_ops_flag: str) -> None:
     main([*strict_runs, "-o", out_dir, "-f", reduce_ops_flag, ",".join(reduce_ops)])
 
     # make sure all out_dirs were created
-    for reduce_op in reduce_ops:
-        assert os.path.isdir(f"{out_dir}-{reduce_op}")
+    for op in reduce_ops:
+        if op == "std":
+            continue
+        assert os.path.isdir(f"{out_dir}-{op}"), f"couldn't find {op} reduction out_dir"
+    if "std" in reduce_ops:
+        assert os.path.isdir(
+            f"{out_dir}-mean+std"
+        ), "couldn't find mean+std reduction out_dir"
+        assert os.path.isdir(
+            f"{out_dir}-mean-std"
+        ), "couldn't find mean-std reduction out_dir"
 
 
 def test_main_lax(tmp_path: Path) -> None:
