@@ -55,3 +55,4 @@ repos:
     hooks:
       - id: codespell
         stages: [commit, commit-msg]
+        exclude_types: [jupyter]
