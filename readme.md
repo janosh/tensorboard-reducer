@@ -61,7 +61,7 @@ from glob import glob
 
 import tensorboard_reducer as tbr
 
-input_event_dirs = glob("glob_pattern/of_tb_directories_to_reduce*")
+input_event_dirs = sorted(glob("glob_pattern/of_tb_directories_to_reduce*"))
 # where to write reduced TB events, each reduce operation will be in a separate subdirectory
 tb_events_output_dir = "path/to/output_dir"
 csv_out_path = "path/to/write/reduced-data-as.csv"

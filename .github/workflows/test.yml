@@ -29,7 +29,7 @@ jobs:
           cache-dependency-path: setup.cfg
 
       - name: Install dependencies
-        # [test]: see options.extras_require in setup.cfg
+        # see options.extras_require in setup.cfg
         run: pip install .[test,excel]
 
       - name: Run tests
