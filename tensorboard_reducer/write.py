@@ -47,12 +47,12 @@ def _rm_rf_or_raise(path: str, overwrite: bool) -> None:
 
 def write_tb_events(
     data_to_write: dict[str, dict[str, pd.DataFrame]],
-    outdir: str,
+    out_dir: str,
     overwrite: bool = False,
-) -> None:
+) -> list[str]:
     """Writes a dictionary with tags as keys and reduced TensorBoard scalar data as
     values to disk as a new TensorBoard event file in a newly created or overwritten
-    `outdir` directory (depending on `overwrite`).
+    `out_dir` directory (depending on `overwrite`).
 
     Inspired by https://stackoverflow.com/a/48774926.
 
@@ -60,41 +60,49 @@ def write_tb_events(
         data_to_write (dict[str, dict[str, pd.DataFrame]]): Data to write to disk.
             Assumes 1st-level keys are reduce ops (mean, std, ...) and 2nd-level are
             TensorBoard tags.
-        outdir (str): Name of the directory to save the new reduced run data. Will
+        out_dir (str): Name of the directory to save the new reduced run data. Will
             have the reduce op name (e.g. '-mean'/'-std') appended.
         overwrite (bool): Whether to overwrite existing reduction directories.
             Defaults to False.
+
+    Returns:
+        list[str]: List of paths to the new TensorBoard event files.
     """
+    out_dirs: list[str] = []
+    data_to_write = data_to_write.copy()  # make copy since we modify std data in place
+
     # handle std reduction separately as we use writer.add_scalars to write mean +/- std
-    if "mean" in data_to_write.keys() and "std" in data_to_write.keys():
+    if {"mean", "std"}.issubset(data_to_write):
 
-        std_dict = data_to_write.pop("std")
         mean_dict = data_to_write["mean"]
+        # remove std from data_to_write so we don't write it twice
+        std_dict = data_to_write.pop("std")
 
-        std_dir = f"{outdir}-std"
+        for sign, symbol in ((1, "+"), (-1, "-")):
+            std_out_dir = f"{out_dir}-mean{symbol}std"
 
-        _rm_rf_or_raise(std_dir, overwrite)
+            _rm_rf_or_raise(std_out_dir, overwrite)
+            out_dirs.append(std_out_dir)
 
-        writer = SummaryWriter(std_dir)
+            writer = SummaryWriter(std_out_dir)
 
-        for (tag, means), stds in zip(mean_dict.items(), std_dict.values()):
-            # we can safely zip(means, stds): they have the same length and same step
-            # values because the same data went into both reductions
-            for (step, mean), std in zip(means.items(), stds.to_numpy()):
-                writer.add_scalars(
-                    tag, {"mean+std": mean + std, "mean-std": mean - std}, step
-                )
+            for (tag, means), stds in zip(mean_dict.items(), std_dict.values()):
+                # we can safely zip(means, stds): they have the same length and same
+                # step values because the same data went into both reductions
+                for (step, mean), std in zip(means.items(), stds.to_numpy()):
+                    writer.add_scalar(tag, mean + sign * std, step)
 
         writer.close()
 
     # loop over each reduce operation (e.g. mean, min, max, median)
     for op, events_dict in data_to_write.items():
 
-        op_outdir = f"{outdir}-{op}"
+        op_out_dir = f"{out_dir}-{op}"
+        out_dirs.append(op_out_dir)
 
-        _rm_rf_or_raise(op_outdir, overwrite)
+        _rm_rf_or_raise(op_out_dir, overwrite)
 
-        writer = SummaryWriter(op_outdir)
+        writer = SummaryWriter(op_out_dir)
 
         for tag, series in events_dict.items():
             for step, value in series.items():
@@ -102,8 +110,10 @@ def write_tb_events(
 
         # Important for allowing write_events() to overwrite. Without it,
         # try_rmtree will raise OSError: [Errno 16] Device or resource busy
-        # trying to delete the existing outdir.
+        # trying to delete the existing out_dir.
         writer.close()
+
+    return out_dirs
 
 
 def write_df(*args: Any, **kwargs: Any) -> None:
