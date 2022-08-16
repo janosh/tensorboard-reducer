@@ -10,11 +10,16 @@
 
 Compute statistics (`mean`, `std`, `min`, `max`, `median` or any other [`numpy` operation](https://numpy.org/doc/stable/reference/routines.statistics)) of multiple TensorBoard run directories. This can be used e.g. when training model ensembles to reduce noise in loss/accuracy/error curves and establish statistical significance of performance improvements or get a better idea of epistemic uncertainty. Results can be saved to disk either as new TensorBoard runs or CSV/JSON/Excel. More file formats are easy to add, PRs welcome.
 
-## Example notebook: Python API Demo &ensp; [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/janosh/tensorboard-reducer/main?labpath=examples%2Fbasic_python_api_example.ipynb)
+## Example notebooks
 
-Or [view notebook on GitHub](https://github.com/janosh/tensorboard-reducer/blob/main/examples/basic_python_api_example.ipynb).
+|                                  |                                                                                                                                                                                                         |                                                                                                                            |                                                                                                              |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **Basic Python API Demo**        | <a href="https://mybinder.org/v2/gh/janosh/tensorboard-reducer/main?labpath=examples%2Fbasic_python_api_example.ipynb"><img src="https://mybinder.org/badge_logo.svg" valign="middle" alt="Binder"></a> | [View notebook on GitHub](https://github.com/janosh/tensorboard-reducer/blob/main/examples/basic_python_api_example.ipynb) | Demonstrates how to work with local TensorBoard event files.                                                 |
+| **Functorch MLP Ensemble**       | <a href="https://mybinder.org/v2/gh/janosh/tensorboard-reducer/main?labpath=examples%2Ffunctorch_mlp_ensemble.ipynb"><img src="https://mybinder.org/badge_logo.svg" valign="middle" alt="Binder"></a>   | [View notebook on GitHub](https://github.com/janosh/tensorboard-reducer/blob/main/examples/functorch_mlp_ensemble.ipynb)   | Shows how to aggregate run metrics with TensorBoard Reducer when training model ensembles using `functorch`. |
+| **Weights & Biases Integration** | <a href="https://mybinder.org/v2/gh/janosh/tensorboard-reducer/main?labpath=examples%2Fwandb_integration.ipynb"><img src="https://mybinder.org/badge_logo.svg" valign="middle" alt="Binder"></a>        | [View notebook on GitHub](https://github.com/janosh/tensorboard-reducer/blob/main/examples/wandb_integration.ipynb)        |                                                                                                              |
+|                                  |                                                                                                                                                                                                         |                                                                                                                            |                                                                                                              |
 
-*The mean of 3 runs shown in pink here is less noisy and better suited for comparisons between models or different training techniques than individual runs.*
+_The mean of 3 runs shown in pink here is less noisy and better suited for comparisons between models or different training techniques than individual runs._
 ![Mean of 3 TensorBoard logs](https://raw.githubusercontent.com/janosh/tensorboard-reducer/main/assets/3-runs-mean.png)
 
 ## Installation
@@ -94,7 +99,7 @@ tbr.write_data_file(reduced_events, csv_out_path, overwrite)
 print("Reduction complete")
 ```
 
-[`reduce_events`]: <https://github.com/janosh/tensorboard-reducer/blob/6d3468610d2933a23bc355250f9c76e6b6bb0151/tensorboard_reducer/main.py#L12-L14>
+[`reduce_events`]: https://github.com/janosh/tensorboard-reducer/blob/6d3468610d2933a23bc355250f9c76e6b6bb0151/tensorboard_reducer/main.py#L12-L14
 [`load_tb_events`]: https://github.com/janosh/tensorboard-reducer/blob/6d3468610d2933a23bc355250f9c76e6b6bb0151/tensorboard_reducer/load.py#L10-L16
 [`write_data_file`]: https://github.com/janosh/tensorboard-reducer/blob/6d3468610d2933a23bc355250f9c76e6b6bb0151/tensorboard_reducer/write.py#L111-L115
 [`write_tb_events`]: https://github.com/janosh/tensorboard-reducer/blob/6d3468610d2933a23bc355250f9c76e6b6bb0151/tensorboard_reducer/write.py#L45-L49
