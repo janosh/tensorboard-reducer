@@ -6,16 +6,16 @@ from typing import Sequence
 
 import pandas as pd
 
-from .load import load_tb_events
-from .write import write_data_file, write_tb_events
+from tensorboard_reducer.load import load_tb_events
+from tensorboard_reducer.write import write_data_file, write_tb_events
 
 
 def reduce_events(
     events_dict: dict[str, pd.DataFrame], reduce_ops: Sequence[str]
 ) -> dict[str, dict[str, pd.DataFrame]]:
     """Perform numpy reduce ops on the last axis of each array in a dictionary of
-    scalar TensorBoard event data. Each array enters
-    this function with shape (n_timesteps, r_runs) and len(reduce_ops) exit
+    scalar TensorBoard event data. Each array (1 per run) enters
+    this function with shape (n_timesteps, n_runs) and len(reduce_ops) exit
     with shape (n_timesteps,).
 
     Args:
