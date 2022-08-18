@@ -16,7 +16,7 @@ def load_tb_events(
 ) -> dict[str, pd.DataFrame]:
     """Read all TensorBoard event files found in input_dirs and return their scalar data
     as a dict with tags as keys (e.g. 'training/loss', 'validation/mae') and 2d arrays
-    of shape (n_timesteps, n_runs) as values.
+    of shape (n_steps, n_runs) as values.
 
     Args:
         input_dirs (list[str]): Directory names containing TensorBoard runs to read
