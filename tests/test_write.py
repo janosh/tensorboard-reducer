@@ -15,13 +15,13 @@ from tests.conftest import REDUCE_OPS
 def test_write_tb_events(
     reduced_events: dict[str, dict[str, pd.DataFrame]], tmp_path: Path
 ) -> None:
-    out_dir = f"{tmp_path}/reduced"
+    out_dir = str(tmp_path)
     tbr.write_tb_events(reduced_events, out_dir)
 
     for op in REDUCE_OPS:
         if op == "std":
             continue
-        assert os.path.isdir(f"{out_dir}-{op}"), f"couldn't find {op} reduction out_dir"
+        assert os.path.isdir(f"{out_dir}-{op}"), f"couldn't find {op = } out_dir"
     if "std" in REDUCE_OPS:
         assert os.path.isdir(
             f"{out_dir}-mean+std"
