@@ -71,6 +71,8 @@ def write_tb_events(
     out_dirs: list[str] = []
     data_to_write = data_to_write.copy()  # make copy since we modify std data in place
 
+    out_dir_op_connector = "" if out_dir.endswith(("/", "\\")) else "-"
+
     # handle std reduction separately as we use writer.add_scalars to write mean +/- std
     if {"mean", "std"}.issubset(data_to_write):
 
@@ -79,7 +81,7 @@ def write_tb_events(
         std_dict = data_to_write.pop("std")
 
         for sign, symbol in ((1, "+"), (-1, "-")):
-            std_out_dir = f"{out_dir}-mean{symbol}std"
+            std_out_dir = f"{out_dir}{out_dir_op_connector}mean{symbol}std"
 
             _rm_rf_or_raise(std_out_dir, overwrite)
             out_dirs.append(std_out_dir)
@@ -97,7 +99,7 @@ def write_tb_events(
     # loop over each reduce operation (e.g. mean, min, max, median)
     for op, events_dict in data_to_write.items():
 
-        op_out_dir = f"{out_dir}-{op}"
+        op_out_dir = f"{out_dir}{out_dir_op_connector}{op}"
         out_dirs.append(op_out_dir)
 
         _rm_rf_or_raise(op_out_dir, overwrite)
