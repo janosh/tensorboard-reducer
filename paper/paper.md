@@ -3,10 +3,13 @@ title: 'TensorBoard Reducer: A Python package for aggregating TensorBoard logs'
 tags:
   - Python
   - machine learning
-  - PyTorch
   - TensorBoard
   - performance analysis
   - ensemble models
+  - uncertainty estimation
+  - PyTorch
+  - TensorFlow
+  - JAX
 authors:
   - name: Janosh Riebesell
     orcid: 0000-0001-5233-3462
@@ -45,13 +48,26 @@ We believe the extra work of training model ensembles should be more prevalent a
 
 Specifically, it designed to make the process of aggregating the results of related training runs fast and flexible. Built on top of Numpy and Pandas, it is well-integrated into the [NumFOCUS](https://numfocus.org) stack, supporting many aggregation operations such as `mean`, `std`, `min`, `max`, `median` (see [`numpy.statistics`](https://numpy.org/doc/stable/reference/routines.statistics)) and data export options such new TensorBoard event files as well as CSV / JSON / Excel data files (see [`pandas.io`](https://pandas.pydata.org/pandas-docs/stable/user_guide/io.html)) which can easily be extended should the need arise. It has comprehensive test coverage (98% at time of writing), doc string for all of the public API as well as 3 example notebooks demonstrating various use cases that can be launched in [Binder](https://github.com/jupyterhub/binderhub) with a single click.
 
-|                                  |                                                                                                                                                                                                                                                                                      |                                                                                                                                                                                                   |
-| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Basic Python API Demo**        | [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/janosh/tensorboard-reducer/main?labpath=examples%2Fbasic_python_api_example.ipynb) <br>[View on GitHub](https://github.com/janosh/tensorboard-reducer/blob/main/examples/basic_python_api_example.ipynb) | Demonstrates how to work with local TensorBoard event files.                                                                                                                                      |
-| **Functorch MLP Ensemble**       | [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/janosh/tensorboard-reducer/main?labpath=examples%2Ffunctorch_mlp_ensemble.ipynb) <br>[View on GitHub](https://github.com/janosh/tensorboard-reducer/blob/main/examples/functorch_mlp_ensemble.ipynb)     | Shows how to aggregate run metrics with TensorBoard Reducer when training model ensembles using `functorch`.                                                                                      |
-| **Weights & Biases Integration** | [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/janosh/tensorboard-reducer/main?labpath=examples%2Fwandb_integration.ipynb) <br>[View on GitHub](https://github.com/janosh/tensorboard-reducer/blob/main/examples/wandb_integration.ipynb)               | Trains PyTorch CNN ensemble on MNIST, logs results to [WandB](https://wandb.ai), downloads metrics from multiple WandB runs, aggregates using `tb-reducer`, then re-uploads to WandB as new runs. |
+1. **Basic Python API Demo**
 
+    [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/janosh/tensorboard-reducer/main?labpath=examples%2Fbasic_python_api_example.ipynb)
+    [![View on GitHub](https://img.shields.io/badge/View%20on-GitHub-darkblue?logo=github)](https://github.com/janosh/tensorboard-reducer/blob/main/examples/basic_python_api_example.ipynb)
 
+    Demonstrates how to work with local TensorBoard event files.
+
+1. **Functorch MLP Ensemble**
+
+    [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/janosh/tensorboard-reducer/main?labpath=examples%2Ffunctorch_mlp_ensemble.ipynb)
+    [![View on GitHub](https://img.shields.io/badge/View%20on-GitHub-darkblue?logo=github)](https://github.com/janosh/tensorboard-reducer/blob/main/examples/functorch_mlp_ensemble.ipynb)
+
+    Shows how to aggregate run metrics with TensorBoard Reducer when training model ensembles using `functorch`.
+
+1. **Weights & Biases Integration**
+
+    [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/janosh/tensorboard-reducer/main?labpath=examples%2Fwandb_integration.ipynb)
+    [![View on GitHub](https://img.shields.io/badge/View%20on-GitHub-darkblue?logo=github)](https://github.com/janosh/tensorboard-reducer/blob/main/examples/wandb_integration.ipynb)
+
+    Trains PyTorch CNN ensemble on MNIST, logs results to [WandB](https://wandb.ai), downloads metrics from multiple WandB runs, aggregates using `tb-reducer`, then re-uploads to WandB as new runs.
 
 ## Acknowledgements
 
