@@ -4,7 +4,6 @@ import os
 from typing import Any
 
 import pandas as pd
-from torch.utils.tensorboard import SummaryWriter
 
 _known_extensions = (".csv", ".json", ".xls", ".xlsx")
 
@@ -68,6 +67,16 @@ def write_tb_events(
     Returns:
         list[str]: List of paths to the new TensorBoard event files.
     """
+    try:
+        from torch.utils.tensorboard import SummaryWriter
+    except ImportError:
+        try:
+            from tensorflow.summary import SummaryWriter
+        except ImportError:
+            raise ImportError(
+                "Cannot import SummaryWriter from torch nor tensorflow."
+                "Install either to create new TensorBoard event files."
+            )
     out_dirs: list[str] = []
     data_to_write = data_to_write.copy()  # make copy since we modify std data in place
 

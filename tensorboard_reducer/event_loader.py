@@ -88,7 +88,7 @@ class EventAccumulator:
         if event.HasField("summary"):
             for value in event.summary.value:
                 if value.HasField("simple_value"):
-                    datum = getattr(value, "simple_value")
+                    datum = value.simple_value
                     tag = value.tag
                     self._ProcessScalar(tag, event.wall_time, event.step, datum)
 
