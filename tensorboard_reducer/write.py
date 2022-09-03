@@ -127,7 +127,7 @@ def write_tb_events(
     return out_dirs
 
 
-def write_df(*args: Any, **kwargs: Any) -> None:
+def write_df(*args: Any) -> None:
     """Inform users of breaking change if they try to use the old API."""
     raise NotImplementedError(
         "write_df() was renamed to write_data_file() in tensorboard-reducer v0.2.8"

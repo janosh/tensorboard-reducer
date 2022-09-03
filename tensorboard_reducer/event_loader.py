@@ -37,13 +37,6 @@ class EventAccumulator:
     associated with that tag.
 
     Fields:
-        most_recent_step: Step of last Event proto added. This should only
-            be accessed from the thread that calls Reload(). This is -1 if
-            nothing has been loaded yet.
-        most_recent_wall_time: Timestamp of last Event proto added. This is
-            a float containing seconds from the UNIX epoch, or -1 if
-            nothing has been loaded yet. This should only be accessed from
-            the thread that calls Reload().
         path: A file path to a directory containing tf events files, or a single
             tf events file. The accumulator will load events from this path.
         scalars: A reservoir.Reservoir of scalar summaries.
@@ -57,12 +50,7 @@ class EventAccumulator:
         self.path = path
         self._generator = _GeneratorFromPath(path)
 
-        self.most_recent_step = -1
-        self.most_recent_wall_time = -1
         self.file_version: float | None = None
-
-        # The attributes that get built up by the accumulator
-        self.accumulated_attrs = ("scalars",)
 
     def Reload(self) -> EventAccumulator:
         """Synchronously loads all events added since last calling Reload.
