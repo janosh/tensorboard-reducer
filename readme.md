@@ -19,7 +19,7 @@ Compute statistics (`mean`, `std`, `min`, `max`, `median` or any other [`numpy` 
 | **Weights & Biases Integration** | [![Launch Binder]](https://mybinder.org/v2/gh/janosh/tensorboard-reducer/main?labpath=examples%2Fwandb_integration.ipynb)  [![View on GitHub]](https://github.com/janosh/tensorboard-reducer/blob/main/examples/wandb_integration.ipynb)               | Trains PyTorch CNN ensemble on MNIST, logs results to [WandB](https://wandb.ai), downloads metrics from multiple WandB runs, aggregates using `tb-reducer`, then re-uploads to WandB as new runs. |
 
 [Launch Binder]: https://mybinder.org/badge_logo.svg
-[View on GitHub]: https://img.shields.io/badge/View-GitHub-darkblue?logo=github
+[View on GitHub]: https://img.shields.io/badge/View%20on-GitHub-darkblue?logo=github
 
 _The mean of 3 runs shown in pink here is less noisy and better suited for comparisons between models or different training techniques than individual runs._
 ![Mean of 3 TensorBoard logs](https://raw.githubusercontent.com/janosh/tensorboard-reducer/main/assets/3-runs-mean.png)
