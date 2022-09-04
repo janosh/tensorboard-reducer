@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+title: TensorBoard Reducer
+message: If you use this software, please cite it as below.
+authors:
+  - family-names: Riebesell
+    given-names: Janosh
+license: MIT
+license-url: https://github.com/janosh/tensorboard-reducer/blob/main/license"
+repository-code: https://github.com/janosh/tensorboard-reducer
+type: software
+url: https://github.com/janosh/tensorboard-reducer
+doi: 10.5281/zenodo.7048809
+version: 0.2.10 # replace with whatever version you use
