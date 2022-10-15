@@ -10,10 +10,10 @@ ROOT = os.path.dirname(__file__)
 
 
 def generate_strict_test_data() -> None:
-    """Generate strict TB runs: same tags and step counts for different runs
+    """Generate strict TB runs: same tags and step counts for different runs.
 
-    Generate random event files for testing TensorBoard Reducer in strict mode,
-    i.e. with different runs containing identical tags and equal number of steps.
+    Generate random event files for testing TensorBoard Reducer in strict mode, i.e.
+    with different runs containing identical tags and equal number of steps.
     """
     out_dir = f"{ROOT}/strict"
     rmtree(out_dir)
@@ -31,7 +31,7 @@ def generate_strict_test_data() -> None:
 
 
 def generate_lax_test_data() -> None:
-    """Generate lax TB runs: different tags and step counts for different runs
+    """Generate lax TB runs: different tags and step counts for different runs.
 
     Writes random event files for testing TensorBoard Reducer in --lax-steps and/or
     --lax-tags mode, i.e. with different runs containing different tags and unequal
@@ -57,7 +57,7 @@ def generate_lax_test_data() -> None:
 
 
 def generate_duplicate_steps_test_data() -> None:
-    """Generate TB runs with duplicate steps
+    """Generate TB runs with duplicate steps.
 
     Writes random TensorBoard event files for testing tb-reducer in --handle-dup-steps
     mode, i.e. with a runs containing multiple values for a single tag at the same step.

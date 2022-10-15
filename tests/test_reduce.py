@@ -6,7 +6,6 @@ from tensorboard_reducer import reduce_events
 
 
 def test_reduce_events(events_dict: dict[str, pd.DataFrame]) -> None:
-
     reduce_ops = ["mean", "std", "max", "min"]
     reduced_events = reduce_events(events_dict, reduce_ops)
 
