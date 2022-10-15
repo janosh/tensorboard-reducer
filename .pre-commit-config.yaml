@@ -51,6 +51,11 @@ repos:
       - id: pydocstyle
         exclude: tests
 
+  - repo: https://github.com/PyCQA/docformatter
+    rev: v1.5.0
+    hooks:
+      - id: docformatter
+
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.1
     hooks:

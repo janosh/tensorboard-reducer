@@ -12,9 +12,10 @@ dup_steps_runs = glob("tests/runs/duplicate_steps/run_*")
 
 
 def test_load_tb_events_strict(events_dict: dict[str, pd.DataFrame]) -> None:
-    """
-    Test load_tb_events for strict input data, i.e. without any of the special cases
-    below. events_dict is just the output of load_tb_events() (see conftest.py).
+    """Test load_tb_events for strict input data, i.e. without any of the special cases
+    below.
+
+    The events_dict fixture is the output of load_tb_events() (see conftest.py).
     """
     actual_type = type(events_dict)
     assert_dict = f"return type of load_tb_events() is {actual_type}, expected dict"
@@ -61,8 +62,7 @@ def test_load_tb_events_lax_steps() -> None:
 
 
 def test_load_tb_events_lax_tags_and_steps() -> None:
-    """
-    Test loading TensorBoard event files when both different sets of tags and
+    """Test loading TensorBoard event files when both different sets of tags and
     different step counts across runs should not throw errors.
     """
     events_dict = load_tb_events(lax_runs, strict_tags=False, strict_steps=False)
@@ -77,9 +77,8 @@ def test_load_tb_events_lax_tags_and_steps() -> None:
 
 
 def test_load_tb_events_handle_dup_steps() -> None:
-    """
-    Test loading TensorBoard event files with duplicate steps, i.e. multiple values
-    for the same tag at the same step. See handle_dup_steps kwarg.
+    """Test loading TensorBoard event files with duplicate steps, i.e. multiple values
+    for the same tag at the same step (see handle_dup_steps kwarg).
     """
     with pytest.raises(AssertionError, match="contains duplicate steps"):
         load_tb_events(dup_steps_runs)
@@ -103,9 +102,8 @@ def test_load_tb_events_handle_dup_steps() -> None:
 
 
 def test_load_tb_events_min_runs_per_step() -> None:
-    """
-    Test loading TensorBoard event files with a minimum number of runs set at which
-    to keep steps and below which to drop them. See min_runs_per_step kwarg.
+    """Test loading TensorBoard event files with a minimum number of runs set at which
+    to keep steps and below which to drop them (see min_runs_per_step kwarg).
     """
     events_dict = load_tb_events(
         lax_runs,

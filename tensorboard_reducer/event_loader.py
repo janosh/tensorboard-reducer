@@ -15,9 +15,9 @@ ScalarEvent = namedtuple("ScalarEvent", ["wall_time", "step", "value"])
 
 
 class EventAccumulator:
-    """Stripped-down version of TensorBoard's EventAccumulator that Reloads()
-    only scalars. Speeds up the loading process for large event files with e.g.
-    histograms by about 4x.
+    """Stripped-down version of TensorBoard's EventAccumulator that Reloads() only
+    scalars. Speeds up the loading process for large event files with e.g. histograms by
+    about 4x.
 
     Args:
         path: A file path to a directory containing tf events files, or a single
@@ -53,8 +53,8 @@ class EventAccumulator:
         self.file_version: float | None = None
 
     def Reload(self) -> EventAccumulator:
-        """Synchronously loads all events added since last calling Reload.
-        If Reload was never called, loads all events in the file.
+        """Synchronously loads all events added since last calling Reload. If Reload was
+        never called, loads all events in the file.
 
         Returns:
             EventAccumulator

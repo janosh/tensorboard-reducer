@@ -14,10 +14,10 @@ def reduce_events(
     events_dict: dict[str, pd.DataFrame], reduce_ops: Sequence[str]
 ) -> dict[str, dict[str, pd.DataFrame]]:
     """Perform numpy reduce operations along the last dimension of each array in a
-    dictionary of scalar TensorBoard event data. Each array (1 per run) enters
-    this function with shape (n_steps, n_runs) and it returns a dict of len(reduce_ops)
-    subdicts each with keys named after scalar quantities (loss, accuracy, etc.)
-    holding arrays with shape (n_steps,).
+    dictionary of scalar TensorBoard event data. Each array (1 per run) enters this
+    function with shape (n_steps, n_runs) and it returns a dict of len(reduce_ops)
+    subdicts each with keys named after scalar quantities (loss, accuracy, etc.) holding
+    arrays with shape (n_steps,).
 
     Args:
         events_dict (dict[str, pd.DataFrame]): Dict of arrays to reduce.
