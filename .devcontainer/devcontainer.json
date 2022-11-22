@@ -1,0 +1,17 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "waitFor": "onCreateCommand",
+  "updateContentCommand": "pip install -e .",
+  "customizations": {
+    "codespaces": {
+      "openFiles": [
+        "examples/basic_python_api_example.ipynb",
+        "examples/functorch_mlp_ensemble.ipynb",
+        "examples/wandb_integration.ipynb"
+      ]
+    },
+    "vscode": {
+      "extensions": ["ms-toolsai.jupyter", "ms-python.python"]
+    }
+  }
+}
