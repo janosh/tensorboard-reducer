@@ -142,9 +142,10 @@ def load_tb_events(
     out_dict: dict[str, pd.DataFrame] = {}
 
     if min_runs_per_step is not None:
-        assert (
-            type(min_runs_per_step) == int and min_runs_per_step > 0
-        ), f"got {min_runs_per_step=}, expected positive integer"
+        if not isinstance(min_runs_per_step, int) or min_runs_per_step < 1:
+            raise ValueError(
+                f"Expected positive integer or None, got {min_runs_per_step=}"
+            )
 
         for key, lst in load_dict.items():
             # join='outer' means keep the union of indices from all joined dataframes.
