@@ -34,7 +34,7 @@ jobs:
 
       - name: Run tests
         id: tests
-        run: pytest --durations 0 --cov tensorboard_reducer
+        run: pytest --durations 0 --cov .
 
       - name: Build and upload dist
         if: github.event_name == 'release' && steps.tests.outcome == 'success' && runner.os == 'Linux'
