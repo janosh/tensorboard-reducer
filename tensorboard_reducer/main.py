@@ -41,7 +41,7 @@ def reduce_events(
     return reductions
 
 
-def main(argv: list[str] = None) -> int:
+def main(argv: list[str] | None = None) -> int:
     """Implement tb-reducer CLI.
 
     Args:

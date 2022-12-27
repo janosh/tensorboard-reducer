@@ -4,6 +4,9 @@ message: If you use this software, please cite it as below.
 authors:
   - family-names: Riebesell
     given-names: Janosh
+    affiliation: University of Cambridge
+    email: janosh@lbl.gov
+    orcid: https://orcid.org/0000-0001-5233-3462
 license: MIT
 license-url: https://github.com/janosh/tensorboard-reducer/blob/main/license"
 repository-code: https://github.com/janosh/tensorboard-reducer
@@ -11,3 +14,4 @@ type: software
 url: https://github.com/janosh/tensorboard-reducer
 doi: 10.5281/zenodo.7048809
 version: 0.2.10 # replace with whatever version you use
+date-released: 2022-09-04
