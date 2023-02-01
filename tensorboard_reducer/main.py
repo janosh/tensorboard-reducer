@@ -31,11 +31,9 @@ def reduce_events(
     reductions: dict[str, dict[str, pd.DataFrame]] = {}
 
     for op in reduce_ops:
-
         reductions[op] = {}
 
         for tag, df in events_dict.items():
-
             reductions[op][tag] = getattr(df, op)(axis=1)
 
     return reductions
@@ -165,13 +163,11 @@ def main(argv: list[str] | None = None) -> int:
     reduced_events = reduce_events(events_dict, reduce_ops)
 
     if outpath.endswith(".csv"):
-
         write_data_file(reduced_events, outpath, overwrite)
 
         print(f"Wrote {', '.join(reduce_ops)} reductions to '{outpath}'")
 
     else:
-
         write_tb_events(reduced_events, outpath, overwrite)
 
         for op in reduce_ops:

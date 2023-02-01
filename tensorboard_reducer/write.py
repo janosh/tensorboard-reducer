@@ -19,7 +19,6 @@ def _rm_rf_or_raise(path: str, overwrite: bool) -> None:
         FileExistsError: If path exists and overwrite=False.
     """
     if os.path.exists(path):  # True if dir is either file or directory
-
         # for safety, check dir is either TensorBoard run or CSV file
         # to make it harder to delete files not created by this program
         is_tb_dir = os.path.isdir(path) and all(
@@ -84,7 +83,6 @@ def write_tb_events(
 
     # handle std reduction separately as we use writer.add_scalars to write mean +/- std
     if {"mean", "std"}.issubset(data_to_write):
-
         mean_dict = data_to_write["mean"]
         # remove std from data_to_write so we don't write it twice
         std_dict = data_to_write.pop("std")
@@ -107,7 +105,6 @@ def write_tb_events(
 
     # loop over each reduce operation (e.g. mean, min, max, median)
     for op, events_dict in data_to_write.items():
-
         op_out_dir = f"{out_dir}{out_dir_op_connector}{op}"
         out_dirs.append(op_out_dir)
 

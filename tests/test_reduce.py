@@ -17,12 +17,10 @@ def test_reduce_events(events_dict: dict[str, pd.DataFrame]) -> None:
 
     # loop over reduce operations
     for (op, out_dict), in_arr in zip(reduced_events.items(), events_dict.values()):
-
         n_steps = len(in_arr)  # length of TB logs
 
         # loop over event tags (only 'strict/foo' here)
         for tag, out_arr in out_dict.items():
-
             assert (
                 tag in events_dict.keys()
             ), f"unexpected key {tag} in reduced event dict[{op}] = {out_dict.keys()}"

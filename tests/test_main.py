@@ -17,7 +17,6 @@ lax_runs = glob("tests/runs/lax/run_*")
 @pytest.mark.parametrize("out_path_flag", ["--outpath", "-o"])
 def test_main(tmp_path: Path, out_path_flag: str) -> None:
     """Test main()."""
-
     main([*strict_runs, out_path_flag, f"{tmp_path}/strict"])
 
     # make sure reduction fails if output dir already exists
@@ -80,7 +79,6 @@ def test_main_lax_csv_output(tmp_path: Path) -> None:
 @pytest.mark.parametrize("arg", ["-v", "--version"])
 def test_main_report_version(capsys: CaptureFixture[str], arg: str) -> None:
     """Test CLI version flag."""
-
     with pytest.raises(SystemExit):
         ret_code = main([arg])
         assert ret_code == 0

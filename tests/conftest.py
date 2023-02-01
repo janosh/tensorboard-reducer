@@ -23,7 +23,6 @@ def events_dict() -> dict[str, pd.DataFrame]:
 def reduced_events(
     events_dict: dict[str, pd.DataFrame]
 ) -> dict[str, dict[str, pd.DataFrame]]:
-
     reduced_events = tbr.reduce_events(events_dict, REDUCE_OPS)
 
     return reduced_events
