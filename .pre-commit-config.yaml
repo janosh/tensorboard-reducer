@@ -7,12 +7,12 @@ default_install_hook_types: [pre-commit, commit-msg]
 
 repos:
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.4
+    rev: 5.12.0
     hooks:
       - id: isort
 
   - repo: https://github.com/psf/black
-    rev: 22.12.0
+    rev: 23.1.0
     hooks:
       - id: black-jupyter
 
@@ -46,13 +46,13 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/PyCQA/pydocstyle
-    rev: 6.1.1
+    rev: 6.3.0
     hooks:
       - id: pydocstyle
         exclude: tests
 
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.5.1
+    rev: v1.6.0.rc1
     hooks:
       - id: docformatter
 
@@ -64,7 +64,7 @@ repos:
         exclude_types: [jupyter, bib]
 
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.6.0
+    rev: 1.6.1
     hooks:
       - id: nbqa-flake8
         args: [--ignore=E402]
@@ -79,7 +79,7 @@ repos:
         args: [--drop-empty-cells, --keep-output]
 
   - repo: https://github.com/jendrikseipp/vulture
-    rev: v2.6
+    rev: v2.7
     hooks:
       - id: vulture
         args: [.]
