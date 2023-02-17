@@ -43,6 +43,12 @@ class EventAccumulator:
     """
 
     def __init__(self, path: str) -> None:
+        """Create a new EventAccumulator which is a generator that yields Event objects
+        as well as a Reservoir object to store the last 10,000 Events.
+
+        Args:
+            path (str): The path to the event file.
+        """
         self._first_event_timestamp = None
         self.scalars = reservoir.Reservoir(size=10000)
 
@@ -53,7 +59,7 @@ class EventAccumulator:
         self.file_version: float | None = None
 
     def Reload(self) -> EventAccumulator:
-        """Synchronously loads all events added since last calling Reload. If Reload was
+        """Synchronously load all events added since last calling Reload. If Reload was
         never called, loads all events in the file.
 
         Returns:
