@@ -22,7 +22,7 @@ def test_reduce_events(events_dict: dict[str, pd.DataFrame]) -> None:
         # loop over event tags (only 'strict/foo' here)
         for tag, out_arr in out_dict.items():
             assert (
-                tag in events_dict.keys()
+                tag in events_dict
             ), f"unexpected key {tag} in reduced event dict[{op}] = {out_dict.keys()}"
 
             out_steps = len(out_arr)

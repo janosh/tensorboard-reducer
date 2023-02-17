@@ -48,9 +48,9 @@ def write_tb_events(
     out_dir: str,
     overwrite: bool = False,
 ) -> list[str]:
-    """Writes a dictionary with tags as keys and reduced TensorBoard scalar data as
-    values to disk as a new TensorBoard event file in a newly created or overwritten
-    `out_dir` directory (depending on `overwrite`).
+    """Write a dictionary with tags as keys and reduced TensorBoard scalar data
+    as values to disk as a new TensorBoard event file in a newly created or
+    overwritten `out_dir` directory (depending on `overwrite`).
 
     Inspired by https://stackoverflow.com/a/48774926.
 
