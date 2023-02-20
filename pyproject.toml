@@ -1,3 +1,62 @@
+[project]
+name = "tensorboard-reducer"
+version = "0.2.10"
+description = "Reduce multiple TensorBoard runs to new event (or CSV) files"
+authors = [{ name = "Janosh Riebesell", email = "janosh.riebesell@gmail.com" }]
+license = { file = "license" }
+readme = "readme.md"
+keywords = [
+  "tensorboard",
+  "runs",
+  "reducer",
+  "pytorch",
+  "machine-learning",
+  "statistics",
+  "aggregate",
+  "averaging",
+  "logs",
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "License :: OSI Approved :: MIT License",
+]
+requires-python = ">=3.8"
+dependencies = ["tensorboard >= 2.0", "numpy >= 1.19", "pandas >= 1.0.0"]
+
+[project.urls]
+Homepage = "https://github.com/janosh/tensorboard-reducer"
+Package = "https://pypi.org/project/tensorboard-reducer"
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-cov", "torch >= 1.6"]
+excel = ["openpyxl", "xlwt", "xlrd"]
+
+[project.scripts]
+tb-reducer = "tensorboard_reducer:main"
+
+[tool.setuptools.packages]
+find = { include = ["tensorboard_reducer"] }
+
+[tool.distutils.bdist_wheel]
+universal = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:warnings"
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_untyped_defs = true
+disallow_any_generics = true
+disallow_incomplete_defs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
 [tool.ruff]
 target-version = "py38"
 select = [
