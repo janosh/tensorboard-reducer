@@ -77,15 +77,10 @@ select = [
   "YTT", # flake8-2020
 ]
 ignore = [
-  "B019",    # functools.lru_cache on methods can lead to memory leaks
-  "B023",    # Function definition does not bind loop variable
-  "B904",    # Within an except clause, raise exceptions with ...
-  "D100",    # Missing docstring in public module
-  "D104",    # Missing docstring in public package
-  "D205",    # 1 blank line required between summary line and description
-  "E741",    # tmp: we should fix all ambiguous variable names
-  "PLR2004", # Magic number
-  "PLW0120", # tmp: awaiting bug fix https://github.com/charliermarsh/ruff/issues/3019
+  "B904", # Within an except clause, raise exceptions with ...
+  "D100", # Missing docstring in public module
+  "D104", # Missing docstring in public package
+  "D205", # 1 blank line required between summary line and description
 ]
 pydocstyle.convention = "google"
 
