@@ -1,6 +1,6 @@
 [project]
 name = "tensorboard-reducer"
-version = "0.2.10"
+version = "0.3.0"
 description = "Reduce multiple TensorBoard runs to new event (or CSV) files"
 authors = [{ name = "Janosh Riebesell", email = "janosh.riebesell@gmail.com" }]
 license = { file = "license" }

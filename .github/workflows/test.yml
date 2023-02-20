@@ -49,7 +49,7 @@ jobs:
           pip install build twine
           python -m build
           twine check dist/* --strict
-          twine upload --skip-existing --repository-url https://upload.pypi.org/legacy dist/*.tar.gz
+          twine upload --skip-existing --repository-url https://upload.pypi.org/legacy/ dist/*.tar.gz
         env:
           TWINE_USERNAME: janosh
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
