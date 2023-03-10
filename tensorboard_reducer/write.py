@@ -73,7 +73,7 @@ def write_tb_events(
             from tensorflow.summary import SummaryWriter
         except ImportError:
             raise ImportError(
-                "Cannot import SummaryWriter from torch nor tensorflow."
+                "Cannot import SummaryWriter from torch nor tensorflow. "
                 "Install either to create new TensorBoard event files."
             )
     out_dirs: list[str] = []

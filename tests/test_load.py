@@ -49,7 +49,7 @@ def test_load_tb_events_lax_tags() -> None:
     """Ensure load_tb_events throws an error on runs with different step counts when not
     setting strict_steps=False.
     """
-    with pytest.raises(AssertionError, match="Unequal number of steps"):
+    with pytest.raises(ValueError, match="Unequal number of steps"):
         load_tb_events(lax_runs, strict_tags=False)
 
 
@@ -57,7 +57,7 @@ def test_load_tb_events_lax_steps() -> None:
     """Ensure load_tb_events throws an error on runs with different sets of tags when
     not setting strict_tags=False.
     """
-    with pytest.raises(AssertionError, match="Some tags appear only in some logs"):
+    with pytest.raises(ValueError, match="Some tags are in some logs but not others"):
         load_tb_events(lax_runs, strict_steps=False)
 
 
@@ -80,7 +80,7 @@ def test_load_tb_events_handle_dup_steps() -> None:
     """Test loading TensorBoard event files with duplicate steps, i.e. multiple values
     for the same tag at the same step (see handle_dup_steps kwarg).
     """
-    with pytest.raises(AssertionError, match="contains duplicate steps"):
+    with pytest.raises(ValueError, match="contains duplicate steps"):
         load_tb_events(dup_steps_runs)
 
     kept_first_dups = load_tb_events(dup_steps_runs, handle_dup_steps="keep-first")

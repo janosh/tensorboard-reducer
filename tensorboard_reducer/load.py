@@ -1,17 +1,20 @@
 from __future__ import annotations
 
 from collections import defaultdict
+from typing import Literal, get_args
 
 import pandas as pd
 
 from tensorboard_reducer.event_loader import EventAccumulator
+
+HandleDupSteps = Literal["keep-first", "keep-last", "mean", None]
 
 
 def load_tb_events(
     input_dirs: list[str],
     strict_tags: bool = True,
     strict_steps: bool = True,
-    handle_dup_steps: str | None = None,
+    handle_dup_steps: HandleDupSteps = None,
     min_runs_per_step: int | None = None,
 ) -> dict[str, pd.DataFrame]:
     """Read all TensorBoard event files found in input_dirs and return their scalar data
@@ -45,9 +48,13 @@ def load_tb_events(
         dict: A dictionary mapping scalar tags (i.e. keys like 'train/loss', 'val/mae')
             to Pandas DataFrames.
     """
-    assert (
-        len(input_dirs) > 0
-    ), f"Expected non-empty list of input directories, got '{input_dirs}'"
+    if not input_dirs:
+        msg = f"Expected non-empty list of input directories, got '{input_dirs}'"
+        raise ValueError(msg)
+    if handle_dup_steps not in (None, "keep-first", "keep-last", "mean"):
+        raise ValueError(
+            f"unexpected {handle_dup_steps=}, must be one of {get_args(HandleDupSteps)}"
+        )
 
     # Here's where TensorBoard scalars are loaded into memory. Uses a custom
     # EventAccumulator that only loads scalars and ignores histograms, images and other
@@ -73,14 +80,15 @@ def load_tb_events(
             if len(tags_set - {*tags}) > 0
         )
 
-        assert all_runs_same_tags, (
-            f"Some tags appear only in some logs but not others:\n{missing_tags_report}"
-            "\nIf this is intentional, pass --lax-tags to the CLI or strict_tags=False "
-            "to the Python API. After that, each tag reduction will run over as many "
-            "runs as are available for a given tag, even if that's just one. Proceed "
-            "with caution as not all tags will have the same statistics in downstream "
-            "analysis."
-        )
+        if not all_runs_same_tags:
+            raise ValueError(
+                f"Some tags are in some logs but not others:\n{missing_tags_report}"
+                "\nIf intentional, pass CLI flag --lax-tags or strict_tags=False "
+                "to the Python API. With that, each tag reduction uses as many "
+                "runs as are available for a given tag, even if that's just one. "
+                "Proceed with caution as not all tags will have the same statistics in "
+                "downstream analysis."
+            )
 
     load_dict = defaultdict(list)
 
@@ -92,8 +100,8 @@ def load_tb_events(
             df = pd.DataFrame(accumulator.Scalars(tag)).set_index("step")
             df = df.drop(columns="wall_time")
 
-            if handle_dup_steps is None:
-                assert df.index.is_unique, (
+            if handle_dup_steps is None and not df.index.is_unique:
+                raise ValueError(
                     f"Tag '{tag}' from run directory '{indir}' contains duplicate "
                     "steps. Please make sure your data wasn't corrupted. If this is "
                     "expected/you want to proceed anyway, specify how to handle "
@@ -103,16 +111,11 @@ def load_tb_events(
                     "API. This will keep the first/last occurrence of duplicate steps "
                     "or take their mean."
                 )
-            elif handle_dup_steps == "mean":
+            if handle_dup_steps == "mean":
                 df = df.groupby(df.index).mean()
-            elif handle_dup_steps in ["keep-first", "keep-last"]:
+            elif handle_dup_steps in ("keep-first", "keep-last"):
                 keep = handle_dup_steps.replace("keep-", "")
                 df = df[~df.index.duplicated(keep=keep)]
-            else:
-                raise ValueError(
-                    f"unexpected value for {handle_dup_steps=}, should be one of "
-                    "'first', 'last', 'mean', None."
-                )
 
             load_dict[tag].append(df)
 
@@ -126,13 +129,14 @@ def load_tb_events(
                 n_steps_per_run
             )
 
-            assert all_runs_equal_steps, (
-                f"Unequal number of steps {n_steps_per_run} across different runs for "
-                f"the same tag '{tag}'. If this is intentional, pass --lax-steps to "
-                "the CLI or strict_steps=False when using the Python API. After that, "
-                "each reduction will only use as many steps as are available in the "
-                "shortest run (same behavior as zip())."
-            )
+            if not all_runs_equal_steps:
+                raise ValueError(
+                    f"Unequal number of steps {n_steps_per_run} for different runs for "
+                    f"the same tag '{tag}'. If intentional, pass CLI flag --lax-steps "
+                    " or strict_steps=False to the Python API. After that, each "
+                    "reduction will only use as many steps as are available in the "
+                    "shortest run (same behavior as zip())."
+                )
 
     assert len(load_dict) > 0, (
         f"Got {len(input_dirs)} input directories but no TensorBoard event files "
