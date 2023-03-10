@@ -77,10 +77,11 @@ select = [
   "YTT", # flake8-2020
 ]
 ignore = [
-  "B904", # Within an except clause, raise exceptions with ...
-  "D100", # Missing docstring in public module
-  "D104", # Missing docstring in public package
-  "D205", # 1 blank line required between summary line and description
+  "B904",    # Within an except clause, raise exceptions with ...
+  "D100",    # Missing docstring in public module
+  "D104",    # Missing docstring in public package
+  "D205",    # 1 blank line required between summary line and description
+  "PLW2901", # for loop variable overwritten by assignment target
 ]
 pydocstyle.convention = "google"
 
