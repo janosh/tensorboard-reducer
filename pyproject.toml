@@ -40,7 +40,7 @@ excel = ["openpyxl", "xlwt", "xlrd"]
 tb-reducer = "tensorboard_reducer:main"
 
 [tool.setuptools.packages]
-find = { include = ["tensorboard_reducer"] }
+find = { include = ["tensorboard_reducer*"], exclude = ["tests*"] }
 
 [tool.distutils.bdist_wheel]
 universal = true
