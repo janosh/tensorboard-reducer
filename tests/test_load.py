@@ -11,12 +11,16 @@ lax_runs = glob("tests/runs/lax/run_*")
 dup_steps_runs = glob("tests/runs/duplicate_steps/run_*")
 
 
-def test_load_tb_events_strict(events_dict: dict[str, pd.DataFrame]) -> None:
+@pytest.mark.parametrize("verbose", [True, False])
+def test_load_tb_events_strict(
+    verbose: bool, capsys: pytest.CaptureFixture[str]
+) -> None:
     """Test load_tb_events for strict input data, i.e. without any of the special cases
     below.
 
     The events_dict fixture is the output of load_tb_events() (see conftest.py).
     """
+    events_dict = load_tb_events(glob("tests/runs/strict/run_*"), verbose=verbose)
     actual_type = type(events_dict)
     assert_dict = f"return type of load_tb_events() is {actual_type}, expected dict"
     assert actual_type == dict, assert_dict
@@ -43,6 +47,14 @@ def test_load_tb_events_strict(events_dict: dict[str, pd.DataFrame]) -> None:
 
     assert_means = f"load_tb_events() data has unexpected mean {column_means}"
     assert column_means == pytest.approx([1.488, 2.459, 3.481], abs=1e-3), assert_means
+
+    stdout, stderr = capsys.readouterr()
+    assert stdout == ""
+    if verbose:
+        assert "\rLoading runs:   0%|" in stderr
+        assert "Reading tags:   0%|" in stderr
+    else:
+        assert stderr == ""
 
 
 def test_load_tb_events_lax_tags() -> None:

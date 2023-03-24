@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from typing import Any
 
 import pandas as pd
@@ -93,6 +94,8 @@ def write_tb_events(
 
         for sign, symbol in ((1, "+"), (-1, "-")):
             std_out_dir = f"{out_dir}{out_dir_op_connector}mean{symbol}std"
+            if verbose:
+                print(f"Writing mean{symbol}std reduction to disk...", file=sys.stderr)
 
             _rm_rf_or_raise(std_out_dir, overwrite)
             out_dirs.append(std_out_dir)
@@ -145,7 +148,7 @@ def write_data_file(
     out_path: str,
     overwrite: bool = False,
     verbose: bool = False,
-) -> None:
+) -> str:
     """Writes reduced TensorBoard data passed as dict of dicts to a CSV file.
 
     Use `pandas.read_csv("path/to/file.csv", header=[0, 1], index_col=0)` to read CSV
@@ -161,6 +164,9 @@ def write_data_file(
         overwrite (bool): Whether to overwrite existing reduction directories.
             Defaults to False.
         verbose (bool): Whether to print the path to new data file. Defaults to False.
+
+    Returns:
+        str: Path to the new data file.
     """
     _rm_rf_or_raise(out_path, overwrite)
 
@@ -186,3 +192,4 @@ def write_data_file(
         )
     if verbose:
         print(f"Created new data file at {out_path!r}")
+    return out_path

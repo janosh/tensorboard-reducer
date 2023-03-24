@@ -12,11 +12,15 @@ import tensorboard_reducer as tbr
 from tests.conftest import REDUCE_OPS
 
 
+@pytest.mark.parametrize("verbose", [True, False])
 def test_write_tb_events(
-    reduced_events: dict[str, dict[str, pd.DataFrame]], tmp_path: Path
+    reduced_events: dict[str, dict[str, pd.DataFrame]],
+    tmp_path: Path,
+    verbose: bool,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     out_dir = str(tmp_path)
-    tbr.write_tb_events(reduced_events, out_dir)
+    tbr.write_tb_events(reduced_events, out_dir, verbose=verbose)
 
     for op in REDUCE_OPS:
         if op == "std":
@@ -37,16 +41,35 @@ def test_write_tb_events(
         if {"mean", "std"}.issubset(REDUCE_OPS)
         else len(REDUCE_OPS)
     )
+    stdout, stderr = capsys.readouterr()
+    if verbose:
+        for op in REDUCE_OPS:
+            if op == "std" and "mean" in REDUCE_OPS:
+                assert "Writing mean+std reduction to disk..." in stderr
+                assert "Writing mean-std reduction to disk..." in stderr
+            else:
+                assert f"Writing {op} reduction to disk:" in stderr
+        assert "Created new TensorBoard event files in\n" in stdout
+        for out_dir in out_dirs:
+            assert f"\n- {out_dir}" in stdout
+    else:
+        assert stdout == ""
+        assert stderr == ""
 
 
 @pytest.mark.parametrize(
     "extension", [".csv", ".json", ".csv.gz", ".json.gz", ".xls", ".xlsx"]
 )
+@pytest.mark.parametrize("verbose", [True, False])
 def test_write_data_file(
-    reduced_events: dict[str, dict[str, pd.DataFrame]], extension: str, tmp_path: Path
+    reduced_events: dict[str, dict[str, pd.DataFrame]],
+    extension: str,
+    tmp_path: Path,
+    verbose: bool,
+    capsys: pytest.CaptureFixture[str],
 ) -> None:
     file_path = f"{tmp_path}/strict{extension}"
-    tbr.write_data_file(reduced_events, file_path)
+    tbr.write_data_file(reduced_events, file_path, verbose=verbose)
 
     if ".csv" in extension:
         df = pd.read_csv(file_path, header=[0, 1], index_col=0)
@@ -64,7 +87,14 @@ def test_write_data_file(
     assert list(df) == expected_cols, "Unexpected df columns"
     assert df.shape == (n_steps, len(reduce_ops)), "Unexpected df shape"
 
-    tbr.write_data_file(reduced_events, file_path, overwrite=True)
+    out_path = tbr.write_data_file(reduced_events, file_path, overwrite=True)
+
+    stdout, stderr = capsys.readouterr()
+    assert stderr == ""
+    if verbose:
+        assert f"Created new data file at {out_path!r}" in stdout
+    else:
+        assert stdout == ""
 
 
 def test_write_data_file_with_bad_ext(
