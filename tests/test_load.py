@@ -49,11 +49,12 @@ def test_load_tb_events_strict(
     assert column_means == pytest.approx([1.488, 2.459, 3.481], abs=1e-3), assert_means
 
     stdout, stderr = capsys.readouterr()
-    assert stdout == ""
     if verbose:
+        assert "Loaded 3 TensorBoard runs with 1 scalars and 100 steps each" in stdout
         assert "\rLoading runs:   0%|" in stderr
         assert "Reading tags:   0%|" in stderr
     else:
+        assert stdout == ""
         assert stderr == ""
 
 

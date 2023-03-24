@@ -167,12 +167,32 @@ def load_tb_events(
             df = df[df.count(axis=1) >= min_runs_per_step]
             out_dict[key] = df
 
-        return out_dict
     else:
         # join='inner' means keep only the intersection of indices from all joined
         # dataframes. That is, we only retain steps for which all loaded runs recorded
         # a value. Only makes a difference if strict_steps=False and different runs have
         # non-overlapping steps.
-        return {
+        out_dict = {
             key: pd.concat(lst, join="inner", axis=1) for key, lst in load_dict.items()
         }
+
+    if verbose:
+        n_tags = len(out_dict)
+        if strict_steps and strict_tags:
+            n_steps, n_events = list(out_dict.values())[0].shape
+            print(
+                f"Loaded {n_events} TensorBoard runs with {n_tags} scalars "
+                f"and {n_steps} steps each"
+            )
+        else:
+            print(
+                f"Loaded data for {n_tags} tags into arrays of shape (n_steps, n_runs):"
+            )
+
+            for tag in list(out_dict)[:50]:
+                df = out_dict[tag]
+                print(f"- '{tag}': {df.shape}")
+            if len(out_dict) > 50:
+                print("...")
+
+    return out_dict

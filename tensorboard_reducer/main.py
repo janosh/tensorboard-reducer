@@ -154,27 +154,6 @@ def main(argv: list[str] | None = None) -> int:
         verbose=args.verbose,
     )
 
-    n_scalars = len(events_dict)
-
-    if not args.lax_steps and not args.lax_tags:
-        n_steps, n_events = list(events_dict.values())[0].shape
-
-        print(
-            f"Loaded {n_events} TensorBoard runs with {n_scalars} scalars "
-            f"and {n_steps} steps each"
-        )
-        if n_scalars < 20:
-            print(", ".join(events_dict))
-    elif n_scalars < 20 or args.verbose:
-        print(
-            f"Loaded data for {n_scalars} tags into arrays of shape (n_steps, n_runs):"
-        )
-        for tag in list(events_dict)[:50]:
-            df = events_dict[tag]
-            print(f"- '{tag}': {df.shape}")
-        if len(events_dict) > 50:
-            print("...")
-
     reduced_events = reduce_events(events_dict, reduce_ops, verbose=args.verbose)
 
     if out_path.endswith(".csv"):
