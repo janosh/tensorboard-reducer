@@ -4,6 +4,7 @@ from collections import defaultdict
 from typing import Literal, get_args
 
 import pandas as pd
+from tqdm import tqdm
 
 from tensorboard_reducer.event_loader import EventAccumulator
 
@@ -16,6 +17,7 @@ def load_tb_events(
     strict_steps: bool = True,
     handle_dup_steps: HandleDupSteps = None,
     min_runs_per_step: int | None = None,
+    verbose: bool = False,
 ) -> dict[str, pd.DataFrame]:
     """Read all TensorBoard event files found in input_dirs and return their scalar data
     as a dict with tags as keys (e.g. 'training/loss', 'validation/mae') and 2d arrays
@@ -43,6 +45,7 @@ def load_tb_events(
             change mid-run. Say you're plotting the mean of an error curve, the sample
             size of that mean will drop from 10 down to 4 mid-plot if 4 of your models
             trained for longer than the rest. Be sure to remember when using this.
+        verbose (bool, optional): If true, print progress to stdout. Defaults to False.
 
     Returns:
         dict: A dictionary mapping scalar tags (i.e. keys like 'train/loss', 'val/mae')
@@ -59,7 +62,10 @@ def load_tb_events(
     # Here's where TensorBoard scalars are loaded into memory. Uses a custom
     # EventAccumulator that only loads scalars and ignores histograms, images and other
     # time-consuming data.
-    accumulators = [EventAccumulator(dirname).Reload() for dirname in input_dirs]
+    accumulators = [
+        EventAccumulator(dirname).Reload()
+        for dirname in tqdm(input_dirs, disable=not verbose, desc="Loading runs")
+    ]
 
     # Safety check: make sure all loaded runs have identical tags unless user set
     # strict_tags=False.
@@ -92,17 +98,17 @@ def load_tb_events(
 
     load_dict = defaultdict(list)
 
-    for indir, accumulator in zip(input_dirs, accumulators):
-        tags = accumulator.scalar_tags
+    for accumulator in tqdm(accumulators, disable=not verbose, desc="Reading tags"):
+        in_dir = accumulator.path
 
-        for tag in tags:
-            # dataframes use 'step' as index leaving 'wall_time' and 'value' as cols
+        for tag in accumulator.scalar_tags:
+            # accumulator.Scalars() returns columns 'step', 'wall_time', 'value'
             df = pd.DataFrame(accumulator.Scalars(tag)).set_index("step")
             df = df.drop(columns="wall_time")
 
             if handle_dup_steps is None and not df.index.is_unique:
                 raise ValueError(
-                    f"Tag '{tag}' from run directory '{indir}' contains duplicate "
+                    f"Tag '{tag}' from run directory '{in_dir}' contains duplicate "
                     "steps. Please make sure your data wasn't corrupted. If this is "
                     "expected/you want to proceed anyway, specify how to handle "
                     "duplicate values recorded for the same tag and step in a single "

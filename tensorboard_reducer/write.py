@@ -4,6 +4,7 @@ import os
 from typing import Any
 
 import pandas as pd
+from tqdm import tqdm
 
 _known_extensions = (".csv", ".json", ".xls", ".xlsx")
 
@@ -47,6 +48,7 @@ def write_tb_events(
     data_to_write: dict[str, dict[str, pd.DataFrame]],
     out_dir: str,
     overwrite: bool = False,
+    verbose: bool = False,
 ) -> list[str]:
     """Write a dictionary with tags as keys and reduced TensorBoard scalar data
     as values to disk as a new TensorBoard event file in a newly created or
@@ -61,6 +63,8 @@ def write_tb_events(
         out_dir (str): Name of the directory to save the new reduced run data. Will
             have the reduce op name (e.g. '-mean'/'-std') appended.
         overwrite (bool): Whether to overwrite existing reduction directories.
+            Defaults to False.
+        verbose (bool): Whether to print the paths to new TensorBoard event file.
             Defaults to False.
 
     Returns:
@@ -104,7 +108,8 @@ def write_tb_events(
         writer.close()
 
     # loop over each reduce operation (e.g. mean, min, max, median)
-    for op, events_dict in data_to_write.items():
+    for op, events_dict in (pbar := tqdm(data_to_write.items(), disable=not verbose)):
+        pbar.set_description(f"Writing {op} reduction to disk")
         op_out_dir = f"{out_dir}{out_dir_op_connector}{op}"
         out_dirs.append(op_out_dir)
 
@@ -121,6 +126,10 @@ def write_tb_events(
         # trying to delete the existing out_dir.
         writer.close()
 
+    if verbose:
+        out_str = "\n- ".join(out_dirs)
+        print(f"Created new TensorBoard event files in\n- {out_str}")
+
     return out_dirs
 
 
@@ -135,6 +144,7 @@ def write_data_file(
     data_to_write: dict[str, dict[str, pd.DataFrame]],
     out_path: str,
     overwrite: bool = False,
+    verbose: bool = False,
 ) -> None:
     """Writes reduced TensorBoard data passed as dict of dicts to a CSV file.
 
@@ -150,6 +160,7 @@ def write_data_file(
             change the file extension. For example .csv.gz, .csv.gzip, .json.bz2, etc.
         overwrite (bool): Whether to overwrite existing reduction directories.
             Defaults to False.
+        verbose (bool): Whether to print the path to new data file. Defaults to False.
     """
     _rm_rf_or_raise(out_path, overwrite)
 
@@ -173,3 +184,5 @@ def write_data_file(
             f"{out_path=} has unknown extension, should be one of {_known_extensions} "
             " or compressed versions thereof like '.csv.gz', '.json.bz2', etc."
         )
+    if verbose:
+        print(f"Created new data file at {out_path!r}")

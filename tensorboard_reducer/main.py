@@ -11,7 +11,9 @@ from tensorboard_reducer.write import write_data_file, write_tb_events
 
 
 def reduce_events(
-    events_dict: dict[str, pd.DataFrame], reduce_ops: Sequence[str]
+    events_dict: dict[str, pd.DataFrame],
+    reduce_ops: Sequence[str],
+    verbose: bool = False,
 ) -> dict[str, dict[str, pd.DataFrame]]:
     """Perform numpy reduce operations along the last dimension of each array in a
     dictionary of scalar TensorBoard event data. Each array (1 per run) enters this
@@ -21,7 +23,8 @@ def reduce_events(
 
     Args:
         events_dict (dict[str, pd.DataFrame]): Dict of arrays to reduce.
-        reduce_ops (list[str]): numpy reduce ops.
+        reduce_ops (list[str]): Names of numpy reduce ops. E.g. mean, std, min, max, ...
+        verbose (bool, optional): Whether to print progress. Defaults to False.
 
     Returns:
         dict[str, dict[str, pd.DataFrame]]: Dict of dicts where each subdict holds one
@@ -36,6 +39,11 @@ def reduce_events(
         for tag, df in events_dict.items():
             reductions[op][tag] = getattr(df, op)(axis=1)
 
+    if verbose:
+        print(
+            f"Reduced {len(events_dict)} scalars with {len(reduce_ops)} operations:"
+            f" ({', '.join(reduce_ops)})"
+        )
     return reductions
 
 
@@ -124,6 +132,9 @@ def main(argv: list[str] | None = None) -> int:
         "mid-plot if 4 of your models trained for longer than the rest. Be sure to "
         "remember when using this.",
     )
+    parser.add_argument(
+        "--verbose", action="store_true", help="Whether to print progress."
+    )
 
     tb_version = version("tensorboard_reducer")
 
@@ -132,7 +143,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    outpath, overwrite, reduce_ops = args.outpath, args.overwrite, args.reduce_ops
+    out_path, overwrite, reduce_ops = args.outpath, args.overwrite, args.reduce_ops
 
     events_dict = load_tb_events(
         args.input_dirs,
@@ -140,6 +151,7 @@ def main(argv: list[str] | None = None) -> int:
         strict_steps=not args.lax_steps,
         handle_dup_steps=args.handle_dup_steps,
         min_runs_per_step=args.min_runs_per_step,
+        verbose=args.verbose,
     )
 
     n_scalars = len(events_dict)
@@ -153,26 +165,22 @@ def main(argv: list[str] | None = None) -> int:
         )
         if n_scalars < 20:
             print(", ".join(events_dict))
-    elif n_scalars < 20:
+    elif n_scalars < 20 or args.verbose:
         print(
-            "Loaded data for the following tags into arrays of shape (n_steps, n_runs):"
+            f"Loaded data for {n_scalars} tags into arrays of shape (n_steps, n_runs):"
         )
-        for tag, df in events_dict.items():
+        for tag in list(events_dict)[:50]:
+            df = events_dict[tag]
             print(f"- '{tag}': {df.shape}")
+        if len(events_dict) > 50:
+            print("...")
 
-    reduced_events = reduce_events(events_dict, reduce_ops)
+    reduced_events = reduce_events(events_dict, reduce_ops, verbose=args.verbose)
 
-    if outpath.endswith(".csv"):
-        write_data_file(reduced_events, outpath, overwrite)
-
-        print(f"Wrote {', '.join(reduce_ops)} reductions to '{outpath}'")
-
+    if out_path.endswith(".csv"):
+        write_data_file(reduced_events, out_path, overwrite, verbose=args.verbose)
     else:
-        write_tb_events(reduced_events, outpath, overwrite)
-
-        for op in reduce_ops:
-            print(f"Wrote '{op}' reduction to '{outpath}-{op}'")
-
+        write_tb_events(reduced_events, out_path, overwrite, verbose=args.verbose)
     return 0
 
 
