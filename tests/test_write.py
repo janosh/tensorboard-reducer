@@ -57,9 +57,7 @@ def test_write_tb_events(
         assert stderr == ""
 
 
-@pytest.mark.parametrize(
-    "extension", [".csv", ".json", ".csv.gz", ".json.gz", ".xls", ".xlsx"]
-)
+@pytest.mark.parametrize("extension", [".csv", ".json", ".csv.gz", ".json.gz", ".xlsx"])
 @pytest.mark.parametrize("verbose", [True, False])
 def test_write_data_file(
     reduced_events: dict[str, dict[str, pd.DataFrame]],
@@ -76,7 +74,7 @@ def test_write_data_file(
     elif ".json" in extension:
         df = pd.read_json(file_path)
         df.columns = map(ast.literal_eval, df.columns)
-    elif ".xls" in extension:
+    elif ".xlsx" in extension:
         df = pd.read_excel(file_path, header=[0, 1], index_col=0)
 
     reduce_ops = list(reduced_events)

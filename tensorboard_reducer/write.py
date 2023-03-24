@@ -7,7 +7,7 @@ from typing import Any
 import pandas as pd
 from tqdm import tqdm
 
-_known_extensions = (".csv", ".json", ".xls", ".xlsx")
+_known_extensions = (".csv", ".json", ".xlsx")
 
 
 def _rm_rf_or_raise(path: str, overwrite: bool) -> None:
@@ -183,7 +183,7 @@ def write_data_file(
         df.to_csv(out_path)
     elif ".json" in basename.lower():
         df.to_json(out_path)
-    elif ".xls" in out_path.lower():
+    elif ".xlsx" in out_path.lower():
         df.to_excel(out_path)
     else:
         raise ValueError(

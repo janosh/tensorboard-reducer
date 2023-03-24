@@ -39,7 +39,7 @@ Package = "https://pypi.org/project/tensorboard-reducer"
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov", "torch >= 1.6"]
-excel = ["openpyxl", "xlwt", "xlrd"]
+excel = ["openpyxl"]
 
 [project.scripts]
 tb-reducer = "tensorboard_reducer:main"
