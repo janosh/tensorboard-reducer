@@ -25,7 +25,7 @@ def test_load_tb_events_strict(
     assert_dict = f"return type of load_tb_events() is {actual_type}, expected dict"
     assert actual_type == dict, assert_dict
 
-    actual_keys = list(events_dict.keys())
+    actual_keys = list(events_dict)
     assert_keys = (
         f"load_tb_events() returned dict keys {actual_keys}, expected ['strict/foo']"
     )
@@ -80,7 +80,7 @@ def test_load_tb_events_lax_tags_and_steps() -> None:
     events_dict = load_tb_events(lax_runs, strict_tags=False, strict_steps=False)
 
     tags_list = ["lax/bar_1", "lax/bar_2", "lax/bar_3", "lax/bar_4", "lax/foo"]
-    assert sorted(events_dict.keys()) == tags_list
+    assert sorted(events_dict) == tags_list
 
     df_lens = [110, 110, 110, 120, 130]
     assert (
@@ -100,7 +100,7 @@ def test_load_tb_events_handle_dup_steps() -> None:
     mean_dups = load_tb_events(dup_steps_runs, handle_dup_steps="mean")
 
     assert (
-        kept_first_dups.keys() == kept_last_dups.keys() == mean_dups.keys()
+        list(kept_first_dups) == list(kept_last_dups) == list(mean_dups)
     ), "key mismatch between first, last and mean duplicate handling"
 
     df_first, df_last, df_mean = (
