@@ -52,13 +52,13 @@ def test_main_multi_reduce(tmp_path: Path, reduce_ops_flag: str) -> None:
 
 def test_main_lax(tmp_path: Path) -> None:
     out_dir = f"{tmp_path}{os.path.sep}lax"
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         main([*lax_runs, "-o", out_dir])
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         main([*lax_runs, "-o", out_dir, "--lax-tags"])
 
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         main([*lax_runs, "-o", out_dir, "--lax-steps"])
 
     main([*lax_runs, "-o", out_dir, "--lax-tags", "--lax-steps"])
