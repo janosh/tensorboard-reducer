@@ -1,18 +1,24 @@
 from __future__ import annotations
 
 import pandas as pd
+import pytest
 
 from tensorboard_reducer import reduce_events
 
 
-def test_reduce_events(events_dict: dict[str, pd.DataFrame]) -> None:
+@pytest.mark.parametrize("verbose", [True, False])
+def test_reduce_events(
+    events_dict: dict[str, pd.DataFrame],
+    verbose: bool,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
     reduce_ops = ["mean", "std", "max", "min"]
-    reduced_events = reduce_events(events_dict, reduce_ops)
+    reduced_events = reduce_events(events_dict, reduce_ops, verbose=verbose)
 
-    outkeys = list(reduced_events.keys())
-    assert reduce_ops == outkeys, (
+    out_keys = list(reduced_events)
+    assert reduce_ops == out_keys, (
         "key mismatch between initial and reduced "
-        f"events dict: {reduce_ops=} vs {outkeys=}"
+        f"events dict: {reduce_ops=} vs {out_keys=}"
     )
 
     # loop over reduce operations
@@ -23,7 +29,7 @@ def test_reduce_events(events_dict: dict[str, pd.DataFrame]) -> None:
         for tag, out_arr in out_dict.items():
             assert (
                 tag in events_dict
-            ), f"unexpected key {tag} in reduced event dict[{op}] = {out_dict.keys()}"
+            ), f"unexpected key {tag} in reduced event dict[{op}] = {list(out_dict)}"
 
             out_steps = len(out_arr)
 
@@ -36,3 +42,13 @@ def test_reduce_events(events_dict: dict[str, pd.DataFrame]) -> None:
     assert all(
         min_data <= max_data
     ), "min reduction was not <= max reduction at every step"
+
+    stdout, stderr = capsys.readouterr()
+    assert stderr == ""
+    if verbose:
+        assert (
+            f"Reduced {len(events_dict)} scalars with {len(reduce_ops)} operations:"
+            f" ({', '.join(reduce_ops)})"
+        ) in stdout
+    else:
+        assert stdout == ""

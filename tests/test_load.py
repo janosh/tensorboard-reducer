@@ -11,17 +11,21 @@ lax_runs = glob("tests/runs/lax/run_*")
 dup_steps_runs = glob("tests/runs/duplicate_steps/run_*")
 
 
-def test_load_tb_events_strict(events_dict: dict[str, pd.DataFrame]) -> None:
+@pytest.mark.parametrize("verbose", [True, False])
+def test_load_tb_events_strict(
+    verbose: bool, capsys: pytest.CaptureFixture[str]
+) -> None:
     """Test load_tb_events for strict input data, i.e. without any of the special cases
     below.
 
     The events_dict fixture is the output of load_tb_events() (see conftest.py).
     """
+    events_dict = load_tb_events(glob("tests/runs/strict/run_*"), verbose=verbose)
     actual_type = type(events_dict)
     assert_dict = f"return type of load_tb_events() is {actual_type}, expected dict"
     assert actual_type == dict, assert_dict
 
-    actual_keys = list(events_dict.keys())
+    actual_keys = list(events_dict)
     assert_keys = (
         f"load_tb_events() returned dict keys {actual_keys}, expected ['strict/foo']"
     )
@@ -44,12 +48,21 @@ def test_load_tb_events_strict(events_dict: dict[str, pd.DataFrame]) -> None:
     assert_means = f"load_tb_events() data has unexpected mean {column_means}"
     assert column_means == pytest.approx([1.488, 2.459, 3.481], abs=1e-3), assert_means
 
+    stdout, stderr = capsys.readouterr()
+    if verbose:
+        assert "Loaded 3 TensorBoard runs with 1 scalars and 100 steps each" in stdout
+        assert "\rLoading runs:   0%|" in stderr
+        assert "Reading tags:   0%|" in stderr
+    else:
+        assert stdout == ""
+        assert stderr == ""
+
 
 def test_load_tb_events_lax_tags() -> None:
     """Ensure load_tb_events throws an error on runs with different step counts when not
     setting strict_steps=False.
     """
-    with pytest.raises(AssertionError, match="Unequal number of steps"):
+    with pytest.raises(ValueError, match="Unequal number of steps"):
         load_tb_events(lax_runs, strict_tags=False)
 
 
@@ -57,7 +70,7 @@ def test_load_tb_events_lax_steps() -> None:
     """Ensure load_tb_events throws an error on runs with different sets of tags when
     not setting strict_tags=False.
     """
-    with pytest.raises(AssertionError, match="Some tags appear only in some logs"):
+    with pytest.raises(ValueError, match="Some tags are in some logs but not others"):
         load_tb_events(lax_runs, strict_steps=False)
 
 
@@ -68,7 +81,7 @@ def test_load_tb_events_lax_tags_and_steps() -> None:
     events_dict = load_tb_events(lax_runs, strict_tags=False, strict_steps=False)
 
     tags_list = ["lax/bar_1", "lax/bar_2", "lax/bar_3", "lax/bar_4", "lax/foo"]
-    assert sorted(events_dict.keys()) == tags_list
+    assert sorted(events_dict) == tags_list
 
     df_lens = [110, 110, 110, 120, 130]
     assert (
@@ -80,7 +93,7 @@ def test_load_tb_events_handle_dup_steps() -> None:
     """Test loading TensorBoard event files with duplicate steps, i.e. multiple values
     for the same tag at the same step (see handle_dup_steps kwarg).
     """
-    with pytest.raises(AssertionError, match="contains duplicate steps"):
+    with pytest.raises(ValueError, match="contains duplicate steps"):
         load_tb_events(dup_steps_runs)
 
     kept_first_dups = load_tb_events(dup_steps_runs, handle_dup_steps="keep-first")
@@ -88,7 +101,7 @@ def test_load_tb_events_handle_dup_steps() -> None:
     mean_dups = load_tb_events(dup_steps_runs, handle_dup_steps="mean")
 
     assert (
-        kept_first_dups.keys() == kept_last_dups.keys() == mean_dups.keys()
+        list(kept_first_dups) == list(kept_last_dups) == list(mean_dups)
     ), "key mismatch between first, last and mean duplicate handling"
 
     df_first, df_last, df_mean = (

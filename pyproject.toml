@@ -26,7 +26,12 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
 ]
 requires-python = ">=3.8"
-dependencies = ["tensorboard >= 2.0", "numpy >= 1.19", "pandas >= 1.0.0"]
+dependencies = [
+  "tensorboard >= 2.0",
+  "numpy >= 1.19",
+  "pandas >= 1.0.0",
+  "tqdm >= 4.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/janosh/tensorboard-reducer"
@@ -34,13 +39,13 @@ Package = "https://pypi.org/project/tensorboard-reducer"
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov", "torch >= 1.6"]
-excel = ["openpyxl", "xlwt", "xlrd"]
+excel = ["openpyxl"]
 
 [project.scripts]
 tb-reducer = "tensorboard_reducer:main"
 
 [tool.setuptools.packages]
-find = { include = ["tensorboard_reducer"] }
+find = { include = ["tensorboard_reducer*"], exclude = ["tests*"] }
 
 [tool.distutils.bdist_wheel]
 universal = true
@@ -77,10 +82,11 @@ select = [
   "YTT", # flake8-2020
 ]
 ignore = [
-  "B904", # Within an except clause, raise exceptions with ...
-  "D100", # Missing docstring in public module
-  "D104", # Missing docstring in public package
-  "D205", # 1 blank line required between summary line and description
+  "B904",    # Within an except clause, raise exceptions with ...
+  "D100",    # Missing docstring in public module
+  "D104",    # Missing docstring in public package
+  "D205",    # 1 blank line required between summary line and description
+  "PLW2901", # for loop variable overwritten by assignment target
 ]
 pydocstyle.convention = "google"
 
