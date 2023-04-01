@@ -68,7 +68,6 @@ select = [
   "B",   # flake8-bugbear
   "D",   # pydocstyle
   "E",   # pycodestyle
-  "ERA", # flake8-eradicate
   "F",   # pyflakes
   "I",   # isort
   "PLE", # pylint error
