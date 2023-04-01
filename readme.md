@@ -7,7 +7,7 @@
 [![PyPI Downloads](https://img.shields.io/pypi/dm/tensorboard-reducer)](https://pypistats.org/packages/tensorboard-reducer)
 [![DOI](https://zenodo.org/badge/354585417.svg)](https://zenodo.org/badge/latestdoi/354585417)
 
-> For a similar project built for TensorFlow rather than PyTorch, see [`tensorboard-aggregator`](https://github.com/Spenhouet/tensorboard-aggregator).
+> This project can ingest both PyTorch and TensorFlow event files but was mostly tested with PyTorch. For a TF-only project, see [`tensorboard-aggregator`](https://github.com/Spenhouet/tensorboard-aggregator).
 
 Compute statistics (`mean`, `std`, `min`, `max`, `median` or any other [`numpy` operation](https://numpy.org/doc/stable/reference/routines.statistics)) of multiple TensorBoard run directories. This can be used e.g. when training model ensembles to reduce noise in loss/accuracy/error curves and establish statistical significance of performance improvements or get a better idea of epistemic uncertainty. Results can be saved to disk either as new TensorBoard runs or CSV/JSON/Excel. More file formats are easy to add, PRs welcome.
 
@@ -24,7 +24,7 @@ Compute statistics (`mean`, `std`, `min`, `max`, `median` or any other [`numpy` 
 [codespace url]: https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=354585417
 [Open in Google Colab]: https://colab.research.google.com/assets/colab-badge.svg
 
-_The mean of 3 runs shown in pink here is less noisy and better suited for comparisons between models or different training techniques than individual runs._
+*The mean of 3 runs shown in pink here is less noisy and better suited for comparisons between models or different training techniques than individual runs.*
 ![Mean of 3 TensorBoard logs](https://raw.githubusercontent.com/janosh/tensorboard-reducer/main/assets/3-runs-mean.png)
 
 ## Installation

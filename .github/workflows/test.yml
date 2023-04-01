@@ -3,10 +3,10 @@ name: Tests
 on:
   push:
     branches: [main]
-    paths: ['**/*.py', '.github/workflows/test.yml']
+    paths: ["**/*.py", ".github/workflows/test.yml"]
   pull_request:
     branches: [main]
-    paths: ['**/*.py', '.github/workflows/test.yml']
+    paths: ["**/*.py", ".github/workflows/test.yml"]
   release:
     types: [published, edited]
 
@@ -15,41 +15,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v3
-
-      - name: Set up python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.8
-          cache: pip
-          cache-dependency-path: pyproject.toml
-
-      - name: Install dependencies
-        # see options.extras_require in setup.cfg
-        run: pip install .[test,excel]
-
-      - name: Run tests
-        id: tests
-        run: pytest --durations 0 --cov .
-
-  release:
-    runs-on: ubuntu-latest
-    needs: tests
-    if: github.event_name == 'release' && needs.tests.result == 'success'
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v3
-
-      - name: Build and upload dist
-        run: |
-          pip install build twine
-          python -m build
-          twine check dist/* --strict
-          twine upload --skip-existing --repository-url https://upload.pypi.org/legacy/ dist/*.tar.gz
-        env:
-          TWINE_USERNAME: janosh
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+    uses: janosh/workflows/.github/workflows/pytest-release.yml@main
+    with:
+      os: ${{ matrix.os }}
+      install-cmd: pip install .[test,excel]
