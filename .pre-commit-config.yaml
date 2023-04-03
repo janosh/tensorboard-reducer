@@ -42,7 +42,7 @@ repos:
         exclude_types: [jupyter, bib]
 
   - repo: https://github.com/nbQA-dev/nbQA
-    rev: 1.6.4
+    rev: 1.7.0
     hooks:
       - id: nbqa-ruff
         args: [--fix]
