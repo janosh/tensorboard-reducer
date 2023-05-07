@@ -80,7 +80,7 @@ def write_tb_events(
             raise ImportError(
                 "Cannot import SummaryWriter from torch nor tensorflow. "
                 "Install either to create new TensorBoard event files."
-            )
+            ) from None
     out_dirs: list[str] = []
     data_to_write = data_to_write.copy()  # make copy since we modify std data in place
 

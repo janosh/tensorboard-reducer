@@ -52,13 +52,13 @@ def test_main_multi_reduce(tmp_path: Path, reduce_ops_flag: str) -> None:
 
 def test_main_lax(tmp_path: Path) -> None:
     out_dir = f"{tmp_path}{os.path.sep}lax"
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Some tags are in some logs but not others"):
         main([*lax_runs, "-o", out_dir])
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Unequal number of steps "):
         main([*lax_runs, "-o", out_dir, "--lax-tags"])
 
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Some tags are in some logs but not others"):
         main([*lax_runs, "-o", out_dir, "--lax-steps"])
 
     main([*lax_runs, "-o", out_dir, "--lax-tags", "--lax-steps"])
@@ -79,9 +79,10 @@ def test_main_lax_csv_output(tmp_path: Path) -> None:
 @pytest.mark.parametrize("arg", ["-v", "--version"])
 def test_main_report_version(capsys: CaptureFixture[str], arg: str) -> None:
     """Test CLI version flag."""
-    with pytest.raises(SystemExit):
-        ret_code = main([arg])
-        assert ret_code == 0
+    with pytest.raises(SystemExit) as exc_info:
+        main([arg])
+
+    assert exc_info.value.code == 0
 
     stdout, stderr = capsys.readouterr()
 
