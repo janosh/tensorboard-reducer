@@ -37,20 +37,18 @@
   organization = {{Zenodo}}
 }
 
-@misc{fey_fast_2019,
+@online{fey_fast_2019,
   title = {Fast {{Graph Representation Learning}} with {{PyTorch Geometric}}},
   author = {Fey, Matthias and Lenssen, Jan Eric},
   date = {2019-04-25},
   number = {arXiv:1903.02428},
-  eprint = {1903.02428},
+  eprint = {arXiv:1903.02428},
   eprinttype = {arxiv},
-  primaryclass = {cs, stat},
-  publisher = {{arXiv}},
   doi = {10.48550/arXiv.1903.02428},
   url = {http://arxiv.org/abs/1903.02428},
   urldate = {2022-08-27},
   abstract = {We introduce PyTorch Geometric, a library for deep learning on irregularly structured input data such as graphs, point clouds and manifolds, built upon PyTorch. In addition to general graph data structures and processing methods, it contains a variety of recently published methods from the domains of relational learning and 3D data processing. PyTorch Geometric achieves high data throughput by leveraging sparse GPU acceleration, by providing dedicated CUDA kernels and by introducing efficient mini-batch handling for input examples of different size. In this work, we present the library in detail and perform a comprehensive comparative study of the implemented methods in homogeneous evaluation scenarios.},
-  archiveprefix = {arXiv},
+  pubstate = {preprint},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
   file = {/Users/janosh/Library/Zotero/storage/LATHCC4B/Fey and Lenssen - 2019 - Fast Graph Representation Learning with PyTorch Ge.pdf;/Users/janosh/Library/Zotero/storage/L5LDP64L/1903.html}
 }
@@ -102,11 +100,10 @@
   date = {2017-10-05},
   eprint = {1703.04977},
   eprinttype = {arxiv},
-  primaryclass = {cs},
+  eprintclass = {cs},
   url = {http://arxiv.org/abs/1703.04977},
   urldate = {2020-08-31},
   abstract = {There are two major types of uncertainty one can model. Aleatoric uncertainty captures noise inherent in the observations. On the other hand, epistemic uncertainty accounts for uncertainty in the model -- uncertainty which can be explained away given enough data. Traditionally it has been difficult to model epistemic uncertainty in computer vision, but with new Bayesian deep learning tools this is now possible. We study the benefits of modeling epistemic vs. aleatoric uncertainty in Bayesian deep learning models for vision tasks. For this we present a Bayesian deep learning framework combining input-dependent aleatoric uncertainty together with epistemic uncertainty. We study models under the framework with per-pixel semantic segmentation and depth regression tasks. Further, our explicit uncertainty formulation leads to new loss functions for these tasks, which can be interpreted as learned attenuation. This makes the loss more robust to noisy data, also giving new state-of-the-art results on segmentation and depth regression benchmarks.},
-  archiveprefix = {arXiv},
   keywords = {Computer Science - Computer Vision and Pattern Recognition},
   annotation = {ZSCC: 0001077},
   file = {/Users/janosh/Library/Zotero/storage/KQW23PK7/Kendall and Gal - 2017 - What Uncertainties Do We Need in Bayesian Deep Lea.pdf;/Users/janosh/Library/Zotero/storage/8KZHR6TM/1703.html}
@@ -135,30 +132,27 @@
   date = {2016-12-05},
   eprint = {1612.01474},
   eprinttype = {arxiv},
-  primaryclass = {cs, stat},
+  eprintclass = {cs, stat},
   url = {http://arxiv.org/abs/1612.01474},
   urldate = {2019-03-03},
   abstract = {Deep neural networks (NNs) are powerful black box predictors that have recently achieved impressive performance on a wide spectrum of tasks. Quantifying predictive uncertainty in NNs is a challenging and yet unsolved problem. Bayesian NNs, which learn a distribution over weights, are currently the state-of-the-art for estimating predictive uncertainty; however these require significant modifications to the training procedure and are computationally expensive compared to standard (non-Bayesian) NNs. We propose an alternative to Bayesian NNs that is simple to implement, readily parallelizable, requires very little hyperparameter tuning, and yields high quality predictive uncertainty estimates. Through a series of experiments on classification and regression benchmarks, we demonstrate that our method produces well-calibrated uncertainty estimates which are as good or better than approximate Bayesian NNs. To assess robustness to dataset shift, we evaluate the predictive uncertainty on test examples from known and unknown distributions, and show that our method is able to express higher uncertainty on out-of-distribution examples. We demonstrate the scalability of our method by evaluating predictive uncertainty estimates on ImageNet.},
-  archiveprefix = {arXiv},
   keywords = {Computer Science - Machine Learning,Statistics - Machine Learning},
   file = {/Users/janosh/Library/Zotero/storage/HI8NT3P9/Lakshminarayanan et al. - 2016 - Simple and Scalable Predictive Uncertainty Estimat.pdf;/Users/janosh/Library/Zotero/storage/LT283PWQ/1612.html}
 }
 
-@misc{paszke_pytorch_2019,
+@online{paszke_pytorch_2019,
   title = {{{PyTorch}}: {{An Imperative Style}}, {{High-Performance Deep Learning Library}}},
   shorttitle = {{{PyTorch}}},
   author = {Paszke, Adam and Gross, Sam and Massa, Francisco and Lerer, Adam and Bradbury, James and Chanan, Gregory and Killeen, Trevor and Lin, Zeming and Gimelshein, Natalia and Antiga, Luca and Desmaison, Alban and Köpf, Andreas and Yang, Edward and DeVito, Zach and Raison, Martin and Tejani, Alykhan and Chilamkurthy, Sasank and Steiner, Benoit and Fang, Lu and Bai, Junjie and Chintala, Soumith},
   date = {2019-12-03},
   number = {arXiv:1912.01703},
-  eprint = {1912.01703},
+  eprint = {arXiv:1912.01703},
   eprinttype = {arxiv},
-  primaryclass = {cs, stat},
-  publisher = {{arXiv}},
   doi = {10.48550/arXiv.1912.01703},
   url = {http://arxiv.org/abs/1912.01703},
   urldate = {2022-08-27},
   abstract = {Deep learning frameworks have often focused on either usability or speed, but not both. PyTorch is a machine learning library that shows that these two goals are in fact compatible: it provides an imperative and Pythonic programming style that supports code as a model, makes debugging easy and is consistent with other popular scientific computing libraries, while remaining efficient and supporting hardware accelerators such as GPUs. In this paper, we detail the principles that drove the implementation of PyTorch and how they are reflected in its architecture. We emphasize that every aspect of PyTorch is a regular Python program under the full control of its user. We also explain how the careful and pragmatic implementation of the key components of its runtime enables them to work together to achieve compelling performance. We demonstrate the efficiency of individual subsystems, as well as the overall speed of PyTorch on several common benchmarks.},
-  archiveprefix = {arXiv},
+  pubstate = {preprint},
   keywords = {Computer Science - Machine Learning,Computer Science - Mathematical Software,Statistics - Machine Learning},
   file = {/Users/janosh/Library/Zotero/storage/BQV27DIB/Paszke et al. - 2019 - PyTorch An Imperative Style, High-Performance Dee.pdf;/Users/janosh/Library/Zotero/storage/YYMGM452/1912.html}
 }

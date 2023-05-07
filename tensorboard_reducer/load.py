@@ -81,8 +81,8 @@ def load_tb_events(
         tags_set = {tag for tags in all_dirs_tags_list for tag in tags}
 
         missing_tags_report = "".join(
-            f"- {dir} missing tags: {', '.join(tags_set - {*tags})}\n"
-            for dir, tags in zip(input_dirs, all_dirs_tags_list)
+            f"- {in_dir} missing tags: {', '.join(tags_set - {*tags})}\n"
+            for in_dir, tags in zip(input_dirs, all_dirs_tags_list)
             if len(tags_set - {*tags}) > 0
         )
 

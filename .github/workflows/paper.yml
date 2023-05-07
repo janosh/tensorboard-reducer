@@ -1,10 +1,10 @@
 on:
   push:
     paths:
-      - 'paper/*'
+      - "paper/*"
   pull_request:
     paths:
-      - 'paper/*'
+      - "paper/*"
 
 jobs:
   paper:
@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Build draft PDF
         uses: openjournals/openjournals-draft-action@master
