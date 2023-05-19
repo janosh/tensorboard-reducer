@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 from glob import glob
+from typing import TYPE_CHECKING
 
-import pandas as pd
 import pytest
 
 import tensorboard_reducer as tbr
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 REDUCE_OPS = ("mean", "std", "median")
 

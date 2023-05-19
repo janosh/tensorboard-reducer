@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 
-import pandas as pd
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 def reduce_events(

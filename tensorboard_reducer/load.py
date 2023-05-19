@@ -15,7 +15,7 @@ def load_tb_events(
     input_dirs: list[str],
     strict_tags: bool = True,
     strict_steps: bool = True,
-    handle_dup_steps: HandleDupSteps = None,
+    handle_dup_steps: HandleDupSteps | None = None,
     min_runs_per_step: int | None = None,
     verbose: bool = False,
 ) -> dict[str, pd.DataFrame]:

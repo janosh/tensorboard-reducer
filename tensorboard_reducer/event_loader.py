@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import threading
 from collections import namedtuple
+from typing import TYPE_CHECKING
 
 from tensorboard.backend.event_processing import (
     directory_watcher,
@@ -9,7 +10,9 @@ from tensorboard.backend.event_processing import (
     io_wrapper,
     reservoir,
 )
-from tensorboard.compat.proto.event_pb2 import Event
+
+if TYPE_CHECKING:
+    from tensorboard.compat.proto.event_pb2 import Event
 
 ScalarEvent = namedtuple("ScalarEvent", ["wall_time", "step", "value"])
 
