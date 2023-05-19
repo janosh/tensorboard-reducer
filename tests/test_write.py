@@ -3,13 +3,16 @@ from __future__ import annotations
 import ast
 import itertools
 import os
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pandas as pd
 import pytest
 
 import tensorboard_reducer as tbr
 from tests.conftest import REDUCE_OPS
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 @pytest.mark.parametrize("verbose", [True, False])

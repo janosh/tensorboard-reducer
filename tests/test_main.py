@@ -2,12 +2,16 @@ from __future__ import annotations
 
 import os
 from glob import glob
-from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
 from pytest import CaptureFixture
 
 from tensorboard_reducer import main
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
 
 strict_runs = glob("tests/runs/strict/run_*")
 
