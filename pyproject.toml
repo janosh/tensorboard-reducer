@@ -95,16 +95,10 @@ select = [
   "YTT",  # flake8-2020
 ]
 ignore = [
-  "D100",    # Missing docstring in public module
-  "D104",    # Missing docstring in public package
-  "D205",    # 1 blank line required between summary line and description
-  "N802",    # invalid-function-name
-  "N806",    # non-lowercase-variable-in-function
-  "PD901",   # pandas-df-variable-name
-  "PLC0414", # useless-import-alias
-  "PLR",     # pylint refactor
-  "PT006",   # pytest-parametrize-names-wrong-type
-  "PT013",   # pytest-incorrect-pytest-import
+  "D100",  # Missing docstring in public module
+  "D205",  # 1 blank line required between summary line and description
+  "PLR",   # pylint refactor
+  "PT006", # pytest-parametrize-names-wrong-type
 ]
 pydocstyle.convention = "google"
 
