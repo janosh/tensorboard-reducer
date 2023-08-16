@@ -15,8 +15,8 @@ def generate_sample_data(
     events_dict = {}
     for idx in range(n_tags):
         data = np.random.random((n_steps, n_runs))
-        df = pd.DataFrame(data, columns=[f"run_{j}" for j in range(n_runs)])
-        events_dict[f"tag_{idx}"] = df
+        df_rand = pd.DataFrame(data, columns=[f"run_{j}" for j in range(n_runs)])
+        events_dict[f"tag_{idx}"] = df_rand
     return events_dict
 
 

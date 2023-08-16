@@ -73,20 +73,20 @@ def test_write_data_file(
     tbr.write_data_file(reduced_events, file_path, verbose=verbose)
 
     if ".csv" in extension:
-        df = pd.read_csv(file_path, header=[0, 1], index_col=0)
+        df_actual = pd.read_csv(file_path, header=[0, 1], index_col=0)
     elif ".json" in extension:
-        df = pd.read_json(file_path)
-        df.columns = map(ast.literal_eval, df.columns)
+        df_actual = pd.read_json(file_path)
+        df_actual.columns = map(ast.literal_eval, df_actual.columns)
     elif ".xlsx" in extension:
-        df = pd.read_excel(file_path, header=[0, 1], index_col=0)
+        df_actual = pd.read_excel(file_path, header=[0, 1], index_col=0)
 
     reduce_ops = list(reduced_events)
     tag_name = list(reduced_events[reduce_ops[0]])
     expected_cols = list(itertools.product(tag_name, reduce_ops))
     n_steps = len(reduced_events[reduce_ops[0]][tag_name[0]])
 
-    assert list(df) == expected_cols, "Unexpected df columns"
-    assert df.shape == (n_steps, len(reduce_ops)), "Unexpected df shape"
+    assert list(df_actual) == expected_cols, "Unexpected df columns"
+    assert df_actual.shape == (n_steps, len(reduce_ops)), "Unexpected df shape"
 
     out_path = tbr.write_data_file(reduced_events, file_path, overwrite=True)
 

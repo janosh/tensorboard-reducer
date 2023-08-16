@@ -1,8 +1,7 @@
 from __future__ import annotations
 
 import threading
-from collections import namedtuple
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, NamedTuple
 
 from tensorboard.backend.event_processing import (
     directory_watcher,
@@ -14,7 +13,13 @@ from tensorboard.backend.event_processing import (
 if TYPE_CHECKING:
     from tensorboard.compat.proto.event_pb2 import Event
 
-ScalarEvent = namedtuple("ScalarEvent", ["wall_time", "step", "value"])
+
+class ScalarEvent(NamedTuple):
+    """A logged scalar value."""
+
+    wall_time: float
+    step: int
+    value: float
 
 
 class EventAccumulator:

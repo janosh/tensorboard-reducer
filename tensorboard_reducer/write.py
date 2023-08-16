@@ -173,18 +173,18 @@ def write_data_file(
     # create multi-index dataframe from event data with reduce op names as 1st-level col
     # names and tag names as 2nd level
     dict_of_dfs = {op: pd.DataFrame(dic) for op, dic in data_to_write.items()}
-    df = pd.concat(dict_of_dfs, axis=1)
-    df.columns = df.columns.swaplevel(0, 1)
-    df.index.name = "step"
+    df_out = pd.concat(dict_of_dfs, axis=1)
+    df_out.columns = df_out.columns.swaplevel(0, 1)
+    df_out.index.name = "step"
 
     # let pandas handle compression inference from extensions (.csv.gz, .json.bz2, etc.)
     basename = os.path.basename(out_path)
     if ".csv" in basename.lower():
-        df.to_csv(out_path)
+        df_out.to_csv(out_path)
     elif ".json" in basename.lower():
-        df.to_json(out_path)
+        df_out.to_json(out_path)
     elif ".xlsx" in out_path.lower():
-        df.to_excel(out_path)
+        df_out.to_excel(out_path)
     else:
         raise ValueError(
             f"{out_path=} has unknown extension, should be one of {_known_extensions} "

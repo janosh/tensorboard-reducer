@@ -103,10 +103,10 @@ def load_tb_events(
 
         for tag in accumulator.scalar_tags:
             # accumulator.Scalars() returns columns 'step', 'wall_time', 'value'
-            df = pd.DataFrame(accumulator.Scalars(tag)).set_index("step")
-            df = df.drop(columns="wall_time")
+            df_scalar = pd.DataFrame(accumulator.Scalars(tag)).set_index("step")
+            df_scalar = df_scalar.drop(columns="wall_time")
 
-            if handle_dup_steps is None and not df.index.is_unique:
+            if handle_dup_steps is None and not df_scalar.index.is_unique:
                 raise ValueError(
                     f"Tag '{tag}' from run directory '{in_dir}' contains duplicate "
                     "steps. Please make sure your data wasn't corrupted. If this is "
@@ -118,12 +118,12 @@ def load_tb_events(
                     "or take their mean."
                 )
             if handle_dup_steps == "mean":
-                df = df.groupby(df.index).mean()
+                df_scalar = df_scalar.groupby(df_scalar.index).mean()
             elif handle_dup_steps in ("keep-first", "keep-last"):
                 keep = handle_dup_steps.replace("keep-", "")
-                df = df[~df.index.duplicated(keep=keep)]
+                df_scalar = df_scalar[~df_scalar.index.duplicated(keep=keep)]
 
-            load_dict[tag].append(df)
+            load_dict[tag].append(df_scalar)
 
     # Safety check: make sure all loaded runs have equal numbers of steps for each tag
     # unless user set strict_steps=False.
@@ -162,10 +162,10 @@ def load_tb_events(
             # That is, we retain all steps as long as any run recorded a value for it.
             # Only makes a difference if strict_steps=False and different runs have
             # non-overlapping steps.
-            df = pd.concat(lst, join="outer", axis=1)
+            df_scalar = pd.concat(lst, join="outer", axis=1)
             # count(axis=1) returns the number of non-NaN values in each row
-            df = df[df.count(axis=1) >= min_runs_per_step]
-            out_dict[key] = df
+            df_scalar = df_scalar[df_scalar.count(axis=1) >= min_runs_per_step]
+            out_dict[key] = df_scalar
 
     else:
         # join='inner' means keep only the intersection of indices from all joined
@@ -179,7 +179,7 @@ def load_tb_events(
     if verbose:
         n_tags = len(out_dict)
         if strict_steps and strict_tags:
-            n_steps, n_events = list(out_dict.values())[0].shape
+            n_steps, n_events = next(iter(out_dict.values())).shape
             print(
                 f"Loaded {n_events} TensorBoard runs with {n_tags} scalars "
                 f"and {n_steps} steps each"
@@ -190,8 +190,8 @@ def load_tb_events(
             )
 
             for tag in list(out_dict)[:50]:
-                df = out_dict[tag]
-                print(f"- '{tag}': {df.shape}")
+                df_scalar = out_dict[tag]
+                print(f"- '{tag}': {df_scalar.shape}")
             if len(out_dict) > 50:
                 print("...")
 

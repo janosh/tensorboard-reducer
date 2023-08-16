@@ -5,7 +5,6 @@ from glob import glob
 from typing import TYPE_CHECKING
 
 import pytest
-from pytest import CaptureFixture
 
 from tensorboard_reducer import main
 
@@ -81,7 +80,7 @@ def test_main_lax_csv_output(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("arg", ["-v", "--version"])
-def test_main_report_version(capsys: CaptureFixture[str], arg: str) -> None:
+def test_main_report_version(capsys: pytest.CaptureFixture[str], arg: str) -> None:
     """Test CLI version flag."""
     with pytest.raises(SystemExit) as exc_info:
         main([arg])
