@@ -70,8 +70,10 @@ def load_tb_events(
     # Safety check: make sure all loaded runs have identical tags unless user set
     # strict_tags=False.
     if strict_tags:
-        # generate list of scalar tags for all event files
-        all_dirs_tags_list = [accumulator.scalar_tags for accumulator in accumulators]
+        # generate list of scalar tags for all event files each in alphabetical order
+        all_dirs_tags_list = sorted(
+            accumulator.scalar_tags for accumulator in accumulators
+        )
 
         tags_set = {tag for tags in all_dirs_tags_list for tag in tags}
 
