@@ -70,13 +70,8 @@ def load_tb_events(
     # Safety check: make sure all loaded runs have identical tags unless user set
     # strict_tags=False.
     if strict_tags:
-        # generate list of scalar tags for all event files each in alphabetical order
-        all_dirs_tags_list = sorted(
-            accumulator.scalar_tags for accumulator in accumulators
-        )
-        first_tags = all_dirs_tags_list[0]
-
-        all_runs_same_tags = all(first_tags == tags for tags in all_dirs_tags_list)
+        # generate list of scalar tags for all event files
+        all_dirs_tags_list = [accumulator.scalar_tags for accumulator in accumulators]
 
         tags_set = {tag for tags in all_dirs_tags_list for tag in tags}
 
@@ -86,7 +81,7 @@ def load_tb_events(
             if len(tags_set - {*tags}) > 0
         )
 
-        if not all_runs_same_tags:
+        if missing_tags_report:
             raise ValueError(
                 f"Some tags are in some logs but not others:\n{missing_tags_report}"
                 "\nIf intentional, pass CLI flag --lax-tags or strict_tags=False "
