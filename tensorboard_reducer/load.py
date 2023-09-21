@@ -71,16 +71,18 @@ def load_tb_events(
     # strict_tags=False.
     if strict_tags:
         # generate list of scalar tags for all event files each in alphabetical order
-        all_dirs_tags_list = sorted(
-            accumulator.scalar_tags for accumulator in accumulators
-        )
+        tags_in_each_dir = [
+            set(accumulator.scalar_tags) for accumulator in accumulators
+        ]
 
-        tags_set = {tag for tags in all_dirs_tags_list for tag in tags}
+        all_tags = {tag for tags in tags_in_each_dir for tag in tags}
 
+        # generate report of missing tags for each run directory
+        # will be empty string if no tags are missing
         missing_tags_report = "".join(
-            f"- {in_dir} missing tags: {', '.join(tags_set - {*tags})}\n"
-            for in_dir, tags in zip(input_dirs, all_dirs_tags_list)
-            if len(tags_set - {*tags}) > 0
+            f"- {in_dir} missing tags: {', '.join(all_tags - run_tags)}\n"
+            for in_dir, run_tags in zip(input_dirs, tags_in_each_dir)
+            if len(all_tags - run_tags) > 0
         )
 
         if missing_tags_report:
