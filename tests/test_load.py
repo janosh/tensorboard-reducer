@@ -23,7 +23,7 @@ def test_load_tb_events_strict(
     events_dict = load_tb_events(glob("tests/runs/strict/run_*"), verbose=verbose)
     actual_type = type(events_dict)
     assert_dict = f"return type of load_tb_events() is {actual_type}, expected dict"
-    assert actual_type == dict, assert_dict
+    assert actual_type is dict, assert_dict
 
     actual_keys = list(events_dict)
     assert_keys = (
@@ -108,10 +108,9 @@ def test_load_tb_events_handle_dup_steps() -> None:
         dic["dup_steps/foo"] for dic in [kept_first_dups, kept_last_dups, mean_dups]
     )
 
-    pd.testing.assert_frame_equal((df_first + df_last) / 2, df_mean), (
-        "taking the average of keeping first and last duplicates gave different result "
-        "than taking the mean of duplicate steps"
-    )
+    # taking the average of keeping first and last duplicates should give same result
+    # as taking the mean of duplicate steps
+    pd.testing.assert_frame_equal((df_first + df_last) / 2, df_mean)
 
 
 def test_load_tb_events_min_runs_per_step() -> None:
