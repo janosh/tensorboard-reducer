@@ -22,6 +22,6 @@ def events_dict() -> dict[str, pd.DataFrame]:
 
 @pytest.fixture(scope="session")
 def reduced_events(
-    events_dict: dict[str, pd.DataFrame]
+    events_dict: dict[str, pd.DataFrame],
 ) -> dict[str, dict[str, pd.DataFrame]]:
     return tbr.reduce_events(events_dict, REDUCE_OPS)
