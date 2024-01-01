@@ -99,7 +99,7 @@ def test_write_data_file(
 
 
 def test_write_data_file_with_bad_ext(
-    reduced_events: dict[str, dict[str, pd.DataFrame]]
+    reduced_events: dict[str, dict[str, pd.DataFrame]],
 ) -> None:
     with pytest.raises(ValueError, match="has unknown extension, should be one of"):
         tbr.write_data_file(reduced_events, "foo.bad_ext")
