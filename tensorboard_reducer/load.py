@@ -63,7 +63,7 @@ def load_tb_events(
     # EventAccumulator that only loads scalars and ignores histograms, images and other
     # time-consuming data.
     accumulators = [
-        EventAccumulator(dirname).Reload()
+        EventAccumulator(dirname).reload()
         for dirname in tqdm(input_dirs, disable=not verbose, desc="Loading runs")
     ]
 
@@ -102,7 +102,7 @@ def load_tb_events(
 
         for tag in accumulator.scalar_tags:
             # accumulator.Scalars() returns columns 'step', 'wall_time', 'value'
-            df_scalar = pd.DataFrame(accumulator.Scalars(tag)).set_index("step")
+            df_scalar = pd.DataFrame(accumulator.scalars(tag)).set_index("step")
             df_scalar = df_scalar.drop(columns="wall_time")
 
             if handle_dup_steps is None and not df_scalar.index.is_unique:
@@ -143,10 +143,11 @@ def load_tb_events(
                     "shortest run (same behavior as zip())."
                 )
 
-    assert len(load_dict) > 0, (
-        f"Got {len(input_dirs)} input directories but no TensorBoard event files "
-        "found inside them."
-    )
+    if len(load_dict) == 0:
+        raise FileNotFoundError(
+            f"Got {len(input_dirs)} input directories but no TensorBoard event files "
+            "found inside them."
+        )
 
     out_dict: dict[str, pd.DataFrame] = {}
 

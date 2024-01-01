@@ -31,7 +31,7 @@ def _rm_rf_or_raise(path: str, overwrite: bool) -> None:
         is_data_file = any(ext in path.lower() for ext in _known_extensions)
 
         if overwrite and (is_data_file or is_tb_dir):
-            os.system(f"rm -rf {path}")
+            os.system(f"rm -rf {path}")  # noqa: S605
         elif overwrite:
             ValueError(
                 f"Received the overwrite flag but the content of '{path}' does not "
