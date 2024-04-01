@@ -13,8 +13,9 @@ def generate_sample_data(
     n_tags: int = 1, n_runs: int = 10, n_steps: int = 5
 ) -> dict[str, pd.DataFrame]:
     events_dict = {}
+    rng = np.random.default_rng()
     for idx in range(n_tags):
-        data = np.random.random((n_steps, n_runs))
+        data = rng.random((n_steps, n_runs))
         df_rand = pd.DataFrame(data, columns=[f"run_{j}" for j in range(n_runs)])
         events_dict[f"tag_{idx}"] = df_rand
     return events_dict
@@ -92,4 +93,4 @@ def test_reduce_events_dimensions(n_tags: int, n_runs: int, n_steps: int) -> Non
 @pytest.mark.parametrize("reduce_ops", [["mean"], ["max", "min"], ["std", "median"]])
 def test_reduce_events_empty_input(reduce_ops: Sequence[str]) -> None:
     reduced_events = reduce_events({}, reduce_ops)
-    assert reduced_events == dict.fromkeys(reduce_ops, {})
+    assert reduced_events == {op: {} for op in reduce_ops}

@@ -33,7 +33,7 @@ def _rm_rf_or_raise(path: str, overwrite: bool) -> None:
         if overwrite and (is_data_file or is_tb_dir):
             os.system(f"rm -rf {path}")  # noqa: S605
         elif overwrite:
-            ValueError(
+            raise ValueError(
                 f"Received the overwrite flag but the content of '{path}' does not "
                 "look like it was written by this program. Please make sure you really "
                 f"want to delete '{path}' and then do so manually."
