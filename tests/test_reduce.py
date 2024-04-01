@@ -93,4 +93,4 @@ def test_reduce_events_dimensions(n_tags: int, n_runs: int, n_steps: int) -> Non
 @pytest.mark.parametrize("reduce_ops", [["mean"], ["max", "min"], ["std", "median"]])
 def test_reduce_events_empty_input(reduce_ops: Sequence[str]) -> None:
     reduced_events = reduce_events({}, reduce_ops)
-    assert reduced_events == dict.fromkeys(reduce_ops, {})
+    assert reduced_events == {op: {} for op in reduce_ops}
