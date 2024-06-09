@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 def reduce_events(
     events_dict: dict[str, pd.DataFrame],
     reduce_ops: Sequence[str],
+    *,
     verbose: bool = False,
 ) -> dict[str, dict[str, pd.DataFrame]]:
     """Perform numpy reduce operations along the last dimension of each array in a
