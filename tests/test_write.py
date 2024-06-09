@@ -103,8 +103,3 @@ def test_write_data_file_with_bad_ext(
 ) -> None:
     with pytest.raises(ValueError, match="has unknown extension, should be one of"):
         tbr.write_data_file(reduced_events, "foo.bad_ext")
-
-
-def test_write_df() -> None:
-    with pytest.raises(NotImplementedError, match=r"write_df\(\) was renamed"):
-        tbr.write_df(None, "foo.csv")

@@ -69,20 +69,18 @@ include = ["**/pyproject.toml", "*.ipynb", "*.py", "*.pyi"]
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-  "ANN101", # Missing type annotation for self in method
+  "ANN101",  # Missing type annotation for self in method
   "ANN401",
-  "ARG001",
   "C901",
   "COM812",
-  "D100",   # Missing docstring in public module
-  "D205",   # 1 blank line required between summary line and description
-  "DTZ005",
+  "D100",    # Missing docstring in public module
+  "D205",    # 1 blank line required between summary line and description
   "EM101",
   "EM102",
-  "FBT001",
-  "FBT002",
-  "PLR",    # pylint refactor
-  "PT006",  # pytest-parametrize-names-wrong-type
+  "PLR0912",
+  "PLR0913",
+  "PLR0915",
+  "PT006",   # pytest-parametrize-names-wrong-type
   "PTH",
   "T201",
   "TRY003",
@@ -90,6 +88,6 @@ ignore = [
 pydocstyle.convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["D103", "D104", "INP001", "S101"]
+"tests/*" = ["D103", "D104", "FBT001", "INP001", "S101"]
 "__init__.py" = ["F401"]
 "examples/*" = ["D102", "D103", "D107", "E402", "FA102"]

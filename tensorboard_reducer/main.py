@@ -117,10 +117,11 @@ def main(argv: list[str] | None = None) -> int:
 
     reduced_events = reduce_events(events_dict, reduce_ops, verbose=args.verbose)
 
+    common_kwds = {"overwrite": overwrite, "verbose": args.verbose}
     if out_path.endswith(".csv"):
-        write_data_file(reduced_events, out_path, overwrite, verbose=args.verbose)
+        write_data_file(reduced_events, out_path, **common_kwds)
     else:
-        write_tb_events(reduced_events, out_path, overwrite, verbose=args.verbose)
+        write_tb_events(reduced_events, out_path, **common_kwds)
     return 0
 
 

@@ -13,6 +13,7 @@ HandleDupSteps = Literal["keep-first", "keep-last", "mean", None]
 
 def load_tb_events(
     input_dirs: list[str],
+    *,
     strict_tags: bool = True,
     strict_steps: bool = True,
     handle_dup_steps: HandleDupSteps | None = None,
@@ -192,7 +193,9 @@ def load_tb_events(
             for tag in list(out_dict)[:50]:
                 df_scalar = out_dict[tag]
                 print(f"- '{tag}': {df_scalar.shape}")
-            if len(out_dict) > 50:
+
+            max_tags_to_print = 50
+            if len(out_dict) > max_tags_to_print:
                 print("...")
 
     return out_dict

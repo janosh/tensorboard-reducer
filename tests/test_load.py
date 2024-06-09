@@ -13,7 +13,7 @@ dup_steps_runs = glob("tests/runs/duplicate_steps/run_*")
 
 @pytest.mark.parametrize("verbose", [True, False])
 def test_load_tb_events_strict(
-    verbose: bool, capsys: pytest.CaptureFixture[str]
+    *, verbose: bool, capsys: pytest.CaptureFixture[str]
 ) -> None:
     """Test load_tb_events for strict input data, i.e. without any of the special cases
     below.
@@ -32,13 +32,14 @@ def test_load_tb_events_strict(
     assert actual_keys == ["strict/foo"], assert_keys
 
     n_steps, n_runs = events_dict["strict/foo"].shape
+    n_expected = 100
     assert_len = (
-        f"load_tb_events() returned TB event with {n_steps} steps, expected 100"
+        f"load_tb_events() returned TB event with {n_steps} steps, {n_expected=}"
     )
-    assert n_steps == 100, assert_len
+    assert n_steps == n_expected, assert_len
 
     assert_len = f"load_tb_events() returned {n_runs} TB runs, expected 3"
-    assert n_steps == 100, assert_len
+    assert n_steps == n_expected, assert_len
 
     # columns correspond to different runs for the same tag, the mean across a run is
     # meaningless and only used for asserting value constancy

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import Any
 
 import pandas as pd
 from tqdm import tqdm
@@ -10,7 +9,7 @@ from tqdm import tqdm
 _known_extensions = (".csv", ".json", ".xlsx")
 
 
-def _rm_rf_or_raise(path: str, overwrite: bool) -> None:
+def _rm_rf_or_raise(path: str, *, overwrite: bool) -> None:
     """Remove the directory tree below dir if overwrite is True.
 
     Args:
@@ -48,6 +47,7 @@ def _rm_rf_or_raise(path: str, overwrite: bool) -> None:
 def write_tb_events(
     data_to_write: dict[str, dict[str, pd.DataFrame]],
     out_dir: str,
+    *,
     overwrite: bool = False,
     verbose: bool = False,
 ) -> list[str]:
@@ -97,7 +97,7 @@ def write_tb_events(
             if verbose:
                 print(f"Writing mean{symbol}std reduction to disk...", file=sys.stderr)
 
-            _rm_rf_or_raise(std_out_dir, overwrite)
+            _rm_rf_or_raise(std_out_dir, overwrite=overwrite)
             out_dirs.append(std_out_dir)
 
             writer = SummaryWriter(std_out_dir)
@@ -116,7 +116,7 @@ def write_tb_events(
         op_out_dir = f"{out_dir}{out_dir_op_connector}{op}"
         out_dirs.append(op_out_dir)
 
-        _rm_rf_or_raise(op_out_dir, overwrite)
+        _rm_rf_or_raise(op_out_dir, overwrite=overwrite)
 
         writer = SummaryWriter(op_out_dir)
 
@@ -136,16 +136,10 @@ def write_tb_events(
     return out_dirs
 
 
-def write_df(*args: Any) -> None:
-    """Inform users of breaking change if they try to use the old API."""
-    raise NotImplementedError(
-        "write_df() was renamed to write_data_file() in tensorboard-reducer v0.2.8"
-    )
-
-
 def write_data_file(
     data_to_write: dict[str, dict[str, pd.DataFrame]],
     out_path: str,
+    *,
     overwrite: bool = False,
     verbose: bool = False,
 ) -> str:
@@ -168,7 +162,7 @@ def write_data_file(
     Returns:
         str: Path to the new data file.
     """
-    _rm_rf_or_raise(out_path, overwrite)
+    _rm_rf_or_raise(out_path, overwrite=overwrite)
 
     # create multi-index dataframe from event data with reduce op names as 1st-level col
     # names and tag names as 2nd level
