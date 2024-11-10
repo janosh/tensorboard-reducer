@@ -9,13 +9,15 @@ on:
     paths: ["**/*.py", ".github/workflows/test.yml"]
   release:
     types: [published]
+  workflow_dispatch:
+  workflow_call:
 
 jobs:
   tests:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-    uses: janosh/workflows/.github/workflows/pytest-release.yml@main
+    uses: janosh/workflows/.github/workflows/pytest.yml@main
     with:
       os: ${{ matrix.os }}
       install-cmd: pip install .[test,excel]
