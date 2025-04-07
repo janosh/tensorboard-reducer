@@ -85,9 +85,9 @@ def test_load_tb_events_lax_tags_and_steps() -> None:
     assert sorted(events_dict) == tags_list
 
     df_lens = [110, 110, 110, 120, 130]
-    assert (
-        sorted(len(df) for df in events_dict.values()) == df_lens
-    ), "Unexpected dataframe lengths"
+    assert sorted(len(df) for df in events_dict.values()) == df_lens, (
+        "Unexpected dataframe lengths"
+    )
 
 
 def test_load_tb_events_handle_dup_steps() -> None:
@@ -101,9 +101,9 @@ def test_load_tb_events_handle_dup_steps() -> None:
     kept_last_dups = load_tb_events(dup_steps_runs, handle_dup_steps="keep-last")
     mean_dups = load_tb_events(dup_steps_runs, handle_dup_steps="mean")
 
-    assert (
-        list(kept_first_dups) == list(kept_last_dups) == list(mean_dups)
-    ), "key mismatch between first, last and mean duplicate handling"
+    assert list(kept_first_dups) == list(kept_last_dups) == list(mean_dups), (
+        "key mismatch between first, last and mean duplicate handling"
+    )
 
     df_first, df_last, df_mean = (
         dic["dup_steps/foo"] for dic in [kept_first_dups, kept_last_dups, mean_dups]
@@ -126,9 +126,9 @@ def test_load_tb_events_min_runs_per_step() -> None:
     )
 
     # no step has recordings from 10 runs so all dataframes should have 0 length
-    assert (
-        sum(len(df) for df in events_dict.values()) == 0
-    ), "Unexpected non-zero dataframe length for min runs to keep steps=10"
+    assert sum(len(df) for df in events_dict.values()) == 0, (
+        "Unexpected non-zero dataframe length for min runs to keep steps=10"
+    )
 
     events_dict = load_tb_events(
         lax_runs,
@@ -139,9 +139,9 @@ def test_load_tb_events_min_runs_per_step() -> None:
 
     # only 1 tag (lax/foo) has recordings from 3 separate runs, lax/bar_1-4 have less
     min_3_lens = [0, 0, 0, 0, 110]
-    assert (
-        sorted(len(df) for df in events_dict.values()) == min_3_lens
-    ), "Unexpected dataframe lengths for min runs to keep steps=3"
+    assert sorted(len(df) for df in events_dict.values()) == min_3_lens, (
+        "Unexpected dataframe lengths for min runs to keep steps=3"
+    )
 
     events_dict = load_tb_events(
         lax_runs,
@@ -153,6 +153,6 @@ def test_load_tb_events_min_runs_per_step() -> None:
     # 3 tags (lax/foo, lax/bar_2+3) have recordings from at least 2 runs,
     # lax/bar_1+4 have less
     min_2_lens = [0, 0, 110, 120, 120]
-    assert (
-        sorted(len(df) for df in events_dict.values())
-    ) == min_2_lens, "Unexpected dataframe length for min runs to keep steps=2"
+    assert (sorted(len(df) for df in events_dict.values())) == min_2_lens, (
+        "Unexpected dataframe length for min runs to keep steps=2"
+    )

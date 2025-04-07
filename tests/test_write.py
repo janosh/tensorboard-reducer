@@ -30,12 +30,12 @@ def test_write_tb_events(
             continue
         assert os.path.isdir(f"{out_dir}-{op}"), f"couldn't find {op = } out_dir"
     if "std" in REDUCE_OPS:
-        assert os.path.isdir(
-            f"{out_dir}-mean+std"
-        ), "couldn't find mean+std reduction out_dir"
-        assert os.path.isdir(
-            f"{out_dir}-mean-std"
-        ), "couldn't find mean-std reduction out_dir"
+        assert os.path.isdir(f"{out_dir}-mean+std"), (
+            "couldn't find mean+std reduction out_dir"
+        )
+        assert os.path.isdir(f"{out_dir}-mean-std"), (
+            "couldn't find mean-std reduction out_dir"
+        )
 
     out_dirs = tbr.write_tb_events(reduced_events, out_dir, overwrite=True)
 

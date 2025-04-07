@@ -43,22 +43,22 @@ def test_reduce_events(
 
         # loop over event tags (only 'strict/foo' here)
         for tag, out_arr in out_dict.items():
-            assert (
-                tag in events_dict
-            ), f"unexpected key {tag} in reduced event dict[{op}] = {list(out_dict)}"
+            assert tag in events_dict, (
+                f"unexpected key {tag} in reduced event dict[{op}] = {list(out_dict)}"
+            )
 
             out_steps = len(out_arr)
 
-            assert (
-                n_steps == out_steps
-            ), f"length mismatch in initial={n_steps} and reduced={out_steps} steps"
+            assert n_steps == out_steps, (
+                f"length mismatch in initial={n_steps} and reduced={out_steps} steps"
+            )
 
     if {"min", "max"} <= set(reduce_ops):
         min_data = reduced_events["min"]["strict/foo"]
         max_data = reduced_events["max"]["strict/foo"]
-        assert all(
-            min_data <= max_data
-        ), "min reduction was not <= max reduction at every step"
+        assert all(min_data <= max_data), (
+            "min reduction was not <= max reduction at every step"
+        )
 
     stdout, stderr = capsys.readouterr()
     assert stderr == ""
