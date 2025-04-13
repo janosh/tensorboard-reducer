@@ -54,6 +54,20 @@ def test_load_tb_events_strict(
         assert "Loaded 3 TensorBoard runs with 1 scalars and 100 steps each" in stdout
         assert "\rLoading runs:   0%|" in stderr
         assert "Reading tags:   0%|" in stderr
+
+        # Also test non-strict (lax) settings with verbose=True
+        events_dict_lax = load_tb_events(
+            lax_runs,
+            strict_steps=False,
+            strict_tags=False,
+            verbose=verbose,
+        )
+        stdout, stderr = capsys.readouterr()
+        assert (
+            "Loaded data for 5 tags into arrays of shape (n_steps, n_runs):" in stdout
+        )
+        for tag in events_dict_lax:
+            assert f"- '{tag}'" in stdout
     else:
         assert stdout == ""
         assert stderr == ""
@@ -156,3 +170,23 @@ def test_load_tb_events_min_runs_per_step() -> None:
     assert (sorted(len(df) for df in events_dict.values())) == min_2_lens, (
         "Unexpected dataframe length for min runs to keep steps=2"
     )
+
+
+def test_load_tb_events_invalid_inputs() -> None:
+    """Test load_tb_events raises for invalid inputs."""
+    # ValueError when given empty list of input directories
+    with pytest.raises(
+        ValueError, match="Expected non-empty list of input directories"
+    ):
+        load_tb_events([])
+
+    # ValueError when given invalid handle_dup_steps value
+    with pytest.raises(ValueError, match="unexpected handle_dup_steps="):
+        load_tb_events(glob("tests/runs/strict/run_*"), handle_dup_steps="invalid")  # type: ignore[arg-type]
+
+    # ValueError when given invalid min_runs_per_step value
+    for r_min in (0, -1):
+        with pytest.raises(ValueError, match="Expected positive integer or None"):
+            load_tb_events(
+                lax_runs, strict_steps=False, strict_tags=False, min_runs_per_step=r_min
+            )

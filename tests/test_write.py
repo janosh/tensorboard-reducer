@@ -69,6 +69,10 @@ def test_write_data_file(
     verbose: bool,
     capsys: pytest.CaptureFixture[str],
 ) -> None:
+    """Test writing reduced events to different file formats."""
+    if extension == ".xlsx":
+        pytest.importorskip("openpyxl")
+
     file_path = f"{tmp_path}/strict{extension}"
     tbr.write_data_file(reduced_events, file_path, verbose=verbose)
 
