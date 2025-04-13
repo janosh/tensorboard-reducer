@@ -45,12 +45,12 @@ def test_main_multi_reduce(tmp_path: Path, reduce_ops_flag: str) -> None:
             continue
         assert os.path.isdir(f"{out_dir}-{op}"), f"couldn't find {op} reduction out_dir"
     if "std" in reduce_ops:
-        assert os.path.isdir(
-            f"{out_dir}-mean+std"
-        ), "couldn't find mean+std reduction out_dir"
-        assert os.path.isdir(
-            f"{out_dir}-mean-std"
-        ), "couldn't find mean-std reduction out_dir"
+        assert os.path.isdir(f"{out_dir}-mean+std"), (
+            "couldn't find mean+std reduction out_dir"
+        )
+        assert os.path.isdir(f"{out_dir}-mean-std"), (
+            "couldn't find mean-std reduction out_dir"
+        )
 
 
 def test_main_lax(tmp_path: Path) -> None:
