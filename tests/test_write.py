@@ -83,6 +83,8 @@ def test_write_data_file(
         df_actual.columns = map(ast.literal_eval, df_actual.columns)
     elif ".xlsx" in extension:
         df_actual = pd.read_excel(file_path, header=[0, 1], index_col=0)
+    else:
+        raise ValueError(f"Unknown {extension=}")
 
     reduce_ops = list(reduced_events)
     tag_name = list(reduced_events[reduce_ops[0]])

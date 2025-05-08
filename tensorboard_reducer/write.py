@@ -108,7 +108,7 @@ def write_tb_events(
                 for (step, mean), std in zip(means.items(), stds.to_numpy()):
                     writer.add_scalar(tag, mean + sign * std, step)
 
-        writer.close()
+            writer.close()
 
     # loop over each reduce operation (e.g. mean, min, max, median)
     for op, events_dict in (pbar := tqdm(data_to_write.items(), disable=not verbose)):

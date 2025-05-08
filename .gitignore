@@ -3,7 +3,6 @@ __pycache__
 dist
 build
 .coverage
-.mypy_cache
 examples/*runs/
 examples/wandb/
 examples/MNIST/

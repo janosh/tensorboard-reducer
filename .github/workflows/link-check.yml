@@ -7,5 +7,13 @@ on:
     branches: [main]
 
 jobs:
-  markdown-link-check:
-    uses: janosh/workflows/.github/workflows/markdown-link-check.yml@main
+  link-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Discover broken links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --accept 100..=103,200..=299,403,429,500 -- ./**/*.{md,py,ipynb}

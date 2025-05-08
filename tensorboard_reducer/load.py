@@ -16,7 +16,7 @@ def load_tb_events(
     *,
     strict_tags: bool = True,
     strict_steps: bool = True,
-    handle_dup_steps: HandleDupSteps | None = None,
+    handle_dup_steps: HandleDupSteps = None,
     min_runs_per_step: int | None = None,
     verbose: bool = False,
 ) -> dict[str, pd.DataFrame]:
@@ -55,9 +55,10 @@ def load_tb_events(
     if not input_dirs:
         msg = f"Expected non-empty list of input directories, got '{input_dirs}'"
         raise ValueError(msg)
-    if handle_dup_steps not in (None, "keep-first", "keep-last", "mean"):
+    valid_handle_dup = get_args(HandleDupSteps)
+    if handle_dup_steps not in valid_handle_dup:
         raise ValueError(
-            f"unexpected {handle_dup_steps=}, must be one of {get_args(HandleDupSteps)}"
+            f"unexpected {handle_dup_steps=}, must be one of {valid_handle_dup}"
         )
 
     # Here's where TensorBoard scalars are loaded into memory. Uses a custom
@@ -120,7 +121,9 @@ def load_tb_events(
             if handle_dup_steps == "mean":
                 df_scalar = df_scalar.groupby(df_scalar.index).mean()
             elif handle_dup_steps in ("keep-first", "keep-last"):
-                keep = handle_dup_steps.replace("keep-", "")
+                keep = handle_dup_steps.removeprefix(  # ty: ignore[possibly-unbound-attribute]  # noqa: E501
+                    "keep-"
+                )
                 df_scalar = df_scalar[~df_scalar.index.duplicated(keep=keep)]
 
             load_dict[tag].append(df_scalar)
