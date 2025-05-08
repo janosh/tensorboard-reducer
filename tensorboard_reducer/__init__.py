@@ -10,7 +10,7 @@ from tensorboard_reducer.main import main
 from tensorboard_reducer.reduce import reduce_events
 from tensorboard_reducer.write import write_data_file, write_tb_events
 
-try:  # noqa: SIM105
+try:
     __version__ = version("tensorboard-reducer")
 except PackageNotFoundError:
-    pass  # package not installed
+    __version__ = "unknown"

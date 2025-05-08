@@ -76,7 +76,6 @@ input_event_dirs = sorted(glob("glob_pattern/of_tb_directories_to_reduce*"))
 tb_events_output_dir = "path/to/output_dir"
 csv_out_path = "path/to/write/reduced-data-as.csv"
 # whether to abort or overwrite when csv_out_path already exists
-overwrite = False
 reduce_ops = ("mean", "min", "max", "median", "std", "var")
 
 events_dict = tbr.load_tb_events(input_event_dirs)
@@ -95,11 +94,11 @@ reduced_events = tbr.reduce_events(events_dict, reduce_ops)
 for op in reduce_ops:
     print(f"Writing '{op}' reduction to '{tb_events_output_dir}-{op}'")
 
-tbr.write_tb_events(reduced_events, tb_events_output_dir, overwrite)
+tbr.write_tb_events(reduced_events, tb_events_output_dir, overwrite=False)
 
 print(f"Writing results to '{csv_out_path}'")
 
-tbr.write_data_file(reduced_events, csv_out_path, overwrite)
+tbr.write_data_file(reduced_events, csv_out_path, overwrite=False)
 
 print("Reduction complete")
 ```
