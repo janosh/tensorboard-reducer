@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-from typing import Sequence
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pandas as pd
 import pytest
 
 from tensorboard_reducer import reduce_events
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 def generate_sample_data(
@@ -38,7 +41,9 @@ def test_reduce_events(
     )
 
     # loop over reduce operations
-    for (op, out_dict), in_arr in zip(reduced_events.items(), events_dict.values()):
+    for (op, out_dict), in_arr in zip(
+        reduced_events.items(), events_dict.values(), strict=True
+    ):
         n_steps = len(in_arr)  # length of TB logs
 
         # loop over event tags (only 'strict/foo' here)

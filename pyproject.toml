@@ -20,25 +20,20 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
-requires-python = ">=3.8"
-dependencies = [
-  "numpy >= 1.19",
-  "pandas >= 1.0.0",
-  "tensorboard >= 2.0",
-  "tqdm >= 4.0",
-]
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.19", "pandas>=1.0.0", "tensorboard>=2.0", "tqdm>=4.0"]
 
 [project.urls]
 Homepage = "https://github.com/janosh/tensorboard-reducer"
 Package = "https://pypi.org/project/tensorboard-reducer"
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-cov", "torch >= 1.6"]
+test = ["pytest", "pytest-cov", "torch>=1.6"]
 excel = ["openpyxl"]
 
 [project.scripts]
@@ -55,7 +50,7 @@ testpaths = ["tests"]
 addopts = "-p no:warnings"
 
 [tool.ruff]
-target-version = "py38"
+target-version = "py311"
 include = ["**/pyproject.toml", "*.ipynb", "*.py", "*.pyi"]
 
 [tool.ruff.lint]

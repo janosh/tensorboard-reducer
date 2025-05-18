@@ -34,6 +34,14 @@ repos:
         exclude_types: [jupyter, bib]
         args: [--check-filenames]
 
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.32.0
+    hooks:
+      - id: typos
+        types: [text]
+        args: []
+        exclude_types: [bib]
+
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:
