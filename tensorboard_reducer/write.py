@@ -102,10 +102,14 @@ def write_tb_events(
 
             writer = SummaryWriter(std_out_dir)
 
-            for (tag, means), stds in zip(mean_dict.items(), std_dict.values()):
+            for (tag, means), stds in zip(
+                mean_dict.items(), std_dict.values(), strict=True
+            ):
                 # we can safely zip(means, stds): they have the same length and same
                 # step values because the same data went into both reductions
-                for (step, mean), std in zip(means.items(), stds.to_numpy()):
+                for (step, mean), std in zip(
+                    means.items(), stds.to_numpy(), strict=True
+                ):
                     writer.add_scalar(tag, mean + sign * std, step)
 
             writer.close()
