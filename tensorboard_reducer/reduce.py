@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 def reduce_events(
     events_dict: dict[str, pd.DataFrame],
-    reduce_ops: Sequence[str],
+    reduce_ops: str | Sequence[str],
     *,
     verbose: bool = False,
 ) -> dict[str, dict[str, pd.DataFrame]]:
@@ -22,7 +22,8 @@ def reduce_events(
 
     Args:
         events_dict (dict[str, pd.DataFrame]): Dict of arrays to reduce.
-        reduce_ops (list[str]): Names of numpy reduce ops. E.g. mean, std, min, max, ...
+        reduce_ops (str | list[str]): Names of numpy reduce ops. E.g. mean, std, min,
+            max, ... Can be a single string or a sequence of strings.
         verbose (bool, optional): Whether to print progress. Defaults to False.
 
     Returns:
@@ -30,6 +31,10 @@ def reduce_events(
             reduced array for each of the specified reduce ops, e.g.
             {"loss": {"mean": arr.mean(-1), "std": arr.std(-1)}}.
     """
+    # Handle case where reduce_ops is a single string
+    if isinstance(reduce_ops, str):
+        reduce_ops = [reduce_ops]
+
     reductions: dict[str, dict[str, pd.DataFrame]] = {}
 
     for op in reduce_ops:
