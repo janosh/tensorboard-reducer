@@ -8,7 +8,7 @@ default_install_hook_types: [pre-commit, commit-msg]
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.8
+    rev: v0.11.12
     hooks:
       - id: ruff
         args: [--fix]
@@ -47,12 +47,6 @@ repos:
     hooks:
       - id: nbstripout
         args: [--drop-empty-cells, --keep-output]
-
-  - repo: https://github.com/crate-ci/typos
-    rev: v1.32.0
-    hooks:
-      - id: typos
-        exclude_types: [bib]
 
   - repo: local
     hooks:
