@@ -72,10 +72,10 @@ def write_tb_events(
         list[str]: List of paths to the new TensorBoard event files.
     """
     try:
-        from torch.utils.tensorboard import SummaryWriter
+        from torch.utils.tensorboard import SummaryWriter  # noqa: PLC0415
     except ImportError:
         try:
-            from tensorflow.summary import SummaryWriter
+            from tensorflow.summary import SummaryWriter  # noqa: PLC0415
         except ImportError:
             raise ImportError(
                 "Cannot import SummaryWriter from torch nor tensorflow. "
@@ -172,7 +172,8 @@ def write_data_file(
     # names and tag names as 2nd level
     dict_of_dfs = {op: pd.DataFrame(dic) for op, dic in data_to_write.items()}
     df_out = pd.concat(dict_of_dfs, axis=1)
-    df_out.columns = df_out.columns.swaplevel(0, 1)
+    if isinstance(df_out.columns, pd.MultiIndex):
+        df_out.columns = df_out.columns.swaplevel(i=0, j=1)
     df_out.index.name = "step"
 
     # let pandas handle compression inference from extensions (.csv.gz, .json.bz2, etc.)

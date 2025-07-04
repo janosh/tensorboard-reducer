@@ -39,11 +39,13 @@ excel = ["openpyxl"]
 [project.scripts]
 tb-reducer = "tensorboard_reducer:main"
 
-[tool.setuptools.packages]
-find = { include = ["tensorboard_reducer*"], exclude = ["tests*"] }
+[build-system]
+requires = ["uv_build>=0.7.19"]
+build-backend = "uv_build"
 
-[tool.distutils.bdist_wheel]
-universal = true
+[tool.uv.build-backend]
+module-name = "tensorboard_reducer"
+module-root = ""
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -51,7 +53,6 @@ addopts = "-p no:warnings"
 
 [tool.ruff]
 target-version = "py311"
-include = ["**/pyproject.toml", "*.ipynb", "*.py", "*.pyi"]
 
 [tool.ruff.lint]
 select = ["ALL"]
@@ -79,4 +80,4 @@ pydocstyle.convention = "google"
 "examples/*" = ["D102", "D103", "D107", "E402", "FA102"]
 
 [tool.ty.rules]
-unresolved-import = "ignore"
+unused-ignore-comment = "warn"

@@ -182,7 +182,7 @@ def test_load_tb_events_invalid_inputs() -> None:
 
     # ValueError when given invalid handle_dup_steps value
     with pytest.raises(ValueError, match="unexpected handle_dup_steps="):
-        load_tb_events(glob("tests/runs/strict/run_*"), handle_dup_steps="invalid")
+        load_tb_events(glob("tests/runs/strict/run_*"), handle_dup_steps="invalid")  # type: ignore[invalid-argument-type]
 
     # ValueError when given invalid min_runs_per_step value
     for r_min in (0, -1):

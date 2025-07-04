@@ -85,6 +85,7 @@ def test_main_report_version(capsys: pytest.CaptureFixture[str], arg: str) -> No
     with pytest.raises(SystemExit) as exc_info:
         main([arg])
 
+    assert isinstance(exc_info.value, SystemExit)
     assert exc_info.value.code == 0
 
     stdout, stderr = capsys.readouterr()

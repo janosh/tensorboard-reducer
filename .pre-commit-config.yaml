@@ -1,21 +1,15 @@
-ci:
-  autoupdate_schedule: quarterly
-  skip: [ty]
-
-default_stages: [pre-commit]
-
 default_install_hook_types: [pre-commit, commit-msg]
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.12
+    rev: v0.14.10
     hooks:
-      - id: ruff
+      - id: ruff-check
         args: [--fix]
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: check-case-conflict
       - id: check-symlinks
@@ -35,7 +29,7 @@ repos:
         args: [--check-filenames]
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.32.0
+    rev: v1.41.0
     hooks:
       - id: typos
         types: [text]
@@ -43,7 +37,7 @@ repos:
         exclude_types: [bib]
 
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.8.1
+    rev: 0.8.2
     hooks:
       - id: nbstripout
         args: [--drop-empty-cells, --keep-output]
@@ -52,5 +46,8 @@ repos:
     hooks:
       - id: ty
         name: ty check
-        entry: ty check .
+        entry: ty check
         language: python
+        types: [python]
+        args: [--ignore, unresolved-import]
+        additional_dependencies: [ty]

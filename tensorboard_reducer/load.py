@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 from tensorboard_reducer.event_loader import EventAccumulator
 
-HandleDupSteps = Literal["keep-first", "keep-last", "mean", None]
+HandleDupSteps = Literal["keep-first", "keep-last", "mean", None]  # noqa: PYI061
 
 
 def load_tb_events(
@@ -121,9 +121,7 @@ def load_tb_events(
             if handle_dup_steps == "mean":
                 df_scalar = df_scalar.groupby(df_scalar.index).mean()
             elif handle_dup_steps in ("keep-first", "keep-last"):
-                keep = handle_dup_steps.removeprefix(  # ty: ignore[possibly-unbound-attribute]  # noqa: E501
-                    "keep-"
-                )
+                keep = handle_dup_steps.removeprefix("keep-")
                 df_scalar = df_scalar[~df_scalar.index.duplicated(keep=keep)]
 
             load_dict[tag].append(df_scalar)
