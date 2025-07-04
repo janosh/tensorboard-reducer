@@ -1,7 +1,6 @@
 ![TensorBoard Reducer](https://raw.githubusercontent.com/janosh/tensorboard-reducer/main/assets/tensorboard-reducer.svg)
 
 [![Tests](https://github.com/janosh/tensorboard-reducer/actions/workflows/test.yml/badge.svg)](https://github.com/janosh/tensorboard-reducer/actions/workflows/test.yml)
-[![pre-commit.ci status](https://results.pre-commit.ci/badge/github/janosh/tensorboard-reducer/main.svg)](https://results.pre-commit.ci/latest/github/janosh/tensorboard-reducer/main)
 [![Requires Python 3.8+](https://img.shields.io/badge/Python-3.8+-blue.svg?logo=python&logoColor=white)](https://python.org/downloads)
 [![PyPI](https://img.shields.io/pypi/v/tensorboard-reducer?logo=pypi&logoColor=white)](https://pypi.org/project/tensorboard-reducer?logo=pypi&logoColor=white)
 [![PyPI Downloads](https://img.shields.io/pypi/dm/tensorboard-reducer)](https://pypistats.org/packages/tensorboard-reducer)
