@@ -78,7 +78,7 @@ class EventAccumulator:
                 self._process_event(event)
         return self
 
-    def _process_event(self, event: Event) -> None:
+    def _process_event(self, event: type[Event]) -> None:
         """Called whenever an event is loaded."""
         if self._first_event_timestamp is None:
             self._first_event_timestamp = event.wall_time
