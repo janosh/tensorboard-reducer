@@ -1,33 +1,25 @@
-ci:
-  autoupdate_schedule: quarterly
-  skip: [ty]
-
-default_stages: [pre-commit]
-
 default_install_hook_types: [pre-commit, commit-msg]
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.12
+    rev: v0.15.10
     hooks:
-      - id: ruff
+      - id: ruff-check
         args: [--fix]
       - id: ruff-format
 
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+  - repo: builtin
     hooks:
       - id: check-case-conflict
       - id: check-symlinks
       - id: check-yaml
-      - id: destroyed-symlinks
       - id: end-of-file-fixer
-      - id: forbid-new-submodules
       - id: mixed-line-ending
       - id: trailing-whitespace
+      - id: destroyed-symlinks
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.1
+    rev: v2.4.2
     hooks:
       - id: codespell
         stages: [pre-commit, commit-msg]
@@ -35,7 +27,7 @@ repos:
         args: [--check-filenames]
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.32.0
+    rev: v1.45.0
     hooks:
       - id: typos
         types: [text]
@@ -43,7 +35,7 @@ repos:
         exclude_types: [bib]
 
   - repo: https://github.com/kynan/nbstripout
-    rev: 0.8.1
+    rev: 0.9.1
     hooks:
       - id: nbstripout
         args: [--drop-empty-cells, --keep-output]
@@ -52,5 +44,8 @@ repos:
     hooks:
       - id: ty
         name: ty check
-        entry: ty check .
+        entry: ty check
         language: python
+        types: [python]
+        args: [--ignore, unresolved-import]
+        additional_dependencies: [ty]

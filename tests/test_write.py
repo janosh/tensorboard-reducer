@@ -1,3 +1,5 @@
+"""Tests for writing reduced events and data files."""
+
 from __future__ import annotations
 
 import ast

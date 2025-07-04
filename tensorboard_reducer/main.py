@@ -1,3 +1,5 @@
+"""CLI entry point for tensorboard-reducer."""
+
 from __future__ import annotations
 
 from argparse import ArgumentParser

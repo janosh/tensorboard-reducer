@@ -1,3 +1,5 @@
+"""Tests for reduce operations on TensorBoard scalar data."""
+
 from __future__ import annotations
 
 from typing import TYPE_CHECKING
@@ -105,7 +107,9 @@ def test_reduce_events_reduce_op_str_list_equivalence(reduce_op: str) -> None:
         )
 
 
-@pytest.mark.parametrize("n_tags, n_runs, n_steps", [(1, 10, 5), (2, 5, 3), (3, 3, 10)])
+@pytest.mark.parametrize(
+    ("n_tags", "n_runs", "n_steps"), [(1, 10, 5), (2, 5, 3), (3, 3, 10)]
+)
 def test_reduce_events_dimensions(n_tags: int, n_runs: int, n_steps: int) -> None:
     """Test reduce_events with different data dimensions."""
     events_dict = generate_sample_data(n_tags=n_tags, n_runs=n_runs, n_steps=n_steps)

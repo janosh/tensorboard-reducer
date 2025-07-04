@@ -1,3 +1,5 @@
+"""Shared pytest fixtures for tensorboard-reducer tests."""
+
 from __future__ import annotations
 
 from glob import glob
