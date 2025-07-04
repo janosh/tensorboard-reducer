@@ -72,10 +72,10 @@ def write_tb_events(
         list[str]: List of paths to the new TensorBoard event files.
     """
     try:
-        from torch.utils.tensorboard import SummaryWriter
+        from torch.utils.tensorboard import SummaryWriter  # noqa: PLC0415
     except ImportError:
         try:
-            from tensorflow.summary import SummaryWriter
+            from tensorflow.summary import SummaryWriter  # noqa: PLC0415
         except ImportError:
             raise ImportError(
                 "Cannot import SummaryWriter from torch nor tensorflow. "

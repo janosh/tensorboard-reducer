@@ -121,7 +121,7 @@ def load_tb_events(
             if handle_dup_steps == "mean":
                 df_scalar = df_scalar.groupby(df_scalar.index).mean()
             elif handle_dup_steps in ("keep-first", "keep-last"):
-                keep = handle_dup_steps.removeprefix(  # ty: ignore[possibly-unbound-attribute]  # noqa: E501
+                keep = handle_dup_steps.removeprefix(  # ty: ignore[possibly-unbound-attribute]
                     "keep-"
                 )
                 df_scalar = df_scalar[~df_scalar.index.duplicated(keep=keep)]
