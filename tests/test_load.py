@@ -46,7 +46,7 @@ def test_load_tb_events_strict(
     # columns correspond to different runs for the same tag, the mean across a run is
     # meaningless and only used for asserting value constancy
     # sorted since order depends on filesystem and is different on Windows
-    column_means = sorted(events_dict["strict/foo"].mean(0))
+    column_means = sorted(events_dict["strict/foo"].mean(axis=0))
 
     assert_means = f"load_tb_events() data has unexpected mean {column_means}"
     assert column_means == pytest.approx([1.488, 2.459, 3.481], abs=1e-3), assert_means

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import sys
 
 import pandas as pd
@@ -32,7 +33,10 @@ def _rm_rf_or_raise(path: str, *, overwrite: bool) -> None:
         is_data_file = any(ext in path.lower() for ext in _known_extensions)
 
         if overwrite and (is_data_file or is_tb_dir):
-            os.system(f"rm -rf {path}")  # noqa: S605
+            if os.path.isdir(path):
+                shutil.rmtree(path)
+            else:
+                os.remove(path)
         elif overwrite:
             raise ValueError(
                 f"Received the overwrite flag but the content of '{path}' does not "
