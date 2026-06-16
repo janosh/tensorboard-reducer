@@ -19,6 +19,6 @@ jobs:
         os: [ubuntu-latest, windows-latest]
     uses: janosh/workflows/.github/workflows/pytest.yml@main
     with:
-      os: ${{ matrix.os }}
+      runs-on: ${{ matrix.os }}
       install-cmd: pip install ".[test,excel]"
       python-version: 3.11

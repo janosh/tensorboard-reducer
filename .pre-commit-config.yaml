@@ -2,7 +2,7 @@ default_install_hook_types: [pre-commit, commit-msg]
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.10
+    rev: v0.15.17
     hooks:
       - id: ruff-check
         args: [--fix]
@@ -27,7 +27,7 @@ repos:
         args: [--check-filenames]
 
   - repo: https://github.com/crate-ci/typos
-    rev: v1.45.0
+    rev: v1.47.2
     hooks:
       - id: typos
         types: [text]
@@ -40,12 +40,12 @@ repos:
       - id: nbstripout
         args: [--drop-empty-cells, --keep-output]
 
-  - repo: local
+
+  - repo: https://github.com/astral-sh/ty-pre-commit
+    rev: v0.0.49
     hooks:
       - id: ty
-        name: ty check
-        entry: ty check
-        language: python
-        types: [python]
-        args: [--ignore, unresolved-import]
-        additional_dependencies: [ty]
+        # --isolated: don't create/update uv.lock or the local .venv
+        # --extra test: make pytest and phonon deps resolvable by ty
+        args: [--isolated, --extra, test]
+        env: { UV_FROZEN: "0" } # prek-only: override global UV_FROZEN=1 which would require a uv.lock

@@ -40,7 +40,7 @@ excel = ["openpyxl"]
 tb-reducer = "tensorboard_reducer:main"
 
 [build-system]
-requires = ["uv_build>=0.11.6"]
+requires = ["uv_build>=0.11.21"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
@@ -74,7 +74,10 @@ pydocstyle.convention = "google"
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["D103", "D104", "FBT001", "INP001", "S101"]
 "__init__.py" = ["F401"]
-"examples/*" = ["D102", "D103", "D107", "E402", "FA102"]
 
 [tool.ty.rules]
 unused-ignore-comment = "warn"
+
+[tool.ty.analysis]
+# optional deps used only in examples or as fallbacks, not installed in the isolated check env
+allowed-unresolved-imports = ["matplotlib.**", "torchvision.**", "wandb.**", "tensorflow.**"]
